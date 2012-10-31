@@ -6,11 +6,14 @@ import com.liveramp.megadesk.step.Step;
 import com.liveramp.megadesk.util.ZkPath;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
+import com.netflix.curator.utils.EnsurePath;
+import org.apache.log4j.Logger;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class CuratorResourceLock {
+
+  private static final Logger LOGGER = Logger.getLogger(CuratorResourceLock.class);
 
   private static final int SLEEP_TIME_MS = 5000;
 
@@ -19,6 +22,7 @@ public class CuratorResourceLock {
   private static final String INTERNAL_LOCK_PATH = "lock";
 
   private final CuratorFramework curator;
+  private final CuratorResource resource;
   private final InterProcessMutex internalLock;
   private final ResourceReadLock readLock;
   private final ResourceWriteLock writeLock;
@@ -26,11 +30,17 @@ public class CuratorResourceLock {
   private final String writeLockPath;
 
   public CuratorResourceLock(CuratorFramework curator,
-                             String path) {
+                             CuratorResource resource) throws Exception {
     this.curator = curator;
-    this.internalLock = new InterProcessMutex(curator, ZkPath.append(path, INTERNAL_LOCK_PATH));
-    this.readLockPath = ZkPath.append(path, READ_LOCK_PATH);
-    this.writeLockPath = ZkPath.append(path, WRITE_LOCK_PATH);
+    this.resource = resource;
+    String internalLockPath = ZkPath.append(resource.getPath(), INTERNAL_LOCK_PATH);
+    new EnsurePath(internalLockPath).ensure(curator.getZookeeperClient());
+    this.internalLock = new InterProcessMutex(curator, internalLockPath);
+    this.readLockPath = ZkPath.append(resource.getPath(), READ_LOCK_PATH);
+    this.writeLockPath = ZkPath.append(resource.getPath(), WRITE_LOCK_PATH);
+
+    new EnsurePath(readLockPath).ensure(curator.getZookeeperClient());
+    new EnsurePath(writeLockPath).ensure(curator.getZookeeperClient());
     this.readLock = new CuratorResourceReadLock();
     this.writeLock = new CuratorResourceWriteLock();
   }
@@ -51,8 +61,9 @@ public class CuratorResourceLock {
     curator.setData().forPath(writeLockPath, step.getId().getBytes());
   }
 
-  private byte[] getWriteLockOwner() throws Exception {
-    return curator.getData().forPath(writeLockPath);
+  private String getWriteLockOwner() throws Exception {
+    byte[] result = curator.getData().forPath(writeLockPath);
+    return (result == null || result.length == 0) ? null : new String(result);
   }
 
   private void setWriteLockOwner(Step step) throws Exception {
@@ -69,8 +80,8 @@ public class CuratorResourceLock {
   }
 
   private boolean isWriteLockOwner(Step step) throws Exception {
-    byte[] owner = getWriteLockOwner();
-    return owner != null && Arrays.equals(owner, step.getId().getBytes());
+    String owner = getWriteLockOwner();
+    return owner != null && owner.equals(step.getId());
   }
 
   private class CuratorResourceReadLock implements ResourceReadLock {
@@ -81,15 +92,18 @@ public class CuratorResourceLock {
         return;
       }
       while (true) {
+        String writeLockOwner;
         internalLock.acquire();
         try {
-          if (getWriteLockOwner() == null) {
+          writeLockOwner = getWriteLockOwner();
+          if (writeLockOwner == null) {
             doAcquireReadLock(step);
             return;
           }
         } finally {
           internalLock.release();
         }
+        LOGGER.info("Step " + step.getId() + " could not acquire resource read lock on " + resource.getId() + " because there is already a writer: " + writeLockOwner);
         Thread.sleep(SLEEP_TIME_MS);
       }
     }
@@ -97,7 +111,7 @@ public class CuratorResourceLock {
     @Override
     public void release(Step step) throws Exception {
       if (!isReadLockOwner(step)) {
-        throw new RuntimeException("Cannot release resource read lock " + readLockPath + " in step " + step.getId() + " that did not acquire it.");
+        throw new RuntimeException("Cannot release resource read lock on " + resource.getId() + " in step " + step.getId() + " that did not acquire it.");
       }
       internalLock.acquire();
       try {
@@ -116,15 +130,20 @@ public class CuratorResourceLock {
         return;
       }
       while (true) {
+        String writeLockOwner;
+        List<String> readers;
         internalLock.acquire();
         try {
-          if (getWriteLockOwner() == null && getReaders().size() == 0) {
+          writeLockOwner = getWriteLockOwner();
+          readers = getReaders();
+          if (writeLockOwner == null && readers.size() == 0) {
             doAcquireWriteLock(step);
             return;
           }
         } finally {
           internalLock.release();
         }
+        LOGGER.info("Step " + step.getId() + " could not acquire resource write lock on " + resource.getId() + " because there is either a writer: " + writeLockOwner + " or readers: " + getReaders());
         Thread.sleep(SLEEP_TIME_MS);
       }
     }
@@ -132,7 +151,7 @@ public class CuratorResourceLock {
     @Override
     public void release(Step step) throws Exception {
       if (!isWriteLockOwner(step)) {
-        throw new RuntimeException("Cannot release resource write lock " + writeLockPath + " in step " + step.getId() + " that did not acquire it.");
+        throw new RuntimeException("Cannot release resource write lock on " + resource.getId() + " in step " + step.getId() + " that did not acquire it.");
       }
       internalLock.acquire();
       try {

@@ -47,14 +47,14 @@ public class IntegrationTest extends BaseTestCase {
     Thread stepA = new Thread(new Runnable() {
       @Override
       public void run() {
-        Resource resourceA = new CuratorResource(curator, "resourceA");
-        Resource resourceB = new CuratorResource(curator, "resourceB");
-        Resource resourceC = new CuratorResource(curator, "resourceC");
-        Step step = new CuratorStep(curator,
-            "/stepA",
-            Resources.list(resourceA, resourceB),
-            Resources.list(resourceC));
         try {
+          Resource resourceA = new CuratorResource(curator, "resourceA");
+          Resource resourceB = new CuratorResource(curator, "resourceB");
+          Resource resourceC = new CuratorResource(curator, "resourceC");
+          Step step = new CuratorStep(curator,
+              "stepA",
+              Resources.list(resourceA, resourceB),
+              Resources.list(resourceC));
           step.attempt();
           //... do things
           resultA[0] = 0;
@@ -68,13 +68,13 @@ public class IntegrationTest extends BaseTestCase {
     Thread stepB = new Thread(new Runnable() {
       @Override
       public void run() {
-        Resource resourceC = new CuratorResource(curator, "resourceC");
-        Resource resourceD = new CuratorResource(curator, "resourceD");
-        Step step = new CuratorStep(curator,
-            "/stepB",
-            Resources.list(resourceC),
-            Resources.list(resourceD));
         try {
+          Resource resourceC = new CuratorResource(curator, "resourceC");
+          Resource resourceD = new CuratorResource(curator, "resourceD");
+          Step step = new CuratorStep(curator,
+              "stepB",
+              Resources.list(resourceC),
+              Resources.list(resourceD));
           step.attempt();
           //... do things
           resultB[0] = 1;
@@ -82,9 +82,6 @@ public class IntegrationTest extends BaseTestCase {
         } catch (Exception e) {
           throw Throwables.propagate(e);
         }
-
-        resultB[0] = 1;
-
       }
     }, "stepB");
 

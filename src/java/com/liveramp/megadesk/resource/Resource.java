@@ -2,7 +2,9 @@ package com.liveramp.megadesk.resource;
 
 public interface Resource {
 
-  ResourceReadLock getReadLock();
+  public String getId();
 
-  ResourceWriteLock getWriteLock();
+  public ResourceReadLock getReadLock();
+
+  public ResourceWriteLock getWriteLock();
 }

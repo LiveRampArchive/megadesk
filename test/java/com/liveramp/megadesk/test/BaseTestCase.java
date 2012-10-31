@@ -25,7 +25,7 @@ import org.apache.log4j.TTCCLayout;
 public class BaseTestCase extends TestCase {
 
   static {
-    Logger.getRootLogger().setLevel(Level.ALL);
+    Logger.getRootLogger().setLevel(Level.INFO);
     Logger.getRootLogger().addAppender(new ConsoleAppender(new TTCCLayout(), ConsoleAppender.SYSTEM_ERR));
   }
 
