@@ -35,7 +35,7 @@ public abstract class BaseStep implements Step {
   }
 
   public void attempt() throws Exception {
-    // Acquire all locks
+    // Acquire all locks in order
     // TODO: potential dead locks
     getStepLock().acquire();
     for (Resource read : reads) {
@@ -47,7 +47,11 @@ public abstract class BaseStep implements Step {
   }
 
   public void complete() throws Exception {
-    // Release all locks
+    // Make sure this process is allowed to complete this step
+    if (!getStepLock().isAcquiredInThisProcess()) {
+      throw new IllegalStateException("Cannot complete step " + getId() + " that is not being attempted in this process.");
+    }
+    // Release all locks in order
     for (Resource read : reads) {
       read.getReadLock().release(this);
     }

@@ -7,21 +7,19 @@ import com.netflix.curator.framework.CuratorFramework;
 
 public class CuratorResource implements Resource {
 
-  private final CuratorResourceReadLock readLock;
-  private final CuratorResourceWriteLock writeLock;
+  private final CuratorResourceLock lock;
 
   public CuratorResource(CuratorFramework curator, String path) {
-    this.readLock = new CuratorResourceReadLock(curator, path);
-    this.writeLock = new CuratorResourceWriteLock(curator, path);
+    this.lock = new CuratorResourceLock(curator, path);
   }
 
   @Override
   public ResourceReadLock getReadLock() {
-    return readLock;
+    return lock.getReadLock();
   }
 
   @Override
   public ResourceWriteLock getWriteLock() {
-    return writeLock;
+    return lock.getWriteLock();
   }
 }

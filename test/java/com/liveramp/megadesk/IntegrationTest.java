@@ -31,6 +31,7 @@ import com.netflix.curator.test.TestingServer;
 public class IntegrationTest extends BaseTestCase {
 
   public void testWorkflow() throws Exception {
+
     TestingServer testingServer = new TestingServer(12000);
     final CuratorFramework curator;
     curator = CuratorFrameworkFactory.builder()
@@ -40,6 +41,9 @@ public class IntegrationTest extends BaseTestCase {
         .build();
     curator.start();
 
+    final int[] resultA = {-1};
+    final int[] resultB = {-1};
+
     Thread stepA = new Thread(new Runnable() {
       @Override
       public void run() {
@@ -47,12 +51,13 @@ public class IntegrationTest extends BaseTestCase {
         Resource resourceB = new CuratorResource(curator, "resourceB");
         Resource resourceC = new CuratorResource(curator, "resourceC");
         Step step = new CuratorStep(curator,
-            "stepA",
+            "/stepA",
             Resources.list(resourceA, resourceB),
             Resources.list(resourceC));
         try {
           step.attempt();
           //... do things
+          resultA[0] = 0;
           step.complete();
         } catch (Exception e) {
           throw Throwables.propagate(e);
@@ -63,6 +68,22 @@ public class IntegrationTest extends BaseTestCase {
     Thread stepB = new Thread(new Runnable() {
       @Override
       public void run() {
+        Resource resourceC = new CuratorResource(curator, "resourceC");
+        Resource resourceD = new CuratorResource(curator, "resourceD");
+        Step step = new CuratorStep(curator,
+            "/stepB",
+            Resources.list(resourceC),
+            Resources.list(resourceD));
+        try {
+          step.attempt();
+          //... do things
+          resultB[0] = 1;
+          step.complete();
+        } catch (Exception e) {
+          throw Throwables.propagate(e);
+        }
+
+        resultB[0] = 1;
 
       }
     }, "stepB");
@@ -72,5 +93,8 @@ public class IntegrationTest extends BaseTestCase {
 
     stepA.join();
     stepB.join();
+
+    assertEquals(0, resultA[0]);
+    assertEquals(1, resultB[0]);
   }
 }

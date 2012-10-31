@@ -21,4 +21,9 @@ public class CuratorStepLock implements StepLock {
   public void release() throws Exception {
     lock.release();
   }
+
+  @Override
+  public boolean isAcquiredInThisProcess() {
+    return lock.isAcquiredInThisProcess();
+  }
 }
