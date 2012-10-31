@@ -16,10 +16,61 @@
 
 package com.liveramp.megadesk;
 
+import com.google.common.base.Throwables;
+import com.liveramp.megadesk.curator.CuratorResource;
+import com.liveramp.megadesk.curator.CuratorStep;
+import com.liveramp.megadesk.resource.Resource;
+import com.liveramp.megadesk.resource.Resources;
+import com.liveramp.megadesk.step.Step;
 import com.liveramp.megadesk.test.BaseTestCase;
+import com.netflix.curator.framework.CuratorFramework;
+import com.netflix.curator.framework.CuratorFrameworkFactory;
+import com.netflix.curator.retry.RetryNTimes;
+import com.netflix.curator.test.TestingServer;
 
 public class IntegrationTest extends BaseTestCase {
 
-  public void testWorkflow() {
+  public void testWorkflow() throws Exception {
+    TestingServer testingServer = new TestingServer(12000);
+    final CuratorFramework curator;
+    curator = CuratorFrameworkFactory.builder()
+        .connectionTimeoutMs(1000)
+        .retryPolicy(new RetryNTimes(10, 500))
+        .connectString(testingServer.getConnectString())
+        .build();
+    curator.start();
+
+    Thread stepA = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        Resource resourceA = new CuratorResource(curator, "resourceA");
+        Resource resourceB = new CuratorResource(curator, "resourceB");
+        Resource resourceC = new CuratorResource(curator, "resourceC");
+        Step step = new CuratorStep(curator,
+            "stepA",
+            Resources.list(resourceA, resourceB),
+            Resources.list(resourceC));
+        try {
+          step.attempt();
+          //... do things
+          step.complete();
+        } catch (Exception e) {
+          throw Throwables.propagate(e);
+        }
+      }
+    }, "stepA");
+
+    Thread stepB = new Thread(new Runnable() {
+      @Override
+      public void run() {
+
+      }
+    }, "stepB");
+
+    stepA.start();
+    stepB.start();
+
+    stepA.join();
+    stepB.join();
   }
 }
