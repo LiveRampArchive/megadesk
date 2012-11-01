@@ -39,37 +39,45 @@ public abstract class BaseStep implements Step {
 
   @Override
   public void attempt() throws Exception {
-    LOGGER.info("Attempting step " + getId());
+    LOGGER.info("Attempting step '" + getId() + "'");
     // Acquire all locks in order
     // TODO: potential dead locks
     getLock().acquire();
     for (Read read : reads) {
-      LOGGER.info("Acquiring read resource " + read.getResource().getId());
+      LOGGER.info("Step '" + getId() + "' acquiring read lock on resource '" + read.getResource().getId() + "'");
       read.getResource().getReadLock().acquire(getId(), read.getState(), true);
     }
     for (Resource write : writes) {
-      LOGGER.info("Acquiring write resource " + write.getId());
+      LOGGER.info("Step '" + getId() + "' acquiring write lock on resource '" + write.getId() + "'");
       write.getWriteLock().acquire(getId(), true);
     }
   }
 
   @Override
   public void complete() throws Exception {
-    LOGGER.info("Completing step " + getId());
+    LOGGER.info("Completing step '" + getId() + "'");
     // Make sure this process is allowed to complete this step
     if (!getLock().isAcquiredInThisProcess()) {
-      throw new IllegalStateException("Cannot complete step " + getId() + " that is not being attempted in this process.");
+      throw new IllegalStateException("Cannot complete step '" + getId() + "' that is not being attempted in this process.");
     }
     // Release all locks in order
     for (Read read : reads) {
-      LOGGER.info("Releasing read resource " + read.getResource().getId());
+      LOGGER.info("Step '" + getId() + "' releasing read lock on resource '" + read.getResource().getId() + "'");
       read.getResource().getReadLock().release(getId());
     }
     for (Resource write : writes) {
-      LOGGER.info("Releasing write resource " + write.getId());
+      LOGGER.info("Step '" + getId() + "' releasing write lock on resource '" + write.getId() + "'");
       write.getWriteLock().release(getId());
     }
     getLock().release();
+  }
+
+  @Override
+  public void setState(Resource resource, String state) throws Exception {
+    if (!getLock().isAcquiredInThisProcess()) {
+      throw new IllegalStateException("Cannot set state of resource '" + resource.getId() + "' from step '" + getId() + "' that is not being attempted in this process.");
+    }
+    resource.setState(getId(), state);
   }
 
   protected abstract StepLock getLock();

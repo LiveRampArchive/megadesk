@@ -2,12 +2,12 @@ package com.liveramp.megadesk.curator;
 
 import com.liveramp.megadesk.resource.ResourceReadLock;
 import com.liveramp.megadesk.resource.ResourceWriteLock;
-import com.liveramp.megadesk.step.Step;
 import com.liveramp.megadesk.util.ZkPath;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
 import com.netflix.curator.utils.EnsurePath;
 import org.apache.log4j.Logger;
+import org.apache.zookeeper.CreateMode;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ public class CuratorResourceLock {
 
   private static final Logger LOGGER = Logger.getLogger(CuratorResourceLock.class);
 
-  private static final int SLEEP_TIME_MS = 5000;
+  private static final int SLEEP_TIME_MS = 1000;
 
   private static final String READERS_PATH = "readers";
   private static final String WRITER_PATH = "writer";
@@ -53,35 +53,34 @@ public class CuratorResourceLock {
     return writeLock;
   }
 
-  private void doAcquireReadLock(String owner) throws Exception {
-    curator.create().forPath(ZkPath.append(readersPath, owner));
+  private void doAcquireReadLock(String owner, boolean persistent) throws Exception {
+    curator.create()
+        .withMode(persistent ? CreateMode.PERSISTENT : CreateMode.EPHEMERAL)
+        .forPath(ZkPath.append(readersPath, owner));
   }
 
-  private void doAcquireWriteLock(String owner) throws Exception {
-    curator.setData().forPath(writerPath, owner.getBytes());
+  private void doAcquireWriteLock(String owner, boolean persistent) throws Exception {
+    curator.create()
+        .withMode(persistent ? CreateMode.PERSISTENT : CreateMode.EPHEMERAL)
+        .forPath(ZkPath.append(writerPath, owner));
   }
 
   private String getWriteLockOwner() throws Exception {
-    byte[] result = curator.getData().forPath(writerPath);
-    return (result == null || result.length == 0) ? null : new String(result);
+    List<String> writers = curator.getChildren().forPath(writerPath);
+    if (writers.size() != 1) {
+      return null;
+    } else {
+      return writers.get(0);
+    }
   }
 
-  private void setWriteLockOwner(Step step) throws Exception {
-    curator.setData().forPath(writerPath, step == null ? null : step.getId().getBytes());
-  }
-
-  private List<String> getReaders() throws Exception {
+  private List<String> getReadLockOwners() throws Exception {
     return curator.getChildren().forPath(readersPath);
   }
 
   private boolean isReadLockOwner(String owner) throws Exception {
-    List<String> readers = getReaders();
+    List<String> readers = getReadLockOwners();
     return readers.contains(owner);
-  }
-
-  private boolean isReadLockOwner(String owner, String state) throws Exception {
-    String currentState = resource.getState();
-    return state.equals(currentState) && isReadLockOwner(owner);
   }
 
   private boolean isWriteLockOwner(String owner) throws Exception {
@@ -93,18 +92,19 @@ public class CuratorResourceLock {
 
     @Override
     public void acquire(String owner, String state, boolean persistent) throws Exception {
-      if (isReadLockOwner(owner, state)) {
-        return;
-      }
       while (true) {
         String writeLockOwner;
         String currentState;
         internalLock.acquire();
         try {
+          if (isReadLockOwner(owner)) {
+            // Already owned
+            return;
+          }
           currentState = resource.getState();
           writeLockOwner = getWriteLockOwner();
           if (writeLockOwner == null && state.equals(currentState)) {
-            doAcquireReadLock(owner);
+            doAcquireReadLock(owner, persistent);
             return;
           }
         } finally {
@@ -119,15 +119,20 @@ public class CuratorResourceLock {
 
     @Override
     public void release(String owner) throws Exception {
-      if (!isReadLockOwner(owner)) {
-        throw new RuntimeException("Cannot release resource read lock on '" + resource.getId() + "' for owner '" + owner + "' that did not acquire it.");
-      }
       internalLock.acquire();
       try {
+        if (!isReadLockOwner(owner)) {
+          throw new IllegalStateException("Cannot release resource read lock on '" + resource.getId() + "' by owner '" + owner + "' that did not acquire it.");
+        }
         curator.delete().forPath(ZkPath.append(readersPath, owner));
       } finally {
         internalLock.release();
       }
+    }
+
+    @Override
+    public List<String> getOwners() throws Exception {
+      return getReadLockOwners();
     }
   }
 
@@ -135,39 +140,45 @@ public class CuratorResourceLock {
 
     @Override
     public void acquire(String owner, boolean persistent) throws Exception {
-      if (isWriteLockOwner(owner)) {
-        return;
-      }
       while (true) {
         String writeLockOwner;
         List<String> readers;
         internalLock.acquire();
         try {
           writeLockOwner = getWriteLockOwner();
-          readers = getReaders();
+          if (writeLockOwner != null && writeLockOwner.equals(owner)) {
+            // Already owned
+            return;
+          }
+          readers = getReadLockOwners();
           if (writeLockOwner == null && readers.size() == 0) {
-            doAcquireWriteLock(owner);
+            doAcquireWriteLock(owner, persistent);
             return;
           }
         } finally {
           internalLock.release();
         }
-        LOGGER.info("'" + owner + "' could not acquire resource write lock on '" + resource.getId() + "' because there is either a writer: '" + writeLockOwner + "' or readers: " + getReaders());
+        LOGGER.info("'" + owner + "' could not acquire resource write lock on '" + resource.getId() + "' because there is either a writer: '" + writeLockOwner + "' or readers: " + getReadLockOwners());
         Thread.sleep(SLEEP_TIME_MS);
       }
     }
 
     @Override
     public void release(String owner) throws Exception {
-      if (!isWriteLockOwner(owner)) {
-        throw new RuntimeException("Cannot release resource write lock on '" + resource.getId() + "' for owner '" + owner + "' that did not acquire it.");
-      }
       internalLock.acquire();
       try {
-        setWriteLockOwner(null);
+        if (!isWriteLockOwner(owner)) {
+          throw new IllegalStateException("Cannot release resource write lock on '" + resource.getId() + "' by owner '" + owner + "' that did not acquire it.");
+        }
+        curator.delete().forPath(ZkPath.append(writerPath, owner));
       } finally {
         internalLock.release();
       }
+    }
+
+    @Override
+    public String getOwner() throws Exception {
+      return getWriteLockOwner();
     }
   }
 }

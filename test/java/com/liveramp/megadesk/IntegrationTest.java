@@ -55,8 +55,8 @@ public class IntegrationTest extends BaseTestCase {
               Writes.list(resourceA, resourceB));
           step.attempt();
           //... do things
-          resourceA.setState(step, "ready");
-          resourceB.setState(step, "ready");
+          step.setState(resourceA, "ready");
+          step.setState(resourceB, "ready");
           step.complete();
         } catch (Exception e) {
           throw Throwables.propagate(e);
@@ -77,7 +77,7 @@ public class IntegrationTest extends BaseTestCase {
               Writes.list(resourceC));
           step.attempt();
           //... do things
-          resourceC.setState(step, "done");
+          step.setState(resourceC, "done");
           step.complete();
         } catch (Exception e) {
           throw Throwables.propagate(e);
@@ -97,9 +97,8 @@ public class IntegrationTest extends BaseTestCase {
               Writes.list(resourceD));
           step.attempt();
           //... do things
-          resourceD.setState(step, "done");
+          step.setState(resourceD, "done");
           step.complete();
-          resourceD.setState(step, "blah"); // !!
         } catch (Exception e) {
           throw Throwables.propagate(e);
         }
