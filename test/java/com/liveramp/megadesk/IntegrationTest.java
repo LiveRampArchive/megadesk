@@ -17,11 +17,9 @@
 package com.liveramp.megadesk;
 
 import com.google.common.base.Throwables;
-import com.liveramp.megadesk.curator.CuratorResource;
 import com.liveramp.megadesk.curator.CuratorStep;
-import com.liveramp.megadesk.resource.Read;
+import com.liveramp.megadesk.curator.StringCuratorResource;
 import com.liveramp.megadesk.resource.Reads;
-import com.liveramp.megadesk.resource.Resource;
 import com.liveramp.megadesk.resource.Writes;
 import com.liveramp.megadesk.step.Step;
 import com.liveramp.megadesk.test.BaseTestCase;
@@ -47,14 +45,13 @@ public class IntegrationTest extends BaseTestCase {
       @Override
       public void run() {
         try {
-          Resource resourceA = new CuratorResource(curator, "resourceA");
-          Resource resourceB = new CuratorResource(curator, "resourceB");
+          StringCuratorResource resourceA = new StringCuratorResource(curator, "resourceA");
+          StringCuratorResource resourceB = new StringCuratorResource(curator, "resourceB");
           Step step = new CuratorStep(curator,
               "stepZ",
-              Reads.list(new Read(resourceA, "ready")),
+              Reads.list(resourceA.is("ready")),
               Writes.list(resourceB));
           step.attempt();
-          //... do things
           step.setState(resourceB, "ready");
           step.complete();
         } catch (Exception e) {
@@ -67,15 +64,14 @@ public class IntegrationTest extends BaseTestCase {
       @Override
       public void run() {
         try {
-          Resource resourceA = new CuratorResource(curator, "resourceA");
-          Resource resourceB = new CuratorResource(curator, "resourceB");
-          Resource resourceC = new CuratorResource(curator, "resourceC");
+          StringCuratorResource resourceA = new StringCuratorResource(curator, "resourceA");
+          StringCuratorResource resourceB = new StringCuratorResource(curator, "resourceB");
+          StringCuratorResource resourceC = new StringCuratorResource(curator, "resourceC");
           Step step = new CuratorStep(curator,
               "stepA",
-              Reads.list(new Read(resourceA, "ready"), new Read(resourceB, "ready")),
+              Reads.list(resourceA.is("ready"), resourceB.is("ready")),
               Writes.list(resourceC));
           step.attempt();
-          //... do things
           step.setState(resourceC, "done");
           step.complete();
         } catch (Exception e) {
@@ -88,14 +84,13 @@ public class IntegrationTest extends BaseTestCase {
       @Override
       public void run() {
         try {
-          Resource resourceC = new CuratorResource(curator, "resourceC");
-          Resource resourceD = new CuratorResource(curator, "resourceD");
+          StringCuratorResource resourceC = new StringCuratorResource(curator, "resourceC");
+          StringCuratorResource resourceD = new StringCuratorResource(curator, "resourceD");
           Step step = new CuratorStep(curator,
               "stepB",
-              Reads.list(new Read(resourceC, "done")),
+              Reads.list(resourceC.is("done")),
               Writes.list(resourceD));
           step.attempt();
-          //... do things
           step.setState(resourceD, "done");
           step.complete();
         } catch (Exception e) {
@@ -108,10 +103,10 @@ public class IntegrationTest extends BaseTestCase {
     stepB.start();
     stepZ.start();
 
-    Resource resourceA = new CuratorResource(curator, "resourceA");
-    Resource resourceB = new CuratorResource(curator, "resourceB");
-    Resource resourceC = new CuratorResource(curator, "resourceC");
-    Resource resourceD = new CuratorResource(curator, "resourceD");
+    StringCuratorResource resourceA = new StringCuratorResource(curator, "resourceA");
+    StringCuratorResource resourceB = new StringCuratorResource(curator, "resourceB");
+    StringCuratorResource resourceC = new StringCuratorResource(curator, "resourceC");
+    StringCuratorResource resourceD = new StringCuratorResource(curator, "resourceD");
 
     Thread.sleep(1000);
 

@@ -69,7 +69,7 @@ public abstract class BaseStep implements Step {
   }
 
   @Override
-  public void setState(Resource resource, String state) throws Exception {
+  public void setState(Resource resource, Object state) throws Exception {
     if (!getLock().isAcquiredInThisProcess()) {
       throw new IllegalStateException("Cannot set state of resource '" + resource.getId() + "' from step '" + getId() + "' that is not being attempted in this process.");
     }

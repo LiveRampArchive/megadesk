@@ -1,58 +1,45 @@
 package com.liveramp.megadesk.curator;
 
+import com.liveramp.megadesk.resource.BaseResource;
 import com.liveramp.megadesk.resource.Resource;
 import com.liveramp.megadesk.resource.ResourceReadLock;
 import com.liveramp.megadesk.resource.ResourceWriteLock;
+import com.liveramp.megadesk.state.StateSerialization;
 import com.liveramp.megadesk.util.ZkPath;
 import com.netflix.curator.framework.CuratorFramework;
 import org.apache.log4j.Logger;
 
-import java.util.UUID;
-
-public class CuratorResource implements Resource {
+public class CuratorResource<T> extends BaseResource<T> implements Resource<T> {
 
   private static final Logger LOGGER = Logger.getLogger(CuratorResource.class);
 
   private static final String RESOURCES_PATH = "/resources";
 
   private final CuratorFramework curator;
-  private final String id;
+  private final StateSerialization<T> stateSerialization;
   private final String path;
   private final CuratorResourceLock lock;
 
-  public CuratorResource(CuratorFramework curator, String id) throws Exception {
+  public CuratorResource(CuratorFramework curator,
+                         String id,
+                         StateSerialization<T> stateSerialization) throws Exception {
+    super(id);
     this.curator = curator;
-    this.id = id;
+    this.stateSerialization = stateSerialization;
     this.path = ZkPath.append(RESOURCES_PATH, id);
     this.lock = new CuratorResourceLock(curator, this);
   }
 
   @Override
-  public String getId() {
-    return id;
+  public T doGetState() throws Exception {
+    byte[] payload = curator.getData().forPath(path);
+    return stateSerialization.deserialize(payload);
   }
 
   @Override
-  public void setState(String state) throws Exception {
-    String owner = "_MANUAL_SET_STATE_" + UUID.randomUUID().toString();
-    getWriteLock().acquire(owner, false);
-    try {
-      doSetState(state);
-    } finally {
-      getWriteLock().release(owner);
-    }
-  }
-
-  @Override
-  public void setState(String owner, String state) throws Exception {
-    getWriteLock().acquire(owner, false);
-    doSetState(state);
-    // Note: do not release the write lock as this assumes the lock is held and will be released later
-  }
-
-  private void doSetState(String state) throws Exception {
+  protected void doSetState(T state) throws Exception {
     LOGGER.info("Setting resource '" + getId() + "' to state '" + state + "'");
-    curator.setData().forPath(path, state.getBytes());
+    curator.setData().forPath(path, stateSerialization.serialize(state));
   }
 
   @Override
@@ -70,17 +57,11 @@ public class CuratorResource implements Resource {
   }
 
   @Override
-  public String getState() throws Exception {
-    byte[] payload = curator.getData().forPath(path);
-    return (payload == null || payload.length == 0) ? null : new String(payload);
-  }
-
-  @Override
   public String toString() {
     try {
-      return "[CuratorResource: " + getId()
-          + ", writer: " + getWriteLock().getOwner()
-          + ", readers: " + getReadLock().getOwners() + "]";
+      return "[CuratorResource '" + getId()
+          + "', writer: '" + getWriteLock().getOwner()
+          + "', readers: " + getReadLock().getOwners() + "]";
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

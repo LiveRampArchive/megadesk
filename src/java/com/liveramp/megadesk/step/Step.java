@@ -17,5 +17,5 @@ public interface Step {
 
   public void complete() throws Exception;
 
-  public void setState(Resource resource, String state) throws Exception;
+  public void setState(Resource resource, Object state) throws Exception;
 }

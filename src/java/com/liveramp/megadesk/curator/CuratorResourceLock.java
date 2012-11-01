@@ -96,16 +96,14 @@ public class CuratorResourceLock {
       LOGGER.info("'" + owner + "' acquiring read lock on resource '" + resource.getId() + "' with state check: " + stateCheck);
       while (true) {
         String writeLockOwner;
-        String currentState;
         internalLock.acquire();
         try {
           if (isReadLockOwner(owner)) {
             // Already owned
             return;
           }
-          currentState = resource.getState();
           writeLockOwner = getWriteLockOwner();
-          if (writeLockOwner == null && stateCheck.check(currentState)) {
+          if (writeLockOwner == null && stateCheck.check(resource)) {
             doAcquireReadLock(owner, persistent);
             return;
           }
@@ -114,7 +112,7 @@ public class CuratorResourceLock {
         }
         LOGGER.info(owner + " could not acquire resource read lock on '" + resource.getId() +
             "' because there is either already a writer: '" + writeLockOwner + "' or state check: '" + stateCheck +
-            "' failed with current state: '" + currentState + "'");
+            "' failed. Resource: " + resource);
         Thread.sleep(SLEEP_TIME_MS);
       }
     }
