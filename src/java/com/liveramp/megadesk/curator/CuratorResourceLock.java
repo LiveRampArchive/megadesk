@@ -12,7 +12,7 @@ import org.apache.zookeeper.CreateMode;
 
 import java.util.List;
 
-public class CuratorResourceLock {
+public class CuratorResourceLock<T> {
 
   private static final Logger LOGGER = Logger.getLogger(CuratorResourceLock.class);
 
@@ -23,7 +23,7 @@ public class CuratorResourceLock {
   private static final String INTERNAL_LOCK_PATH = "lock";
 
   private final CuratorFramework curator;
-  private final CuratorResource resource;
+  private final CuratorResource<T> resource;
   private final InterProcessMutex internalLock;
   private final ResourceReadLock readLock;
   private final ResourceWriteLock writeLock;
@@ -31,7 +31,7 @@ public class CuratorResourceLock {
   private final String writerPath;
 
   public CuratorResourceLock(CuratorFramework curator,
-                             CuratorResource resource) throws Exception {
+                             CuratorResource<T> resource) throws Exception {
     this.curator = curator;
     this.resource = resource;
     String internalLockPath = ZkPath.append(resource.getPath(), INTERNAL_LOCK_PATH);
@@ -85,14 +85,17 @@ public class CuratorResourceLock {
   }
 
   private boolean isWriteLockOwner(String owner) throws Exception {
-    String currentOwner = getWriteLockOwner();
+    return isWriteLockOwner(owner, getWriteLockOwner());
+  }
+
+  private boolean isWriteLockOwner(String owner, String currentOwner) throws Exception {
     return currentOwner != null && currentOwner.equals(owner);
   }
 
-  private class CuratorResourceReadLock implements ResourceReadLock {
+  private class CuratorResourceReadLock implements ResourceReadLock<T> {
 
     @Override
-    public void acquire(String owner, StateCheck stateCheck, boolean persistent) throws Exception {
+    public void acquire(String owner, StateCheck<T> stateCheck, boolean persistent) throws Exception {
       LOGGER.info("'" + owner + "' acquiring read lock on resource '" + resource.getId() + "' with state check: " + stateCheck);
       while (true) {
         String writeLockOwner;
@@ -103,7 +106,7 @@ public class CuratorResourceLock {
             return;
           }
           writeLockOwner = getWriteLockOwner();
-          if (writeLockOwner == null && stateCheck.check(resource)) {
+          if ((writeLockOwner == null || isWriteLockOwner(owner, writeLockOwner)) && stateCheck.check(resource)) {
             doAcquireReadLock(owner, persistent);
             return;
           }
@@ -111,8 +114,8 @@ public class CuratorResourceLock {
           internalLock.release();
         }
         LOGGER.info(owner + " could not acquire resource read lock on '" + resource.getId() +
-            "' because there is either already a writer: '" + writeLockOwner + "' or state check: '" + stateCheck +
-            "' failed. Resource: " + resource);
+            "' because there is either already another writer: '" + writeLockOwner + "' or state check: '" + stateCheck +
+            "' failed against '" + resource.getState() + "' Resource: " + resource);
         Thread.sleep(SLEEP_TIME_MS);
       }
     }
@@ -153,14 +156,14 @@ public class CuratorResourceLock {
             return;
           }
           readers = getReadLockOwners();
-          if (writeLockOwner == null && readers.size() == 0) {
+          if (writeLockOwner == null && (readers.size() == 0 || readers.size() == 1 && readers.contains(owner))) {
             doAcquireWriteLock(owner, persistent);
             return;
           }
         } finally {
           internalLock.release();
         }
-        LOGGER.info("'" + owner + "' could not acquire resource write lock on '" + resource.getId() + "' because there is either a writer: '" + writeLockOwner + "' or readers: " + getReadLockOwners());
+        LOGGER.info("'" + owner + "' could not acquire resource write lock on '" + resource.getId() + "' because there is either a writer: '" + writeLockOwner + "' or another reader: " + getReadLockOwners());
         Thread.sleep(SLEEP_TIME_MS);
       }
     }

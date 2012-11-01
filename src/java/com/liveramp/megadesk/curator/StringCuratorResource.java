@@ -13,7 +13,7 @@ public class StringCuratorResource extends CuratorResource<String> implements Re
     super(curator, id, new StringStateSerialization());
   }
 
-  public Read is(String state) {
+  public Read at(String state) {
     return new Read(this, new EqualityStateCheck<String>(state));
   }
 }

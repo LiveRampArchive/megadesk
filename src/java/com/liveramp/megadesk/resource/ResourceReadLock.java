@@ -4,9 +4,9 @@ import com.liveramp.megadesk.state.StateCheck;
 
 import java.util.List;
 
-public interface ResourceReadLock {
+public interface ResourceReadLock<T> {
 
-  public void acquire(String owner, StateCheck stateCheck, boolean persistent) throws Exception;
+  public void acquire(String owner, StateCheck<T> stateCheck, boolean persistent) throws Exception;
 
   public void release(String owner) throws Exception;
 

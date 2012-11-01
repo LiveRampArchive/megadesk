@@ -16,9 +16,9 @@ public class CuratorResource<T> extends BaseResource<T> implements Resource<T> {
   private static final String RESOURCES_PATH = "/resources";
 
   private final CuratorFramework curator;
-  private final StateSerialization<T> stateSerialization;
   private final String path;
-  private final CuratorResourceLock lock;
+  private final StateSerialization<T> stateSerialization;
+  private final CuratorResourceLock<T> lock;
 
   public CuratorResource(CuratorFramework curator,
                          String id,
@@ -27,7 +27,7 @@ public class CuratorResource<T> extends BaseResource<T> implements Resource<T> {
     this.curator = curator;
     this.stateSerialization = stateSerialization;
     this.path = ZkPath.append(RESOURCES_PATH, id);
-    this.lock = new CuratorResourceLock(curator, this);
+    this.lock = new CuratorResourceLock<T>(curator, this);
   }
 
   @Override
