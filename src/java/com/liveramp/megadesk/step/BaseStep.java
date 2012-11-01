@@ -38,7 +38,7 @@ public abstract class BaseStep implements Step {
   }
 
   @Override
-  public void attempt() throws Exception {
+  public void acquire() throws Exception {
     LOGGER.info("Attempting step '" + getId() + "'");
     // Acquire all locks in order
     // TODO: potential dead locks
@@ -52,7 +52,7 @@ public abstract class BaseStep implements Step {
   }
 
   @Override
-  public void complete() throws Exception {
+  public void release() throws Exception {
     LOGGER.info("Completing step '" + getId() + "'");
     // Make sure this process is allowed to complete this step
     if (!getLock().isAcquiredInThisProcess()) {

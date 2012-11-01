@@ -13,9 +13,9 @@ public interface Step {
 
   public List<Resource> getWrites();
 
-  public void attempt() throws Exception;
+  public void acquire() throws Exception;
 
-  public void complete() throws Exception;
+  public void release() throws Exception;
 
   public <T> void setState(Resource<T> resource, T state) throws Exception;
 }
