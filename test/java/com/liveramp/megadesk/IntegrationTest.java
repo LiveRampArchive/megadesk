@@ -17,12 +17,12 @@
 package com.liveramp.megadesk;
 
 import com.google.common.base.Throwables;
-import com.liveramp.megadesk.curator.CuratorStep;
+import com.liveramp.megadesk.curator.CuratorManeuver;
 import com.liveramp.megadesk.curator.StringCuratorResource;
 import com.liveramp.megadesk.curator.VersionedCuratorResource;
+import com.liveramp.megadesk.maneuver.Maneuver;
 import com.liveramp.megadesk.resource.Reads;
 import com.liveramp.megadesk.resource.Writes;
-import com.liveramp.megadesk.step.Step;
 import com.liveramp.megadesk.test.BaseTestCase;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.CuratorFrameworkFactory;
@@ -49,75 +49,75 @@ public class IntegrationTest extends BaseTestCase {
     final VersionedCuratorResource resourceE = new VersionedCuratorResource(curator, "resourceE");
     final VersionedCuratorResource resourceF = new VersionedCuratorResource(curator, "resourceF");
 
-    Thread stepZ = new Thread(new Runnable() {
+    Thread maneuverZ = new Thread(new Runnable() {
       @Override
       public void run() {
         try {
-          Step step = new CuratorStep(curator,
-              "stepZ",
+          Maneuver maneuver = new CuratorManeuver(curator,
+              "maneuverZ",
               Reads.list(resourceA.at("ready")),
               Writes.list(resourceB, resourceE));
-          step.acquire();
-          step.setState(resourceB, "ready");
-          step.setState(resourceE, 0);
-          step.release();
+          maneuver.acquire();
+          maneuver.setState(resourceB, "ready");
+          maneuver.setState(resourceE, 0);
+          maneuver.release();
         } catch (Exception e) {
           throw Throwables.propagate(e);
         }
       }
-    }, "stepZ");
+    }, "maneuverZ");
 
-    Thread stepA = new Thread(new Runnable() {
+    Thread maneuverA = new Thread(new Runnable() {
       @Override
       public void run() {
         try {
-          Step step = new CuratorStep(curator,
-              "stepA",
+          Maneuver maneuver = new CuratorManeuver(curator,
+              "maneuverA",
               Reads.list(resourceA.at("ready"), resourceB.at("ready")),
               Writes.list(resourceC));
-          step.acquire();
-          step.setState(resourceC, "done");
-          step.release();
+          maneuver.acquire();
+          maneuver.setState(resourceC, "done");
+          maneuver.release();
         } catch (Exception e) {
           throw Throwables.propagate(e);
         }
       }
-    }, "stepA");
+    }, "maneuverA");
 
-    Thread stepB = new Thread(new Runnable() {
+    Thread maneuverB = new Thread(new Runnable() {
       @Override
       public void run() {
         try {
           int processedEVersion = -1;
           while (processedEVersion < 2) {
-            Step step = new CuratorStep(curator,
-                "stepB",
+            Maneuver maneuver = new CuratorManeuver(curator,
+                "maneuverB",
                 Reads.list(resourceC.at("done"), resourceE.greaterThan(processedEVersion)),
                 Writes.list(resourceD, resourceE, resourceF));
-            step.acquire();
+            maneuver.acquire();
             processedEVersion = resourceE.getState();
-            step.setState(resourceD, "done");
-            step.setState(resourceE, processedEVersion + 1);
-            step.setState(resourceF, processedEVersion);
-            step.release();
+            maneuver.setState(resourceD, "done");
+            maneuver.setState(resourceE, processedEVersion + 1);
+            maneuver.setState(resourceF, processedEVersion);
+            maneuver.release();
           }
         } catch (Exception e) {
           throw Throwables.propagate(e);
         }
       }
-    }, "stepB");
+    }, "maneuverB");
 
-    stepA.start();
-    stepB.start();
-    stepZ.start();
+    maneuverA.start();
+    maneuverB.start();
+    maneuverZ.start();
 
     Thread.sleep(1000);
 
     resourceA.setState("ready");
 
-    stepA.join();
-    stepB.join();
-    stepZ.join();
+    maneuverA.join();
+    maneuverB.join();
+    maneuverZ.join();
 
     assertEquals("ready", resourceA.getState());
     assertEquals("ready", resourceB.getState());

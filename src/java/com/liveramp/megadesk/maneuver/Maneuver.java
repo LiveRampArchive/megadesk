@@ -1,11 +1,11 @@
-package com.liveramp.megadesk.step;
+package com.liveramp.megadesk.maneuver;
 
 import com.liveramp.megadesk.resource.Read;
 import com.liveramp.megadesk.resource.Resource;
 
 import java.util.List;
 
-public interface Step {
+public interface Maneuver {
 
   public String getId();
 

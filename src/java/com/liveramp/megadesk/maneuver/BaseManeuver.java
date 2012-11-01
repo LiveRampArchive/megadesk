@@ -1,4 +1,4 @@
-package com.liveramp.megadesk.step;
+package com.liveramp.megadesk.maneuver;
 
 import com.liveramp.megadesk.resource.Read;
 import com.liveramp.megadesk.resource.Resource;
@@ -6,17 +6,17 @@ import org.apache.log4j.Logger;
 
 import java.util.List;
 
-public abstract class BaseStep implements Step {
+public abstract class BaseManeuver implements Maneuver {
 
-  private static final Logger LOGGER = Logger.getLogger(BaseStep.class);
+  private static final Logger LOGGER = Logger.getLogger(BaseManeuver.class);
 
   private String id;
   private final List<Read> reads;
   private final List<Resource> writes;
 
-  public BaseStep(String id,
-                  List<Read> reads,
-                  List<Resource> writes) {
+  public BaseManeuver(String id,
+                      List<Read> reads,
+                      List<Resource> writes) {
     this.id = id;
     this.reads = reads;
     this.writes = writes;
@@ -39,7 +39,7 @@ public abstract class BaseStep implements Step {
 
   @Override
   public void acquire() throws Exception {
-    LOGGER.info("Attempting step '" + getId() + "'");
+    LOGGER.info("Attempting maneuver '" + getId() + "'");
     // Acquire all locks in order
     // TODO: potential dead locks
     getLock().acquire();
@@ -53,10 +53,10 @@ public abstract class BaseStep implements Step {
 
   @Override
   public void release() throws Exception {
-    LOGGER.info("Completing step '" + getId() + "'");
-    // Make sure this process is allowed to complete this step
+    LOGGER.info("Completing maneuver '" + getId() + "'");
+    // Make sure this process is allowed to complete this maneuver
     if (!getLock().isAcquiredInThisProcess()) {
-      throw new IllegalStateException("Cannot complete step '" + getId() + "' that is not being attempted in this process.");
+      throw new IllegalStateException("Cannot complete maneuver '" + getId() + "' that is not being attempted in this process.");
     }
     // Release all locks in order
     for (Read read : reads) {
@@ -71,13 +71,13 @@ public abstract class BaseStep implements Step {
   @Override
   public <T> void setState(Resource<T> resource, T state) throws Exception {
     if (!getLock().isAcquiredInThisProcess()) {
-      throw new IllegalStateException("Cannot set state of resource '" + resource.getId() + "' from step '" + getId() + "' that is not being attempted in this process.");
+      throw new IllegalStateException("Cannot set state of resource '" + resource.getId() + "' from maneuver '" + getId() + "' that is not being attempted in this process.");
     }
     if (!getWrites().contains(resource)) {
-      throw new IllegalStateException("Cannot set state of resource '" + resource.getId() + "' from step '" + getId() + "' that does not write it.");
+      throw new IllegalStateException("Cannot set state of resource '" + resource.getId() + "' from maneuver '" + getId() + "' that does not write it.");
     }
     resource.setState(getId(), state);
   }
 
-  protected abstract StepLock getLock();
+  protected abstract ManeuverLock getLock();
 }

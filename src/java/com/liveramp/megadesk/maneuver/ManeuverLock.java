@@ -1,6 +1,6 @@
-package com.liveramp.megadesk.step;
+package com.liveramp.megadesk.maneuver;
 
-public interface StepLock {
+public interface ManeuverLock {
 
   public void acquire() throws Exception;
 
