@@ -16,6 +16,4 @@ public interface Step {
   public void attempt() throws Exception;
 
   public void complete() throws Exception;
-
-  public StepLock getLock();
 }

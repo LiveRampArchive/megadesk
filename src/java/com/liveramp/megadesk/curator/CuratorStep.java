@@ -28,7 +28,7 @@ public class CuratorStep extends BaseStep implements Step {
   }
 
   @Override
-  public StepLock getLock() {
+  protected StepLock getLock() {
     return lock;
   }
 }

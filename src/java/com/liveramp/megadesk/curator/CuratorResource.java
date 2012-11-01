@@ -18,7 +18,6 @@ public class CuratorResource implements Resource {
   private final String id;
   private final String path;
   private final CuratorResourceLock lock;
-  private String state;
 
   public CuratorResource(CuratorFramework curator, String id) throws Exception {
     this.curator = curator;
@@ -34,9 +33,6 @@ public class CuratorResource implements Resource {
 
   @Override
   public void setState(Step step, String state) throws Exception {
-    // Make sure this step is allowed to write this resource
-    step.getLock().acquire();
-    getWriteLock().acquire(step);
     LOGGER.info("Setting resource " + getId() + " state to " + state);
     curator.setData().forPath(path, state.getBytes());
   }

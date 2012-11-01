@@ -45,11 +45,11 @@ public abstract class BaseStep implements Step {
     getLock().acquire();
     for (Read read : reads) {
       LOGGER.info("Acquiring read resource " + read.getResource().getId());
-      read.getResource().getReadLock().acquire(this, read.getState());
+      read.getResource().getReadLock().acquire(getId(), read.getState(), true);
     }
     for (Resource write : writes) {
       LOGGER.info("Acquiring write resource " + write.getId());
-      write.getWriteLock().acquire(this);
+      write.getWriteLock().acquire(getId(), true);
     }
   }
 
@@ -63,12 +63,14 @@ public abstract class BaseStep implements Step {
     // Release all locks in order
     for (Read read : reads) {
       LOGGER.info("Releasing read resource " + read.getResource().getId());
-      read.getResource().getReadLock().release(this, read.getState());
+      read.getResource().getReadLock().release(getId());
     }
     for (Resource write : writes) {
       LOGGER.info("Releasing write resource " + write.getId());
-      write.getWriteLock().release(this);
+      write.getWriteLock().release(getId());
     }
     getLock().release();
   }
+
+  protected abstract StepLock getLock();
 }

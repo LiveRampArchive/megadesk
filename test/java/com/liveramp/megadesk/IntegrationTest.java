@@ -99,6 +99,7 @@ public class IntegrationTest extends BaseTestCase {
           //... do things
           resourceD.setState(step, "done");
           step.complete();
+          resourceD.setState(step, "blah"); // !!
         } catch (Exception e) {
           throw Throwables.propagate(e);
         }
