@@ -51,11 +51,10 @@ public class IntegrationTest extends BaseTestCase {
           Resource resourceB = new CuratorResource(curator, "resourceB");
           Step step = new CuratorStep(curator,
               "stepZ",
-              Reads.list(),
-              Writes.list(resourceA, resourceB));
+              Reads.list(new Read(resourceA, "ready")),
+              Writes.list(resourceB));
           step.attempt();
           //... do things
-          step.setState(resourceA, "ready");
           step.setState(resourceB, "ready");
           step.complete();
         } catch (Exception e) {
@@ -113,6 +112,10 @@ public class IntegrationTest extends BaseTestCase {
     Resource resourceB = new CuratorResource(curator, "resourceB");
     Resource resourceC = new CuratorResource(curator, "resourceC");
     Resource resourceD = new CuratorResource(curator, "resourceD");
+
+    Thread.sleep(1000);
+
+    resourceA.setState("ready");
 
     stepA.join();
     stepB.join();

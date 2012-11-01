@@ -34,7 +34,7 @@ public class CuratorResource implements Resource {
 
   @Override
   public void setState(String state) throws Exception {
-    String owner = "_SET_STATE_" + UUID.randomUUID().toString();
+    String owner = "_MANUAL_SET_STATE_" + UUID.randomUUID().toString();
     getWriteLock().acquire(owner, false);
     try {
       doSetState(state);

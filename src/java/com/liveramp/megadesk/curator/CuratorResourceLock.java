@@ -93,6 +93,7 @@ public class CuratorResourceLock {
 
     @Override
     public void acquire(String owner, StateCheck stateCheck, boolean persistent) throws Exception {
+      LOGGER.info("'" + owner + "' acquiring read lock on resource '" + resource.getId() + "' with state check: " + stateCheck);
       while (true) {
         String writeLockOwner;
         String currentState;
@@ -120,6 +121,7 @@ public class CuratorResourceLock {
 
     @Override
     public void release(String owner) throws Exception {
+      LOGGER.info("'" + owner + "' releasing read lock on resource '" + resource.getId() + "'");
       internalLock.acquire();
       try {
         if (!isReadLockOwner(owner)) {
@@ -141,6 +143,7 @@ public class CuratorResourceLock {
 
     @Override
     public void acquire(String owner, boolean persistent) throws Exception {
+      LOGGER.info("'" + owner + "' acquiring write lock on resource '" + resource.getId() + "'");
       while (true) {
         String writeLockOwner;
         List<String> readers;
@@ -166,6 +169,7 @@ public class CuratorResourceLock {
 
     @Override
     public void release(String owner) throws Exception {
+      LOGGER.info("'" + owner + "' releasing write lock on resource '" + resource.getId() + "'");
       internalLock.acquire();
       try {
         if (!isWriteLockOwner(owner)) {
