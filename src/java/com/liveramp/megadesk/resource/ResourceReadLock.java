@@ -1,6 +1,6 @@
 package com.liveramp.megadesk.resource;
 
-import com.liveramp.megadesk.state.StateCheck;
+import com.liveramp.megadesk.state.check.StateCheck;
 
 import java.util.List;
 

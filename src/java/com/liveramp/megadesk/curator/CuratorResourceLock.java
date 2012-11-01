@@ -2,7 +2,7 @@ package com.liveramp.megadesk.curator;
 
 import com.liveramp.megadesk.resource.ResourceReadLock;
 import com.liveramp.megadesk.resource.ResourceWriteLock;
-import com.liveramp.megadesk.state.StateCheck;
+import com.liveramp.megadesk.state.check.StateCheck;
 import com.liveramp.megadesk.util.ZkPath;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;

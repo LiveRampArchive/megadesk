@@ -2,7 +2,7 @@ package com.liveramp.megadesk.curator;
 
 import com.liveramp.megadesk.resource.Read;
 import com.liveramp.megadesk.resource.Resource;
-import com.liveramp.megadesk.state.EqualityStateCheck;
+import com.liveramp.megadesk.state.check.EqualityStateCheck;
 import com.liveramp.megadesk.state.StringStateSerialization;
 import com.netflix.curator.framework.CuratorFramework;
 

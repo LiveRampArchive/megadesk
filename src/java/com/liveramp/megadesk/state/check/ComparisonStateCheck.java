@@ -1,4 +1,4 @@
-package com.liveramp.megadesk.state;
+package com.liveramp.megadesk.state.check;
 
 import com.liveramp.megadesk.resource.Resource;
 
