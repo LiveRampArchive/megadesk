@@ -1,5 +1,6 @@
 package com.liveramp.megadesk.curator;
 
+import com.liveramp.megadesk.resource.Read;
 import com.liveramp.megadesk.resource.Resource;
 import com.liveramp.megadesk.step.BaseStep;
 import com.liveramp.megadesk.step.Step;
@@ -18,7 +19,7 @@ public class CuratorStep extends BaseStep implements Step {
 
   public CuratorStep(CuratorFramework curator,
                      String id,
-                     List<Resource> reads,
+                     List<Read> reads,
                      List<Resource> writes) throws Exception {
     super(id, reads, writes);
     String path = ZkPath.append(STEPS_PATH, id);
@@ -27,7 +28,7 @@ public class CuratorStep extends BaseStep implements Step {
   }
 
   @Override
-  public StepLock getStepLock() {
+  public StepLock getLock() {
     return lock;
   }
 }

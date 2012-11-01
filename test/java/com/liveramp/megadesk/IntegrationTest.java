@@ -19,8 +19,10 @@ package com.liveramp.megadesk;
 import com.google.common.base.Throwables;
 import com.liveramp.megadesk.curator.CuratorResource;
 import com.liveramp.megadesk.curator.CuratorStep;
+import com.liveramp.megadesk.resource.Read;
+import com.liveramp.megadesk.resource.Reads;
 import com.liveramp.megadesk.resource.Resource;
-import com.liveramp.megadesk.resource.Resources;
+import com.liveramp.megadesk.resource.Writes;
 import com.liveramp.megadesk.step.Step;
 import com.liveramp.megadesk.test.BaseTestCase;
 import com.netflix.curator.framework.CuratorFramework;
@@ -53,8 +55,8 @@ public class IntegrationTest extends BaseTestCase {
           Resource resourceC = new CuratorResource(curator, "resourceC");
           Step step = new CuratorStep(curator,
               "stepA",
-              Resources.list(resourceA, resourceB),
-              Resources.list(resourceC));
+              Reads.list(new Read(resourceA, "ready"), new Read(resourceB, "ready")),
+              Writes.list(resourceC));
           step.attempt();
           //... do things
           resultA[0] = 0;
@@ -73,8 +75,8 @@ public class IntegrationTest extends BaseTestCase {
           Resource resourceD = new CuratorResource(curator, "resourceD");
           Step step = new CuratorStep(curator,
               "stepB",
-              Resources.list(resourceC),
-              Resources.list(resourceD));
+              Reads.list(new Read(resourceC, "ready")),
+              Writes.list(resourceD));
           step.attempt();
           //... do things
           resultB[0] = 1;

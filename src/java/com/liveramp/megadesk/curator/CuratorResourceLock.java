@@ -17,8 +17,8 @@ public class CuratorResourceLock {
 
   private static final int SLEEP_TIME_MS = 5000;
 
-  private static final String READ_LOCK_PATH = "r";
-  private static final String WRITE_LOCK_PATH = "w";
+  private static final String READERS_PATH = "readers";
+  private static final String WRITER_PATH = "writer";
   private static final String INTERNAL_LOCK_PATH = "lock";
 
   private final CuratorFramework curator;
@@ -26,8 +26,8 @@ public class CuratorResourceLock {
   private final InterProcessMutex internalLock;
   private final ResourceReadLock readLock;
   private final ResourceWriteLock writeLock;
-  private final String readLockPath;
-  private final String writeLockPath;
+  private final String readersPath;
+  private final String writerPath;
 
   public CuratorResourceLock(CuratorFramework curator,
                              CuratorResource resource) throws Exception {
@@ -36,11 +36,11 @@ public class CuratorResourceLock {
     String internalLockPath = ZkPath.append(resource.getPath(), INTERNAL_LOCK_PATH);
     new EnsurePath(internalLockPath).ensure(curator.getZookeeperClient());
     this.internalLock = new InterProcessMutex(curator, internalLockPath);
-    this.readLockPath = ZkPath.append(resource.getPath(), READ_LOCK_PATH);
-    this.writeLockPath = ZkPath.append(resource.getPath(), WRITE_LOCK_PATH);
+    this.readersPath = ZkPath.append(resource.getPath(), READERS_PATH);
+    this.writerPath = ZkPath.append(resource.getPath(), WRITER_PATH);
 
-    new EnsurePath(readLockPath).ensure(curator.getZookeeperClient());
-    new EnsurePath(writeLockPath).ensure(curator.getZookeeperClient());
+    new EnsurePath(readersPath).ensure(curator.getZookeeperClient());
+    new EnsurePath(writerPath).ensure(curator.getZookeeperClient());
     this.readLock = new CuratorResourceReadLock();
     this.writeLock = new CuratorResourceWriteLock();
   }
@@ -54,29 +54,30 @@ public class CuratorResourceLock {
   }
 
   private void doAcquireReadLock(Step step) throws Exception {
-    curator.create().forPath(ZkPath.append(readLockPath, step.getId()));
+    curator.create().forPath(ZkPath.append(readersPath, step.getId()));
   }
 
   private void doAcquireWriteLock(Step step) throws Exception {
-    curator.setData().forPath(writeLockPath, step.getId().getBytes());
+    curator.setData().forPath(writerPath, step.getId().getBytes());
   }
 
   private String getWriteLockOwner() throws Exception {
-    byte[] result = curator.getData().forPath(writeLockPath);
+    byte[] result = curator.getData().forPath(writerPath);
     return (result == null || result.length == 0) ? null : new String(result);
   }
 
   private void setWriteLockOwner(Step step) throws Exception {
-    curator.setData().forPath(writeLockPath, step == null ? null : step.getId().getBytes());
+    curator.setData().forPath(writerPath, step == null ? null : step.getId().getBytes());
   }
 
   private List<String> getReaders() throws Exception {
-    return curator.getChildren().forPath(readLockPath);
+    return curator.getChildren().forPath(readersPath);
   }
 
-  private boolean isReadLockOwner(Step step) throws Exception {
+  private boolean isReadLockOwner(Step step, String state) throws Exception {
+    String currentState = resource.getState();
     List<String> readers = getReaders();
-    return readers.contains(step.getId());
+    return state.equals(currentState) && readers.contains(step.getId());
   }
 
   private boolean isWriteLockOwner(Step step) throws Exception {
@@ -87,35 +88,39 @@ public class CuratorResourceLock {
   private class CuratorResourceReadLock implements ResourceReadLock {
 
     @Override
-    public void acquire(Step step) throws Exception {
-      if (isReadLockOwner(step)) {
+    public void acquire(Step step, String state) throws Exception {
+      if (isReadLockOwner(step, state)) {
         return;
       }
       while (true) {
         String writeLockOwner;
+        String currentState;
         internalLock.acquire();
         try {
+          currentState = resource.getState();
           writeLockOwner = getWriteLockOwner();
-          if (writeLockOwner == null) {
+          if (writeLockOwner == null && state.equals(currentState)) {
             doAcquireReadLock(step);
             return;
           }
         } finally {
           internalLock.release();
         }
-        LOGGER.info("Step " + step.getId() + " could not acquire resource read lock on " + resource.getId() + " because there is already a writer: " + writeLockOwner);
+        LOGGER.info("Step " + step.getId() + " could not acquire resource read lock on " + resource.getId() +
+            " because there is either already a writer: " + writeLockOwner + " or desired state: " + state +
+            " does not match current state: " + currentState);
         Thread.sleep(SLEEP_TIME_MS);
       }
     }
 
     @Override
-    public void release(Step step) throws Exception {
-      if (!isReadLockOwner(step)) {
+    public void release(Step step, String state) throws Exception {
+      if (!isReadLockOwner(step, state)) {
         throw new RuntimeException("Cannot release resource read lock on " + resource.getId() + " in step " + step.getId() + " that did not acquire it.");
       }
       internalLock.acquire();
       try {
-        curator.delete().forPath(ZkPath.append(readLockPath, step.getId()));
+        curator.delete().forPath(ZkPath.append(readersPath, step.getId()));
       } finally {
         internalLock.release();
       }

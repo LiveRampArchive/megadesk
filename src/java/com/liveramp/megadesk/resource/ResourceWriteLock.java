@@ -1,4 +1,10 @@
 package com.liveramp.megadesk.resource;
 
-public interface ResourceWriteLock extends ResourceLock {
+import com.liveramp.megadesk.step.Step;
+
+public interface ResourceWriteLock {
+
+  public void acquire(Step step) throws Exception;
+
+  public void release(Step step) throws Exception;
 }
