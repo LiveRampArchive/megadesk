@@ -43,8 +43,26 @@ public class IntegrationTest extends BaseTestCase {
         .build();
     curator.start();
 
-    final int[] resultA = {-1};
-    final int[] resultB = {-1};
+    Thread stepZ = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          Resource resourceA = new CuratorResource(curator, "resourceA");
+          Resource resourceB = new CuratorResource(curator, "resourceB");
+          Step step = new CuratorStep(curator,
+              "stepZ",
+              Reads.list(),
+              Writes.list(resourceA, resourceB));
+          step.attempt();
+          //... do things
+          resourceA.setState(step, "ready");
+          resourceB.setState(step, "ready");
+          step.complete();
+        } catch (Exception e) {
+          throw Throwables.propagate(e);
+        }
+      }
+    }, "stepZ");
 
     Thread stepA = new Thread(new Runnable() {
       @Override
@@ -59,7 +77,7 @@ public class IntegrationTest extends BaseTestCase {
               Writes.list(resourceC));
           step.attempt();
           //... do things
-          resultA[0] = 0;
+          resourceC.setState(step, "done");
           step.complete();
         } catch (Exception e) {
           throw Throwables.propagate(e);
@@ -75,11 +93,11 @@ public class IntegrationTest extends BaseTestCase {
           Resource resourceD = new CuratorResource(curator, "resourceD");
           Step step = new CuratorStep(curator,
               "stepB",
-              Reads.list(new Read(resourceC, "ready")),
+              Reads.list(new Read(resourceC, "done")),
               Writes.list(resourceD));
           step.attempt();
           //... do things
-          resultB[0] = 1;
+          resourceD.setState(step, "done");
           step.complete();
         } catch (Exception e) {
           throw Throwables.propagate(e);
@@ -89,11 +107,20 @@ public class IntegrationTest extends BaseTestCase {
 
     stepA.start();
     stepB.start();
+    stepZ.start();
+
+    Resource resourceA = new CuratorResource(curator, "resourceA");
+    Resource resourceB = new CuratorResource(curator, "resourceB");
+    Resource resourceC = new CuratorResource(curator, "resourceC");
+    Resource resourceD = new CuratorResource(curator, "resourceD");
 
     stepA.join();
     stepB.join();
+    stepZ.join();
 
-    assertEquals(0, resultA[0]);
-    assertEquals(1, resultB[0]);
+    assertEquals("ready", resourceA.getState());
+    assertEquals("ready", resourceB.getState());
+    assertEquals("done", resourceC.getState());
+    assertEquals("done", resourceD.getState());
   }
 }
