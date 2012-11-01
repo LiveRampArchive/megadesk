@@ -45,7 +45,7 @@ public abstract class BaseStep implements Step {
     getLock().acquire();
     for (Read read : reads) {
       LOGGER.info("Step '" + getId() + "' acquiring read lock on resource '" + read.getResource().getId() + "'");
-      read.getResource().getReadLock().acquire(getId(), read.getState(), true);
+      read.getResource().getReadLock().acquire(getId(), read.getStateCheck(), true);
     }
     for (Resource write : writes) {
       LOGGER.info("Step '" + getId() + "' acquiring write lock on resource '" + write.getId() + "'");

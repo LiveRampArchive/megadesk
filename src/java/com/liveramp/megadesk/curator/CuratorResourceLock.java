@@ -2,6 +2,7 @@ package com.liveramp.megadesk.curator;
 
 import com.liveramp.megadesk.resource.ResourceReadLock;
 import com.liveramp.megadesk.resource.ResourceWriteLock;
+import com.liveramp.megadesk.state.StateCheck;
 import com.liveramp.megadesk.util.ZkPath;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
@@ -91,7 +92,7 @@ public class CuratorResourceLock {
   private class CuratorResourceReadLock implements ResourceReadLock {
 
     @Override
-    public void acquire(String owner, String state, boolean persistent) throws Exception {
+    public void acquire(String owner, StateCheck stateCheck, boolean persistent) throws Exception {
       while (true) {
         String writeLockOwner;
         String currentState;
@@ -103,7 +104,7 @@ public class CuratorResourceLock {
           }
           currentState = resource.getState();
           writeLockOwner = getWriteLockOwner();
-          if (writeLockOwner == null && state.equals(currentState)) {
+          if (writeLockOwner == null && stateCheck.check(currentState)) {
             doAcquireReadLock(owner, persistent);
             return;
           }
@@ -111,8 +112,8 @@ public class CuratorResourceLock {
           internalLock.release();
         }
         LOGGER.info(owner + " could not acquire resource read lock on '" + resource.getId() +
-            "' because there is either already a writer: '" + writeLockOwner + "' or desired state: '" + state +
-            "' does not match current state: '" + currentState + "'");
+            "' because there is either already a writer: '" + writeLockOwner + "' or state check: '" + stateCheck +
+            "' failed with current state: '" + currentState + "'");
         Thread.sleep(SLEEP_TIME_MS);
       }
     }
