@@ -69,7 +69,7 @@ public abstract class BaseManeuver implements Maneuver {
   }
 
   @Override
-  public <T> void set(Device<T> device, T state) throws Exception {
+  public <T> void write(Device<T> device, T state) throws Exception {
     if (!getLock().isAcquiredInThisProcess()) {
       throw new IllegalStateException("Cannot set state of device '" + device.getId() + "' from maneuver '" + getId() + "' that is not being attempted in this process.");
     }
