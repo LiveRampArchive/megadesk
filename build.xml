@@ -25,6 +25,8 @@
 
   <fileset id="jars" dir="${lib}" includes="*.jar" />
 
+  <property name="jobjar.tmp.dir" value="${build}/jobjar-tmp"/>
+
   <path id="compile.classpath">
     <fileset id="jars" dir="${lib}" includes="**/*.jar" />
   </path>
@@ -174,6 +176,23 @@
 
   <target name="clean-javadoc" description="Clean Javadoc">
     <delete includeemptydirs="true" dir="${doc}"/>
+  </target>
+
+  <!-- Job Jar -->
+  <target name="jobjar" depends="dist" description="--> build a job jar (with all dependency classes)">
+    <delete file="${build}/megadesk.job.jar" />
+    <delete dir="${jobjar.tmp.dir}"/>
+    <mkdir dir="${jobjar.tmp.dir}" />
+    <unjar dest="${jobjar.tmp.dir}" overwrite="false">
+      <fileset refid="lib.jars"/>
+    </unjar>
+    <copy todir="${jobjar.tmp.dir}" >
+      <fileset dir="${build}/classes"/>
+    </copy>
+    <delete dir="${jobjar.tmp.dir}/META-INF" quiet="true" />
+    <jar jarfile="${build}/megadesk.job.jar"
+      basedir="${jobjar.tmp.dir}" />
+    <delete dir="${jobjar.tmp.dir}"/>
   </target>
 
   <!-- Ivy Resolve -->
