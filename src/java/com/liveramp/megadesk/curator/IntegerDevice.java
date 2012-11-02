@@ -6,9 +6,9 @@ import com.liveramp.megadesk.state.IntegerStateSerialization;
 import com.liveramp.megadesk.state.check.ComparisonStateCheck;
 import com.netflix.curator.framework.CuratorFramework;
 
-public class VersionedDevice extends CuratorDevice<Integer> implements Device<Integer> {
+public class IntegerDevice extends CuratorDevice<Integer> implements Device<Integer> {
 
-  public VersionedDevice(CuratorFramework curator, String id) throws Exception {
+  public IntegerDevice(CuratorFramework curator, String id) throws Exception {
     super(curator, id, new IntegerStateSerialization());
   }
 

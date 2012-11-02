@@ -18,8 +18,8 @@ package com.liveramp.megadesk;
 
 import com.google.common.base.Throwables;
 import com.liveramp.megadesk.curator.CuratorManeuver;
+import com.liveramp.megadesk.curator.IntegerDevice;
 import com.liveramp.megadesk.curator.StringDevice;
-import com.liveramp.megadesk.curator.VersionedDevice;
 import com.liveramp.megadesk.maneuver.Maneuver;
 import com.liveramp.megadesk.device.Reads;
 import com.liveramp.megadesk.device.Writes;
@@ -46,8 +46,8 @@ public class IntegrationTest extends BaseTestCase {
     final StringDevice deviceB = new StringDevice(curator, "deviceB");
     final StringDevice deviceC = new StringDevice(curator, "deviceC");
     final StringDevice deviceD = new StringDevice(curator, "deviceD");
-    final VersionedDevice deviceE = new VersionedDevice(curator, "deviceE");
-    final VersionedDevice deviceF = new VersionedDevice(curator, "deviceF");
+    final IntegerDevice deviceE = new IntegerDevice(curator, "deviceE");
+    final IntegerDevice deviceF = new IntegerDevice(curator, "deviceF");
 
     Thread maneuverZ = new Thread(new Runnable() {
       @Override
