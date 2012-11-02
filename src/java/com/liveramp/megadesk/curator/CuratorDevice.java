@@ -43,7 +43,7 @@ public class CuratorDevice<T> extends BaseDevice<T> implements Device<T> {
   }
 
   @Override
-  public DeviceReadLock getReadLock() {
+  public DeviceReadLock<T> getReadLock() {
     return lock.getReadLock();
   }
 

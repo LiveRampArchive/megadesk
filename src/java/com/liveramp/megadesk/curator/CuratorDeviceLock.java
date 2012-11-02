@@ -25,7 +25,7 @@ public class CuratorDeviceLock<T> {
   private final CuratorFramework curator;
   private final CuratorDevice<T> device;
   private final InterProcessMutex internalLock;
-  private final DeviceReadLock readLock;
+  private final DeviceReadLock<T> readLock;
   private final DeviceWriteLock writeLock;
   private final String readersPath;
   private final String writerPath;
@@ -46,7 +46,7 @@ public class CuratorDeviceLock<T> {
     this.writeLock = new CuratorDeviceWriteLock();
   }
 
-  public DeviceReadLock getReadLock() {
+  public DeviceReadLock<T> getReadLock() {
     return readLock;
   }
 
