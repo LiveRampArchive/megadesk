@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class BaseManeuver<T, CRTP extends BaseManeuver> implements Maneuver<T, CRTP> {
+public abstract class BaseManeuver<T, SELF extends BaseManeuver> implements Maneuver<T, SELF> {
 
   private static final Logger LOGGER = Logger.getLogger(BaseManeuver.class);
 
@@ -37,16 +37,16 @@ public abstract class BaseManeuver<T, CRTP extends BaseManeuver> implements Mane
 
   @Override
   @SuppressWarnings("unchecked")
-  public CRTP reads(Read... reads) {
+  public SELF reads(Read... reads) {
     this.reads = Arrays.asList(reads);
-    return (CRTP) this;
+    return (SELF) this;
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public CRTP writes(Device... writes) {
+  public SELF writes(Device... writes) {
     this.writes = Arrays.asList(writes);
-    return (CRTP) this;
+    return (SELF) this;
   }
 
   @Override

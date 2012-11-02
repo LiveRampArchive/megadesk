@@ -8,9 +8,9 @@ import com.liveramp.megadesk.util.ZkPath;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.utils.EnsurePath;
 
-public class CuratorManeuver<T, CRTP extends CuratorManeuver>
-    extends BaseManeuver<T, CRTP>
-    implements Maneuver<T, CRTP> {
+public class CuratorManeuver<T, SELF extends CuratorManeuver>
+    extends BaseManeuver<T, SELF>
+    implements Maneuver<T, SELF> {
 
   private static final String MANEUVERS_PATH = "/megadesk/maneuvers";
 
