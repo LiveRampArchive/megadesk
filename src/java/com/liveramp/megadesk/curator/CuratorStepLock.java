@@ -1,14 +1,14 @@
 package com.liveramp.megadesk.curator;
 
-import com.liveramp.megadesk.maneuver.ManeuverLock;
+import com.liveramp.megadesk.step.StepLock;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
 
-public class CuratorManeuverLock implements ManeuverLock {
+public class CuratorStepLock implements StepLock {
 
   private final InterProcessMutex lock;
 
-  public CuratorManeuverLock(CuratorFramework curator, String path) {
+  public CuratorStepLock(CuratorFramework curator, String path) {
     this.lock = new InterProcessMutex(curator, path);
   }
 

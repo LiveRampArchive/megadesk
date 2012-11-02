@@ -18,10 +18,10 @@ package com.liveramp.megadesk;
 
 import com.google.common.base.Throwables;
 import com.liveramp.megadesk.curator.IntegerResource;
-import com.liveramp.megadesk.curator.IntegerManeuver;
-import com.liveramp.megadesk.curator.SimpleManeuver;
+import com.liveramp.megadesk.curator.IntegerStep;
+import com.liveramp.megadesk.curator.SimpleStep;
 import com.liveramp.megadesk.curator.StringResource;
-import com.liveramp.megadesk.maneuver.Maneuver;
+import com.liveramp.megadesk.step.Step;
 import com.liveramp.megadesk.test.BaseTestCase;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.CuratorFrameworkFactory;
@@ -48,77 +48,77 @@ public class IntegrationTest extends BaseTestCase {
     final IntegerResource resourceE = new IntegerResource(curator, "resourceE");
     final IntegerResource resourceF = new IntegerResource(curator, "resourceF");
 
-    Thread maneuverZ = new Thread(new Runnable() {
+    Thread stepZ = new Thread(new Runnable() {
       @Override
       public void run() {
         try {
-          SimpleManeuver maneuver = new SimpleManeuver(curator, "maneuverZ")
+          SimpleStep step = new SimpleStep(curator, "stepZ")
               .reads(resourceA.at("ready"))
               .writes(resourceB, resourceE);
-          maneuver.acquire();
-          maneuver.write(resourceB, "ready");
-          maneuver.write(resourceE, 0);
-          maneuver.release();
+          step.acquire();
+          step.write(resourceB, "ready");
+          step.write(resourceE, 0);
+          step.release();
         } catch (Exception e) {
           throw Throwables.propagate(e);
         }
       }
-    }, "maneuverZ");
+    }, "stepZ");
 
-    Thread maneuverA = new Thread(new Runnable() {
+    Thread stepA = new Thread(new Runnable() {
       @Override
       public void run() {
         try {
-          Maneuver maneuver = new SimpleManeuver(curator, "maneuverA")
+          Step step = new SimpleStep(curator, "stepA")
               .reads(resourceA.at("ready"), resourceB.at("ready"))
               .writes(resourceC);
-          maneuver.acquire();
-          maneuver.write(resourceC, "done");
-          maneuver.release();
+          step.acquire();
+          step.write(resourceC, "done");
+          step.release();
         } catch (Exception e) {
           throw Throwables.propagate(e);
         }
       }
-    }, "maneuverA");
+    }, "stepA");
 
-    Thread maneuverB = new Thread(new Runnable() {
+    Thread stepB = new Thread(new Runnable() {
       @Override
       public void run() {
         try {
-          IntegerManeuver maneuver = new IntegerManeuver(curator, "maneuverB")
+          IntegerStep step = new IntegerStep(curator, "stepB")
               .writes(resourceD, resourceE, resourceF);
           Integer processedVersion = -1;
           while (processedVersion < 2) {
-            processedVersion = maneuver.getData();
+            processedVersion = step.getData();
             if (processedVersion == null) {
               processedVersion = -1;
             }
-            maneuver.reads(resourceC.at("done"), resourceE.greaterThan(processedVersion));
-            maneuver.acquire();
+            step.reads(resourceC.at("done"), resourceE.greaterThan(processedVersion));
+            step.acquire();
             Integer eVersion = resourceE.getData();
-            maneuver.write(resourceD, "done");
-            maneuver.write(resourceE, eVersion + 1);
-            maneuver.write(resourceF, eVersion);
-            maneuver.setData(eVersion);
-            maneuver.release();
+            step.write(resourceD, "done");
+            step.write(resourceE, eVersion + 1);
+            step.write(resourceF, eVersion);
+            step.setData(eVersion);
+            step.release();
           }
         } catch (Exception e) {
           throw Throwables.propagate(e);
         }
       }
-    }, "maneuverB");
+    }, "stepB");
 
-    maneuverA.start();
-    maneuverB.start();
-    maneuverZ.start();
+    stepA.start();
+    stepB.start();
+    stepZ.start();
 
     Thread.sleep(1000);
 
     resourceA.setData("ready");
 
-    maneuverA.join();
-    maneuverB.join();
-    maneuverZ.join();
+    stepA.join();
+    stepB.join();
+    stepZ.join();
 
     assertEquals("ready", resourceA.getData());
     assertEquals("ready", resourceB.getData());

@@ -1,37 +1,37 @@
 package com.liveramp.megadesk.curator;
 
-import com.liveramp.megadesk.maneuver.BaseManeuver;
-import com.liveramp.megadesk.maneuver.Maneuver;
-import com.liveramp.megadesk.maneuver.ManeuverLock;
 import com.liveramp.megadesk.serialization.Serialization;
+import com.liveramp.megadesk.step.BaseStep;
+import com.liveramp.megadesk.step.Step;
+import com.liveramp.megadesk.step.StepLock;
 import com.liveramp.megadesk.util.ZkPath;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.utils.EnsurePath;
 
-public class CuratorManeuver<T, SELF extends CuratorManeuver>
-    extends BaseManeuver<T, SELF>
-    implements Maneuver<T, SELF> {
+public class CuratorStep<T, SELF extends CuratorStep>
+    extends BaseStep<T, SELF>
+    implements Step<T, SELF> {
 
-  private static final String MANEUVERS_PATH = "/megadesk/maneuvers";
+  private static final String STEPS_PATH = "/megadesk/steps";
 
   private final CuratorFramework curator;
   private final String path;
   private final Serialization<T> dataSerialization;
-  private final CuratorManeuverLock lock;
+  private final CuratorStepLock lock;
 
-  public CuratorManeuver(CuratorFramework curator,
-                         String id,
-                         Serialization<T> dataSerialization) throws Exception {
+  public CuratorStep(CuratorFramework curator,
+                     String id,
+                     Serialization<T> dataSerialization) throws Exception {
     super(id);
     this.curator = curator;
-    this.path = ZkPath.append(MANEUVERS_PATH, id);
+    this.path = ZkPath.append(STEPS_PATH, id);
     this.dataSerialization = dataSerialization;
     new EnsurePath(path).ensure(curator.getZookeeperClient());
-    this.lock = new CuratorManeuverLock(curator, path);
+    this.lock = new CuratorStepLock(curator, path);
   }
 
   @Override
-  protected ManeuverLock getLock() {
+  protected StepLock getLock() {
     return lock;
   }
 

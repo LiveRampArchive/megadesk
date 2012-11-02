@@ -1,22 +1,22 @@
-package com.liveramp.megadesk.maneuver;
+package com.liveramp.megadesk.step;
 
-import com.liveramp.megadesk.resource.Resource;
 import com.liveramp.megadesk.resource.Read;
+import com.liveramp.megadesk.resource.Resource;
 import org.apache.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class BaseManeuver<T, SELF extends BaseManeuver> implements Maneuver<T, SELF> {
+public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF> {
 
-  private static final Logger LOGGER = Logger.getLogger(BaseManeuver.class);
+  private static final Logger LOGGER = Logger.getLogger(BaseStep.class);
 
   private String id;
   private List<Read> reads = Collections.emptyList();
   private List<Resource> writes = Collections.emptyList();
 
-  public BaseManeuver(String id) {
+  public BaseStep(String id) {
     this.id = id;
   }
 
@@ -52,7 +52,7 @@ public abstract class BaseManeuver<T, SELF extends BaseManeuver> implements Mane
   @Override
   @SuppressWarnings("unchecked")
   public void acquire() throws Exception {
-    LOGGER.info("Attempting maneuver '" + getId() + "'");
+    LOGGER.info("Attempting step '" + getId() + "'");
     // Acquire all locks in order
     // TODO: potential dead locks
     getLock().acquire();
@@ -66,10 +66,10 @@ public abstract class BaseManeuver<T, SELF extends BaseManeuver> implements Mane
 
   @Override
   public void release() throws Exception {
-    LOGGER.info("Completing maneuver '" + getId() + "'");
-    // Make sure this process is allowed to complete this maneuver
+    LOGGER.info("Completing step '" + getId() + "'");
+    // Make sure this process is allowed to complete this step
     if (!getLock().isAcquiredInThisProcess()) {
-      throw new IllegalStateException("Cannot complete maneuver '" + getId() + "' that is not acquired by this process.");
+      throw new IllegalStateException("Cannot complete step '" + getId() + "' that is not acquired by this process.");
     }
     // Release all locks in order
     for (Read read : reads) {
@@ -85,10 +85,10 @@ public abstract class BaseManeuver<T, SELF extends BaseManeuver> implements Mane
   @SuppressWarnings("unchecked")
   public void write(Resource resource, Object data) throws Exception {
     if (!getLock().isAcquiredInThisProcess()) {
-      throw new IllegalStateException("Cannot set data of resource '" + resource.getId() + "' from maneuver '" + getId() + "' that is not acquired by this process.");
+      throw new IllegalStateException("Cannot set data of resource '" + resource.getId() + "' from step '" + getId() + "' that is not acquired by this process.");
     }
     if (!getWrites().contains(resource)) {
-      throw new IllegalStateException("Cannot set data of resource '" + resource.getId() + "' from maneuver '" + getId() + "' that does not write it.");
+      throw new IllegalStateException("Cannot set data of resource '" + resource.getId() + "' from step '" + getId() + "' that does not write it.");
     }
     resource.setData(getId(), data);
   }
@@ -125,5 +125,5 @@ public abstract class BaseManeuver<T, SELF extends BaseManeuver> implements Mane
 
   protected abstract void doSetData(T data) throws Exception;
 
-  protected abstract ManeuverLock getLock();
+  protected abstract StepLock getLock();
 }
