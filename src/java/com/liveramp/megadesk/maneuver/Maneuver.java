@@ -17,5 +17,5 @@ public interface Maneuver {
 
   public void release() throws Exception;
 
-  public <T> void setState(Resource<T> resource, T state) throws Exception;
+  public <T> void set(Resource<T> resource, T state) throws Exception;
 }

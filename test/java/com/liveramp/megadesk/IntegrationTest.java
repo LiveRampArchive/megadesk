@@ -58,8 +58,8 @@ public class IntegrationTest extends BaseTestCase {
               Reads.list(resourceA.at("ready")),
               Writes.list(resourceB, resourceE));
           maneuver.acquire();
-          maneuver.setState(resourceB, "ready");
-          maneuver.setState(resourceE, 0);
+          maneuver.set(resourceB, "ready");
+          maneuver.set(resourceE, 0);
           maneuver.release();
         } catch (Exception e) {
           throw Throwables.propagate(e);
@@ -76,7 +76,7 @@ public class IntegrationTest extends BaseTestCase {
               Reads.list(resourceA.at("ready"), resourceB.at("ready")),
               Writes.list(resourceC));
           maneuver.acquire();
-          maneuver.setState(resourceC, "done");
+          maneuver.set(resourceC, "done");
           maneuver.release();
         } catch (Exception e) {
           throw Throwables.propagate(e);
@@ -96,9 +96,9 @@ public class IntegrationTest extends BaseTestCase {
                 Writes.list(resourceD, resourceE, resourceF));
             maneuver.acquire();
             processedEVersion = resourceE.getState();
-            maneuver.setState(resourceD, "done");
-            maneuver.setState(resourceE, processedEVersion + 1);
-            maneuver.setState(resourceF, processedEVersion);
+            maneuver.set(resourceD, "done");
+            maneuver.set(resourceE, processedEVersion + 1);
+            maneuver.set(resourceF, processedEVersion);
             maneuver.release();
           }
         } catch (Exception e) {

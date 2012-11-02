@@ -69,7 +69,7 @@ public abstract class BaseManeuver implements Maneuver {
   }
 
   @Override
-  public <T> void setState(Resource<T> resource, T state) throws Exception {
+  public <T> void set(Resource<T> resource, T state) throws Exception {
     if (!getLock().isAcquiredInThisProcess()) {
       throw new IllegalStateException("Cannot set state of resource '" + resource.getId() + "' from maneuver '" + getId() + "' that is not being attempted in this process.");
     }
