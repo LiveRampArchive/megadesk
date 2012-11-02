@@ -21,8 +21,6 @@ import com.liveramp.megadesk.curator.CuratorManeuver;
 import com.liveramp.megadesk.curator.IntegerDevice;
 import com.liveramp.megadesk.curator.StringDevice;
 import com.liveramp.megadesk.maneuver.Maneuver;
-import com.liveramp.megadesk.device.Reads;
-import com.liveramp.megadesk.device.Writes;
 import com.liveramp.megadesk.test.BaseTestCase;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.CuratorFrameworkFactory;
@@ -53,10 +51,9 @@ public class IntegrationTest extends BaseTestCase {
       @Override
       public void run() {
         try {
-          Maneuver maneuver = new CuratorManeuver(curator,
-              "maneuverZ",
-              Reads.list(deviceA.at("ready")),
-              Writes.list(deviceB, deviceE));
+          Maneuver maneuver = new CuratorManeuver(curator, "maneuverZ")
+              .reads(deviceA.at("ready"))
+              .writes(deviceB, deviceE);
           maneuver.acquire();
           maneuver.write(deviceB, "ready");
           maneuver.write(deviceE, 0);
@@ -71,10 +68,9 @@ public class IntegrationTest extends BaseTestCase {
       @Override
       public void run() {
         try {
-          Maneuver maneuver = new CuratorManeuver(curator,
-              "maneuverA",
-              Reads.list(deviceA.at("ready"), deviceB.at("ready")),
-              Writes.list(deviceC));
+          Maneuver maneuver = new CuratorManeuver(curator, "maneuverA")
+              .reads(deviceA.at("ready"), deviceB.at("ready"))
+              .writes(deviceC);
           maneuver.acquire();
           maneuver.write(deviceC, "done");
           maneuver.release();
@@ -90,10 +86,9 @@ public class IntegrationTest extends BaseTestCase {
         try {
           int processedEVersion = -1;
           while (processedEVersion < 2) {
-            Maneuver maneuver = new CuratorManeuver(curator,
-                "maneuverB",
-                Reads.list(deviceC.at("done"), deviceE.greaterThan(processedEVersion)),
-                Writes.list(deviceD, deviceE, deviceF));
+            Maneuver maneuver = new CuratorManeuver(curator, "maneuverB")
+                .reads(deviceC.at("done"), deviceE.greaterThan(processedEVersion))
+                .writes(deviceD, deviceE, deviceF);
             maneuver.acquire();
             processedEVersion = deviceE.getState();
             maneuver.write(deviceD, "done");

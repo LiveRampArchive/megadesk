@@ -4,6 +4,7 @@ import com.liveramp.megadesk.device.Device;
 import com.liveramp.megadesk.device.Read;
 import org.apache.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.List;
 
 public abstract class BaseManeuver implements Maneuver {
@@ -11,15 +12,11 @@ public abstract class BaseManeuver implements Maneuver {
   private static final Logger LOGGER = Logger.getLogger(BaseManeuver.class);
 
   private String id;
-  private final List<Read> reads;
-  private final List<Device> writes;
+  private List<Read> reads;
+  private List<Device> writes;
 
-  public BaseManeuver(String id,
-                      List<Read> reads,
-                      List<Device> writes) {
+  public BaseManeuver(String id) {
     this.id = id;
-    this.reads = reads;
-    this.writes = writes;
   }
 
   @Override
@@ -35,6 +32,18 @@ public abstract class BaseManeuver implements Maneuver {
   @Override
   public List<Device> getWrites() {
     return writes;
+  }
+
+  @Override
+  public Maneuver reads(Read... reads) {
+    this.reads = Arrays.asList(reads);
+    return this;
+  }
+
+  @Override
+  public Maneuver writes(Device... writes) {
+    this.writes = Arrays.asList(writes);
+    return this;
   }
 
   @Override

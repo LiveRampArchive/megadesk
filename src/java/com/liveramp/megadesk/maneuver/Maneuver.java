@@ -13,6 +13,10 @@ public interface Maneuver {
 
   public List<Device> getWrites();
 
+  public Maneuver reads(Read... reads);
+
+  public Maneuver writes(Device... writes);
+
   public void acquire() throws Exception;
 
   public void release() throws Exception;
