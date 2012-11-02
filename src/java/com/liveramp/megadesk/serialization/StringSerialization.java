@@ -1,12 +1,14 @@
 package com.liveramp.megadesk.serialization;
 
-import com.liveramp.megadesk.serialization.Serialization;
-
 public class StringSerialization implements Serialization<String> {
 
   @Override
   public byte[] serialize(String data) {
-    return data.getBytes();
+    if (data == null) {
+      return null;
+    } else {
+      return data.getBytes();
+    }
   }
 
   @Override
