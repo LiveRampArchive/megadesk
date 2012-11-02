@@ -4,11 +4,11 @@ public interface Device<T> {
 
   public String getId();
 
-  public T getStatus() throws Exception;
+  public T getData() throws Exception;
 
-  public void setStatus(T status) throws Exception;
+  public void setData(T data) throws Exception;
 
-  public void setStatus(String owner, T status) throws Exception;
+  public void setData(String owner, T data) throws Exception;
 
   public DeviceReadLock<T> getReadLock();
 

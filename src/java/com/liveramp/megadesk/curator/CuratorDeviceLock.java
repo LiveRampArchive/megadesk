@@ -1,8 +1,8 @@
 package com.liveramp.megadesk.curator;
 
+import com.liveramp.megadesk.data.check.DataCheck;
 import com.liveramp.megadesk.device.DeviceReadLock;
 import com.liveramp.megadesk.device.DeviceWriteLock;
-import com.liveramp.megadesk.status.check.StatusCheck;
 import com.liveramp.megadesk.util.ZkPath;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
@@ -95,8 +95,8 @@ public class CuratorDeviceLock<T> {
   private class CuratorDeviceReadLock implements DeviceReadLock<T> {
 
     @Override
-    public void acquire(String owner, StatusCheck<T> statusCheck, boolean persistent) throws Exception {
-      LOGGER.info("'" + owner + "' acquiring read lock on device '" + device.getId() + "' with status check: " + statusCheck);
+    public void acquire(String owner, DataCheck<T> dataCheck, boolean persistent) throws Exception {
+      LOGGER.info("'" + owner + "' acquiring read lock on device '" + device.getId() + "' with data check: " + dataCheck);
       while (true) {
         String writeLockOwner;
         internalLock.acquire();
@@ -106,7 +106,7 @@ public class CuratorDeviceLock<T> {
             return;
           }
           writeLockOwner = getWriteLockOwner();
-          if ((writeLockOwner == null || isWriteLockOwner(owner, writeLockOwner)) && statusCheck.check(device)) {
+          if ((writeLockOwner == null || isWriteLockOwner(owner, writeLockOwner)) && dataCheck.check(device)) {
             doAcquireReadLock(owner, persistent);
             return;
           }
@@ -114,8 +114,8 @@ public class CuratorDeviceLock<T> {
           internalLock.release();
         }
         LOGGER.info(owner + " could not acquire device read lock on '" + device.getId() +
-            "' because there is either already another writer: '" + writeLockOwner + "' or status check: '" + statusCheck +
-            "' failed against '" + device.getStatus() + "' Device: " + device);
+            "' because there is either already another writer: '" + writeLockOwner + "' or data check: '" + dataCheck +
+            "' failed against '" + device.getData() + "' Device: " + device);
         Thread.sleep(SLEEP_TIME_MS);
       }
     }

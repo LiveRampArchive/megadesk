@@ -91,8 +91,8 @@ public class IntegrationTest extends BaseTestCase {
               .writes(deviceD, deviceE, deviceF);
           while (processedEVersion < 2) {
             maneuver.acquire();
-            maneuver.setStatus(-1);
-            processedEVersion = deviceE.getStatus();
+            maneuver.setData(-1);
+            processedEVersion = deviceE.getData();
             maneuver.write(deviceD, "done");
             maneuver.write(deviceE, processedEVersion + 1);
             maneuver.write(deviceF, processedEVersion);
@@ -110,17 +110,17 @@ public class IntegrationTest extends BaseTestCase {
 
     Thread.sleep(1000);
 
-    deviceA.setStatus("ready");
+    deviceA.setData("ready");
 
     maneuverA.join();
     maneuverB.join();
     maneuverZ.join();
 
-    assertEquals("ready", deviceA.getStatus());
-    assertEquals("ready", deviceB.getStatus());
-    assertEquals("done", deviceC.getStatus());
-    assertEquals("done", deviceD.getStatus());
-    assertEquals(Integer.valueOf(3), deviceE.getStatus());
-    assertEquals(Integer.valueOf(2), deviceF.getStatus());
+    assertEquals("ready", deviceA.getData());
+    assertEquals("ready", deviceB.getData());
+    assertEquals("done", deviceC.getData());
+    assertEquals("done", deviceD.getData());
+    assertEquals(Integer.valueOf(3), deviceE.getData());
+    assertEquals(Integer.valueOf(2), deviceF.getData());
   }
 }

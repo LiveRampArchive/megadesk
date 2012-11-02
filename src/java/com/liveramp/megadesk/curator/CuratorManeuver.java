@@ -16,16 +16,16 @@ public class CuratorManeuver<T, CRTP extends CuratorManeuver>
 
   private final CuratorFramework curator;
   private final String path;
-  private final Serialization<T> statusSerialization;
+  private final Serialization<T> dataSerialization;
   private final CuratorManeuverLock lock;
 
   public CuratorManeuver(CuratorFramework curator,
                          String id,
-                         Serialization<T> statusSerialization) throws Exception {
+                         Serialization<T> dataSerialization) throws Exception {
     super(id);
     this.curator = curator;
     this.path = ZkPath.append(MANEUVERS_PATH, id);
-    this.statusSerialization = statusSerialization;
+    this.dataSerialization = dataSerialization;
     new EnsurePath(path).ensure(curator.getZookeeperClient());
     this.lock = new CuratorManeuverLock(curator, path);
   }
@@ -36,14 +36,14 @@ public class CuratorManeuver<T, CRTP extends CuratorManeuver>
   }
 
   @Override
-  public T getStatus() throws Exception {
+  public T getData() throws Exception {
     // TODO: locking
-    return statusSerialization.deserialize(curator.getData().forPath(path));
+    return dataSerialization.deserialize(curator.getData().forPath(path));
   }
 
   @Override
-  public void setStatus(T status) throws Exception {
+  public void setData(T data) throws Exception {
     // TODO: locking
-    curator.setData().forPath(path, statusSerialization.serialize(status));
+    curator.setData().forPath(path, dataSerialization.serialize(data));
   }
 }

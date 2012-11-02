@@ -21,9 +21,9 @@ public interface Maneuver<T, CRTP extends Maneuver> {
 
   public void release() throws Exception;
 
-  public T getStatus() throws Exception;
+  public T getData() throws Exception;
 
-  public void setStatus(T status) throws Exception;
+  public void setData(T data) throws Exception;
 
-  public void write(Device device, Object status) throws Exception;
+  public void write(Device device, Object data) throws Exception;
 }

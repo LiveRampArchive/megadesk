@@ -17,29 +17,29 @@ public class CuratorDevice<T> extends BaseDevice<T> implements Device<T> {
 
   private final CuratorFramework curator;
   private final String path;
-  private final Serialization<T> statusSerialization;
+  private final Serialization<T> dataSerialization;
   private final CuratorDeviceLock<T> lock;
 
   public CuratorDevice(CuratorFramework curator,
                        String id,
-                       Serialization<T> statusSerialization) throws Exception {
+                       Serialization<T> dataSerialization) throws Exception {
     super(id);
     this.curator = curator;
-    this.statusSerialization = statusSerialization;
+    this.dataSerialization = dataSerialization;
     this.path = ZkPath.append(DEVICES_PATH, id);
     this.lock = new CuratorDeviceLock<T>(curator, this);
   }
 
   @Override
-  public T doGetStatus() throws Exception {
+  public T doGetData() throws Exception {
     byte[] payload = curator.getData().forPath(path);
-    return statusSerialization.deserialize(payload);
+    return dataSerialization.deserialize(payload);
   }
 
   @Override
-  protected void doSetStatus(T status) throws Exception {
-    LOGGER.info("Setting device '" + getId() + "' to status '" + status + "'");
-    curator.setData().forPath(path, statusSerialization.serialize(status));
+  protected void doSetData(T data) throws Exception {
+    LOGGER.info("Setting device '" + getId() + "' to data '" + data + "'");
+    curator.setData().forPath(path, dataSerialization.serialize(data));
   }
 
   @Override
