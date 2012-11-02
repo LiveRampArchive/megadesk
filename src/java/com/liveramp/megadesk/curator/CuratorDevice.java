@@ -4,7 +4,7 @@ import com.liveramp.megadesk.device.BaseDevice;
 import com.liveramp.megadesk.device.Device;
 import com.liveramp.megadesk.device.DeviceReadLock;
 import com.liveramp.megadesk.device.DeviceWriteLock;
-import com.liveramp.megadesk.state.StateSerialization;
+import com.liveramp.megadesk.status.StatusSerialization;
 import com.liveramp.megadesk.util.ZkPath;
 import com.netflix.curator.framework.CuratorFramework;
 import org.apache.log4j.Logger;
@@ -17,29 +17,29 @@ public class CuratorDevice<T> extends BaseDevice<T> implements Device<T> {
 
   private final CuratorFramework curator;
   private final String path;
-  private final StateSerialization<T> stateSerialization;
+  private final StatusSerialization<T> statusSerialization;
   private final CuratorDeviceLock<T> lock;
 
   public CuratorDevice(CuratorFramework curator,
                        String id,
-                       StateSerialization<T> stateSerialization) throws Exception {
+                       StatusSerialization<T> statusSerialization) throws Exception {
     super(id);
     this.curator = curator;
-    this.stateSerialization = stateSerialization;
+    this.statusSerialization = statusSerialization;
     this.path = ZkPath.append(RESOURCES_PATH, id);
     this.lock = new CuratorDeviceLock<T>(curator, this);
   }
 
   @Override
-  public T doGetState() throws Exception {
+  public T doGetStatus() throws Exception {
     byte[] payload = curator.getData().forPath(path);
-    return stateSerialization.deserialize(payload);
+    return statusSerialization.deserialize(payload);
   }
 
   @Override
-  protected void doSetState(T state) throws Exception {
-    LOGGER.info("Setting device '" + getId() + "' to state '" + state + "'");
-    curator.setData().forPath(path, stateSerialization.serialize(state));
+  protected void doSetStatus(T status) throws Exception {
+    LOGGER.info("Setting device '" + getId() + "' to status '" + status + "'");
+    curator.setData().forPath(path, statusSerialization.serialize(status));
   }
 
   @Override

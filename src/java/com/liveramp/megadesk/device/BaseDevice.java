@@ -16,29 +16,29 @@ public abstract class BaseDevice<T> implements Device<T> {
   }
 
   @Override
-  public T getState() throws Exception {
-    return doGetState();
+  public T getStatus() throws Exception {
+    return doGetStatus();
   }
 
   @Override
-  public void setState(T state) throws Exception {
+  public void setStatus(T status) throws Exception {
     String owner = "_MANUAL_SET_STATE_" + UUID.randomUUID().toString();
     getWriteLock().acquire(owner, false);
     try {
-      doSetState(state);
+      doSetStatus(status);
     } finally {
       getWriteLock().release(owner);
     }
   }
 
   @Override
-  public void setState(String owner, T state) throws Exception {
+  public void setStatus(String owner, T status) throws Exception {
     getWriteLock().acquire(owner, false);
-    doSetState(state);
+    doSetStatus(status);
     // Note: do not release the write lock as this assumes the lock is held and will be released later
   }
 
-  protected abstract void doSetState(T state) throws Exception;
+  protected abstract void doSetStatus(T status) throws Exception;
 
-  protected abstract T doGetState() throws Exception;
+  protected abstract T doGetStatus() throws Exception;
 }

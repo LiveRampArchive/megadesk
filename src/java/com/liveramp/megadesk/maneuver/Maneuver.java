@@ -21,5 +21,5 @@ public interface Maneuver {
 
   public void release() throws Exception;
 
-  public <T> void write(Device<T> device, T state) throws Exception;
+  public <T> void write(Device<T> device, T status) throws Exception;
 }

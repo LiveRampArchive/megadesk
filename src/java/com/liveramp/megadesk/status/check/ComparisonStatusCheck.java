@@ -1,17 +1,17 @@
-package com.liveramp.megadesk.state.check;
+package com.liveramp.megadesk.status.check;
 
 import com.liveramp.megadesk.device.Device;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ComparisonStateCheck<T extends Comparable<T>> implements StateCheck<T> {
+public class ComparisonStatusCheck<T extends Comparable<T>> implements StatusCheck<T> {
 
-  private final T state;
+  private final T status;
   private final List<Integer> acceptableComparisonResults;
 
-  public ComparisonStateCheck(T state, int... acceptableComparisonResults) {
-    this.state = state;
+  public ComparisonStatusCheck(T status, int... acceptableComparisonResults) {
+    this.status = status;
     this.acceptableComparisonResults = new ArrayList<Integer>(acceptableComparisonResults.length);
     for (int acceptableComparisonResult : acceptableComparisonResults) {
       this.acceptableComparisonResults.add(sign(acceptableComparisonResult));
@@ -20,18 +20,18 @@ public class ComparisonStateCheck<T extends Comparable<T>> implements StateCheck
 
   @Override
   public boolean check(Device<T> device) throws Exception {
-    T currentState = device.getState();
-    if (state == null || currentState == null) {
+    T currentStatus = device.getStatus();
+    if (status == null || currentStatus == null) {
       return false;
     } else {
-      return acceptableComparisonResults.contains(sign(currentState.compareTo(state)));
+      return acceptableComparisonResults.contains(sign(currentStatus.compareTo(status)));
     }
   }
 
   @Override
   public String toString() {
-    return "[ComparisonStateCheck: " + acceptableComparisonResults
-        + " when compared to " + state + "]";
+    return "[ComparisonStatusCheck: " + acceptableComparisonResults
+        + " when compared to " + status + "]";
   }
 
   private int sign(int result) {

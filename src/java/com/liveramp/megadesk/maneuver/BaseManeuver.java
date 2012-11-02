@@ -54,7 +54,7 @@ public abstract class BaseManeuver implements Maneuver {
     // TODO: potential dead locks
     getLock().acquire();
     for (Read read : reads) {
-      read.getDevice().getReadLock().acquire(getId(), read.getStateCheck(), true);
+      read.getDevice().getReadLock().acquire(getId(), read.getStatusCheck(), true);
     }
     for (Device write : writes) {
       write.getWriteLock().acquire(getId(), true);
@@ -79,14 +79,14 @@ public abstract class BaseManeuver implements Maneuver {
   }
 
   @Override
-  public <T> void write(Device<T> device, T state) throws Exception {
+  public <T> void write(Device<T> device, T status) throws Exception {
     if (!getLock().isAcquiredInThisProcess()) {
-      throw new IllegalStateException("Cannot set state of device '" + device.getId() + "' from maneuver '" + getId() + "' that is not being attempted in this process.");
+      throw new IllegalStateException("Cannot set status of device '" + device.getId() + "' from maneuver '" + getId() + "' that is not being attempted in this process.");
     }
     if (!getWrites().contains(device)) {
-      throw new IllegalStateException("Cannot set state of device '" + device.getId() + "' from maneuver '" + getId() + "' that does not write it.");
+      throw new IllegalStateException("Cannot set status of device '" + device.getId() + "' from maneuver '" + getId() + "' that does not write it.");
     }
-    device.setState(getId(), state);
+    device.setStatus(getId(), status);
   }
 
   protected abstract ManeuverLock getLock();
