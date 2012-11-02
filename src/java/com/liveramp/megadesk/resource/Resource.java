@@ -10,7 +10,7 @@ public interface Resource<T> {
 
   public void setData(String owner, T data) throws Exception;
 
-  public ResourceReadLock<T> getReadLock();
+  public ResourceReadLock getReadLock() throws Exception;
 
-  public ResourceWriteLock getWriteLock();
+  public ResourceWriteLock getWriteLock() throws Exception;
 }

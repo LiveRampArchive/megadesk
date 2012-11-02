@@ -17,11 +17,12 @@
 package com.liveramp.megadesk;
 
 import com.google.common.base.Throwables;
-import com.liveramp.megadesk.curator.IntegerResource;
-import com.liveramp.megadesk.curator.IntegerStep;
-import com.liveramp.megadesk.curator.SimpleStep;
-import com.liveramp.megadesk.curator.StringResource;
+import com.liveramp.megadesk.curator.CuratorMegadesk;
+import com.liveramp.megadesk.resource.lib.IntegerResource;
+import com.liveramp.megadesk.resource.lib.StringResource;
 import com.liveramp.megadesk.step.Step;
+import com.liveramp.megadesk.step.lib.IntegerStep;
+import com.liveramp.megadesk.step.lib.SimpleStep;
 import com.liveramp.megadesk.test.BaseTestCase;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.CuratorFrameworkFactory;
@@ -41,18 +42,20 @@ public class IntegrationTest extends BaseTestCase {
         .build();
     curator.start();
 
-    final StringResource resourceA = new StringResource(curator, "resourceA");
-    final StringResource resourceB = new StringResource(curator, "resourceB");
-    final StringResource resourceC = new StringResource(curator, "resourceC");
-    final StringResource resourceD = new StringResource(curator, "resourceD");
-    final IntegerResource resourceE = new IntegerResource(curator, "resourceE");
-    final IntegerResource resourceF = new IntegerResource(curator, "resourceF");
+    final CuratorMegadesk megadesk = new CuratorMegadesk(curator);
+
+    final StringResource resourceA = new StringResource(megadesk, "resourceA");
+    final StringResource resourceB = new StringResource(megadesk, "resourceB");
+    final StringResource resourceC = new StringResource(megadesk, "resourceC");
+    final StringResource resourceD = new StringResource(megadesk, "resourceD");
+    final IntegerResource resourceE = new IntegerResource(megadesk, "resourceE");
+    final IntegerResource resourceF = new IntegerResource(megadesk, "resourceF");
 
     Thread stepZ = new Thread(new Runnable() {
       @Override
       public void run() {
         try {
-          SimpleStep step = new SimpleStep(curator, "stepZ")
+          SimpleStep step = new SimpleStep(megadesk, "stepZ")
               .reads(resourceA.at("ready"))
               .writes(resourceB, resourceE);
           step.acquire();
@@ -69,7 +72,7 @@ public class IntegrationTest extends BaseTestCase {
       @Override
       public void run() {
         try {
-          Step step = new SimpleStep(curator, "stepA")
+          Step step = new SimpleStep(megadesk, "stepA")
               .reads(resourceA.at("ready"), resourceB.at("ready"))
               .writes(resourceC);
           step.acquire();
@@ -85,7 +88,7 @@ public class IntegrationTest extends BaseTestCase {
       @Override
       public void run() {
         try {
-          IntegerStep step = new IntegerStep(curator, "stepB")
+          IntegerStep step = new IntegerStep(megadesk, "stepB")
               .writes(resourceD, resourceE, resourceF);
           Integer processedVersion = -1;
           while (processedVersion < 2) {
