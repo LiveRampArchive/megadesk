@@ -12,7 +12,7 @@ public class CuratorManeuver<T, CRTP extends CuratorManeuver>
     extends BaseManeuver<T, CRTP>
     implements Maneuver<T, CRTP> {
 
-  private static final String MANEUVERS_PATH = "/maneuvers";
+  private static final String MANEUVERS_PATH = "/megadesk/maneuvers";
 
   private final CuratorFramework curator;
   private final String path;

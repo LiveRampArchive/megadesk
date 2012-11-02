@@ -13,7 +13,7 @@ public class CuratorDevice<T> extends BaseDevice<T> implements Device<T> {
 
   private static final Logger LOGGER = Logger.getLogger(CuratorDevice.class);
 
-  private static final String DEVICES_PATH = "/devices";
+  private static final String DEVICES_PATH = "/megadesk/devices";
 
   private final CuratorFramework curator;
   private final String path;
