@@ -1,6 +1,6 @@
 package com.liveramp.megadesk.device;
 
-import com.liveramp.megadesk.data.check.DataCheck;
+import com.liveramp.megadesk.data.DataCheck;
 
 public class Read<T> {
 

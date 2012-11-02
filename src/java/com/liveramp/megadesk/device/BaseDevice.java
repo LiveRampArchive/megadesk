@@ -38,7 +38,7 @@ public abstract class BaseDevice<T> implements Device<T> {
     // Note: do not release the write lock as this assumes the lock is held and will be released later
   }
 
-  protected abstract void doSetData(T data) throws Exception;
-
   protected abstract T doGetData() throws Exception;
+
+  protected abstract void doSetData(T data) throws Exception;
 }

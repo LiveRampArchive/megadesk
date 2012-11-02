@@ -8,8 +8,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class BaseManeuver<T, CRTP extends BaseManeuver>
-    implements Maneuver<T, CRTP> {
+public abstract class BaseManeuver<T, CRTP extends BaseManeuver> implements Maneuver<T, CRTP> {
 
   private static final Logger LOGGER = Logger.getLogger(BaseManeuver.class);
 
@@ -70,7 +69,7 @@ public abstract class BaseManeuver<T, CRTP extends BaseManeuver>
     LOGGER.info("Completing maneuver '" + getId() + "'");
     // Make sure this process is allowed to complete this maneuver
     if (!getLock().isAcquiredInThisProcess()) {
-      throw new IllegalStateException("Cannot complete maneuver '" + getId() + "' that is not being attempted in this process.");
+      throw new IllegalStateException("Cannot complete maneuver '" + getId() + "' that is not acquired by this process.");
     }
     // Release all locks in order
     for (Read read : reads) {
@@ -86,13 +85,45 @@ public abstract class BaseManeuver<T, CRTP extends BaseManeuver>
   @SuppressWarnings("unchecked")
   public void write(Device device, Object data) throws Exception {
     if (!getLock().isAcquiredInThisProcess()) {
-      throw new IllegalStateException("Cannot set data of device '" + device.getId() + "' from maneuver '" + getId() + "' that is not being attempted in this process.");
+      throw new IllegalStateException("Cannot set data of device '" + device.getId() + "' from maneuver '" + getId() + "' that is not acquired by this process.");
     }
     if (!getWrites().contains(device)) {
       throw new IllegalStateException("Cannot set data of device '" + device.getId() + "' from maneuver '" + getId() + "' that does not write it.");
     }
     device.setData(getId(), data);
   }
+
+  @Override
+  public T getData() throws Exception {
+    if (!getLock().isAcquiredInThisProcess()) {
+      getLock().acquire();
+      try {
+        return doGetData();
+      } finally {
+        getLock().release();
+      }
+    } else {
+      return doGetData();
+    }
+  }
+
+  @Override
+  public void setData(T data) throws Exception {
+    if (!getLock().isAcquiredInThisProcess()) {
+      getLock().acquire();
+      try {
+        doSetData(data);
+      } finally {
+        getLock().release();
+      }
+    } else {
+      doSetData(data);
+    }
+  }
+
+  protected abstract T doGetData() throws Exception;
+
+  protected abstract void doSetData(T data) throws Exception;
 
   protected abstract ManeuverLock getLock();
 }

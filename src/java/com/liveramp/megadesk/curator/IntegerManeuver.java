@@ -1,7 +1,7 @@
 package com.liveramp.megadesk.curator;
 
 import com.liveramp.megadesk.maneuver.Maneuver;
-import com.liveramp.megadesk.data.IntegerSerialization;
+import com.liveramp.megadesk.serialization.IntegerSerialization;
 import com.netflix.curator.framework.CuratorFramework;
 
 public class IntegerManeuver

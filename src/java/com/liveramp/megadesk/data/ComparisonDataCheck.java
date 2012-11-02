@@ -1,4 +1,4 @@
-package com.liveramp.megadesk.data.check;
+package com.liveramp.megadesk.data;
 
 import com.liveramp.megadesk.device.Device;
 

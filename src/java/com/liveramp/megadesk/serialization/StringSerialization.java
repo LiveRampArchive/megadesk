@@ -1,4 +1,4 @@
-package com.liveramp.megadesk.data;
+package com.liveramp.megadesk.serialization;
 
 import com.liveramp.megadesk.serialization.Serialization;
 

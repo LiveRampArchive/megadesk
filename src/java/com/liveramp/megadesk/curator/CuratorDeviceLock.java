@@ -1,6 +1,6 @@
 package com.liveramp.megadesk.curator;
 
-import com.liveramp.megadesk.data.check.DataCheck;
+import com.liveramp.megadesk.data.DataCheck;
 import com.liveramp.megadesk.device.DeviceReadLock;
 import com.liveramp.megadesk.device.DeviceWriteLock;
 import com.liveramp.megadesk.util.ZkPath;

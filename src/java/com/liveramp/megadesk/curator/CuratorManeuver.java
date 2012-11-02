@@ -36,14 +36,12 @@ public class CuratorManeuver<T, CRTP extends CuratorManeuver>
   }
 
   @Override
-  public T getData() throws Exception {
-    // TODO: locking
+  protected T doGetData() throws Exception {
     return dataSerialization.deserialize(curator.getData().forPath(path));
   }
 
   @Override
-  public void setData(T data) throws Exception {
-    // TODO: locking
+  protected void doSetData(T data) throws Exception {
     curator.setData().forPath(path, dataSerialization.serialize(data));
   }
 }

@@ -85,17 +85,21 @@ public class IntegrationTest extends BaseTestCase {
       @Override
       public void run() {
         try {
-          int processedEVersion = -1;
           IntegerManeuver maneuver = new IntegerManeuver(curator, "maneuverB")
-              .reads(deviceC.at("done"), deviceE.greaterThan(processedEVersion))
               .writes(deviceD, deviceE, deviceF);
-          while (processedEVersion < 2) {
+          Integer processedVersion = -1;
+          while (processedVersion < 2) {
+            processedVersion = maneuver.getData();
+            if (processedVersion == null) {
+              processedVersion = -1;
+            }
+            maneuver.reads(deviceC.at("done"), deviceE.greaterThan(processedVersion));
             maneuver.acquire();
-            maneuver.setData(-1);
-            processedEVersion = deviceE.getData();
+            Integer eVersion = deviceE.getData();
             maneuver.write(deviceD, "done");
-            maneuver.write(deviceE, processedEVersion + 1);
-            maneuver.write(deviceF, processedEVersion);
+            maneuver.write(deviceE, eVersion + 1);
+            maneuver.write(deviceF, eVersion);
+            maneuver.setData(eVersion);
             maneuver.release();
           }
         } catch (Exception e) {
@@ -120,7 +124,7 @@ public class IntegrationTest extends BaseTestCase {
     assertEquals("ready", deviceB.getData());
     assertEquals("done", deviceC.getData());
     assertEquals("done", deviceD.getData());
-    assertEquals(Integer.valueOf(3), deviceE.getData());
-    assertEquals(Integer.valueOf(2), deviceF.getData());
+    assertEquals(Integer.valueOf(4), deviceE.getData());
+    assertEquals(Integer.valueOf(3), deviceF.getData());
   }
 }

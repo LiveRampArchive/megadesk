@@ -1,6 +1,4 @@
-package com.liveramp.megadesk.data;
-
-import com.liveramp.megadesk.serialization.Serialization;
+package com.liveramp.megadesk.serialization;
 
 public class IntegerSerialization implements Serialization<Integer> {
 
@@ -15,7 +13,7 @@ public class IntegerSerialization implements Serialization<Integer> {
 
   @Override
   public Integer deserialize(byte[] serializedData) {
-    if (serializedData == null) {
+    if (serializedData == null || serializedData.length == 0) {
       return null;
     } else {
       return Integer.valueOf(new String(serializedData));
