@@ -1,6 +1,8 @@
 package com.liveramp.megadesk.status;
 
-public class IntegerStatusSerialization implements StatusSerialization<Integer> {
+import com.liveramp.megadesk.serialization.Serialization;
+
+public class IntegerStatusSerialization implements Serialization<Integer> {
 
   @Override
   public byte[] serialize(Integer status) {

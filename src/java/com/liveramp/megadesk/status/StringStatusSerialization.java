@@ -1,6 +1,8 @@
 package com.liveramp.megadesk.status;
 
-public class StringStatusSerialization implements StatusSerialization<String> {
+import com.liveramp.megadesk.serialization.Serialization;
+
+public class StringStatusSerialization implements Serialization<String> {
 
   @Override
   public byte[] serialize(String status) {

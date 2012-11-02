@@ -4,7 +4,7 @@ import com.liveramp.megadesk.device.BaseDevice;
 import com.liveramp.megadesk.device.Device;
 import com.liveramp.megadesk.device.DeviceReadLock;
 import com.liveramp.megadesk.device.DeviceWriteLock;
-import com.liveramp.megadesk.status.StatusSerialization;
+import com.liveramp.megadesk.serialization.Serialization;
 import com.liveramp.megadesk.util.ZkPath;
 import com.netflix.curator.framework.CuratorFramework;
 import org.apache.log4j.Logger;
@@ -17,12 +17,12 @@ public class CuratorDevice<T> extends BaseDevice<T> implements Device<T> {
 
   private final CuratorFramework curator;
   private final String path;
-  private final StatusSerialization<T> statusSerialization;
+  private final Serialization<T> statusSerialization;
   private final CuratorDeviceLock<T> lock;
 
   public CuratorDevice(CuratorFramework curator,
                        String id,
-                       StatusSerialization<T> statusSerialization) throws Exception {
+                       Serialization<T> statusSerialization) throws Exception {
     super(id);
     this.curator = curator;
     this.statusSerialization = statusSerialization;
