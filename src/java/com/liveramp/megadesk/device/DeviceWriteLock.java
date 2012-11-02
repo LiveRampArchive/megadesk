@@ -1,6 +1,6 @@
-package com.liveramp.megadesk.resource;
+package com.liveramp.megadesk.device;
 
-public interface ResourceWriteLock {
+public interface DeviceWriteLock {
 
   public void acquire(String owner, boolean persistent) throws Exception;
 

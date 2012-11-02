@@ -1,19 +1,19 @@
-package com.liveramp.megadesk.resource;
+package com.liveramp.megadesk.device;
 
 import com.liveramp.megadesk.state.check.StateCheck;
 
 public class Read {
 
-  private final Resource resource;
+  private final Device device;
   private final StateCheck stateCheck;
 
-  public Read(Resource resource, StateCheck stateCheck) {
-    this.resource = resource;
+  public Read(Device device, StateCheck stateCheck) {
+    this.device = device;
     this.stateCheck = stateCheck;
   }
 
-  public Resource getResource() {
-    return resource;
+  public Device getDevice() {
+    return device;
   }
 
   public StateCheck getStateCheck() {

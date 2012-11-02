@@ -1,6 +1,6 @@
 package com.liveramp.megadesk.state.check;
 
-import com.liveramp.megadesk.resource.Resource;
+import com.liveramp.megadesk.device.Device;
 
 public class EqualityStateCheck<T> implements StateCheck<T> {
 
@@ -11,8 +11,8 @@ public class EqualityStateCheck<T> implements StateCheck<T> {
   }
 
   @Override
-  public boolean check(Resource<T> resource) throws Exception {
-    T currentState = resource.getState();
+  public boolean check(Device<T> device) throws Exception {
+    T currentState = device.getState();
     return (state == null && currentState == null)
         || (state != null && state.equals(currentState));
   }

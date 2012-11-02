@@ -1,7 +1,7 @@
 package com.liveramp.megadesk.maneuver;
 
-import com.liveramp.megadesk.resource.Read;
-import com.liveramp.megadesk.resource.Resource;
+import com.liveramp.megadesk.device.Device;
+import com.liveramp.megadesk.device.Read;
 
 import java.util.List;
 
@@ -11,11 +11,11 @@ public interface Maneuver {
 
   public List<Read> getReads();
 
-  public List<Resource> getWrites();
+  public List<Device> getWrites();
 
   public void acquire() throws Exception;
 
   public void release() throws Exception;
 
-  public <T> void set(Resource<T> resource, T state) throws Exception;
+  public <T> void set(Device<T> device, T state) throws Exception;
 }

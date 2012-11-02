@@ -1,15 +1,15 @@
 package com.liveramp.megadesk.curator;
 
-import com.liveramp.megadesk.resource.Read;
-import com.liveramp.megadesk.resource.Resource;
+import com.liveramp.megadesk.device.Device;
+import com.liveramp.megadesk.device.Read;
 import com.liveramp.megadesk.state.check.EqualityStateCheck;
 import com.liveramp.megadesk.state.StringStateSerialization;
 import com.netflix.curator.framework.CuratorFramework;
 
-public class StringCuratorResource extends CuratorResource<String> implements Resource<String> {
+public class StringDevice extends CuratorDevice<String> implements Device<String> {
 
-  public StringCuratorResource(CuratorFramework curator,
-                               String id) throws Exception {
+  public StringDevice(CuratorFramework curator,
+                      String id) throws Exception {
     super(curator, id, new StringStateSerialization());
   }
 

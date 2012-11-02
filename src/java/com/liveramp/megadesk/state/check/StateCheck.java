@@ -1,8 +1,8 @@
 package com.liveramp.megadesk.state.check;
 
-import com.liveramp.megadesk.resource.Resource;
+import com.liveramp.megadesk.device.Device;
 
 public interface StateCheck<T> {
 
-  public boolean check(Resource<T> resource) throws Exception;
+  public boolean check(Device<T> device) throws Exception;
 }

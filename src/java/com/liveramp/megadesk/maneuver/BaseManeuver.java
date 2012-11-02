@@ -1,7 +1,7 @@
 package com.liveramp.megadesk.maneuver;
 
-import com.liveramp.megadesk.resource.Read;
-import com.liveramp.megadesk.resource.Resource;
+import com.liveramp.megadesk.device.Device;
+import com.liveramp.megadesk.device.Read;
 import org.apache.log4j.Logger;
 
 import java.util.List;
@@ -12,11 +12,11 @@ public abstract class BaseManeuver implements Maneuver {
 
   private String id;
   private final List<Read> reads;
-  private final List<Resource> writes;
+  private final List<Device> writes;
 
   public BaseManeuver(String id,
                       List<Read> reads,
-                      List<Resource> writes) {
+                      List<Device> writes) {
     this.id = id;
     this.reads = reads;
     this.writes = writes;
@@ -33,7 +33,7 @@ public abstract class BaseManeuver implements Maneuver {
   }
 
   @Override
-  public List<Resource> getWrites() {
+  public List<Device> getWrites() {
     return writes;
   }
 
@@ -44,9 +44,9 @@ public abstract class BaseManeuver implements Maneuver {
     // TODO: potential dead locks
     getLock().acquire();
     for (Read read : reads) {
-      read.getResource().getReadLock().acquire(getId(), read.getStateCheck(), true);
+      read.getDevice().getReadLock().acquire(getId(), read.getStateCheck(), true);
     }
-    for (Resource write : writes) {
+    for (Device write : writes) {
       write.getWriteLock().acquire(getId(), true);
     }
   }
@@ -60,23 +60,23 @@ public abstract class BaseManeuver implements Maneuver {
     }
     // Release all locks in order
     for (Read read : reads) {
-      read.getResource().getReadLock().release(getId());
+      read.getDevice().getReadLock().release(getId());
     }
-    for (Resource write : writes) {
+    for (Device write : writes) {
       write.getWriteLock().release(getId());
     }
     getLock().release();
   }
 
   @Override
-  public <T> void set(Resource<T> resource, T state) throws Exception {
+  public <T> void set(Device<T> device, T state) throws Exception {
     if (!getLock().isAcquiredInThisProcess()) {
-      throw new IllegalStateException("Cannot set state of resource '" + resource.getId() + "' from maneuver '" + getId() + "' that is not being attempted in this process.");
+      throw new IllegalStateException("Cannot set state of device '" + device.getId() + "' from maneuver '" + getId() + "' that is not being attempted in this process.");
     }
-    if (!getWrites().contains(resource)) {
-      throw new IllegalStateException("Cannot set state of resource '" + resource.getId() + "' from maneuver '" + getId() + "' that does not write it.");
+    if (!getWrites().contains(device)) {
+      throw new IllegalStateException("Cannot set state of device '" + device.getId() + "' from maneuver '" + getId() + "' that does not write it.");
     }
-    resource.setState(getId(), state);
+    device.setState(getId(), state);
   }
 
   protected abstract ManeuverLock getLock();

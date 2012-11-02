@@ -1,12 +1,12 @@
-package com.liveramp.megadesk.resource;
+package com.liveramp.megadesk.device;
 
 import java.util.UUID;
 
-public abstract class BaseResource<T> implements Resource<T> {
+public abstract class BaseDevice<T> implements Device<T> {
 
   private final String id;
 
-  protected BaseResource(String id) {
+  protected BaseDevice(String id) {
     this.id = id;
   }
 

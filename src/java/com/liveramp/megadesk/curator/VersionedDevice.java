@@ -1,14 +1,14 @@
 package com.liveramp.megadesk.curator;
 
-import com.liveramp.megadesk.resource.Read;
-import com.liveramp.megadesk.resource.Resource;
-import com.liveramp.megadesk.state.check.ComparisonStateCheck;
+import com.liveramp.megadesk.device.Device;
+import com.liveramp.megadesk.device.Read;
 import com.liveramp.megadesk.state.IntegerStateSerialization;
+import com.liveramp.megadesk.state.check.ComparisonStateCheck;
 import com.netflix.curator.framework.CuratorFramework;
 
-public class VersionedCuratorResource extends CuratorResource<Integer> implements Resource<Integer> {
+public class VersionedDevice extends CuratorDevice<Integer> implements Device<Integer> {
 
-  public VersionedCuratorResource(CuratorFramework curator, String id) throws Exception {
+  public VersionedDevice(CuratorFramework curator, String id) throws Exception {
     super(curator, id, new IntegerStateSerialization());
   }
 

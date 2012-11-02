@@ -1,4 +1,4 @@
-package com.liveramp.megadesk.resource;
+package com.liveramp.megadesk.device;
 
 import java.util.Arrays;
 import java.util.List;

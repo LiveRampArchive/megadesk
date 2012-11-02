@@ -1,6 +1,6 @@
 package com.liveramp.megadesk.state.check;
 
-import com.liveramp.megadesk.resource.Resource;
+import com.liveramp.megadesk.device.Device;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +19,8 @@ public class ComparisonStateCheck<T extends Comparable<T>> implements StateCheck
   }
 
   @Override
-  public boolean check(Resource<T> resource) throws Exception {
-    T currentState = resource.getState();
+  public boolean check(Device<T> device) throws Exception {
+    T currentState = device.getState();
     if (state == null || currentState == null) {
       return false;
     } else {
