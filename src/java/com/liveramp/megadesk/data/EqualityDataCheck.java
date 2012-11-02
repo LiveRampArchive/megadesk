@@ -1,6 +1,6 @@
 package com.liveramp.megadesk.data;
 
-import com.liveramp.megadesk.device.Device;
+import com.liveramp.megadesk.resource.Resource;
 
 public class EqualityDataCheck<T> implements DataCheck<T> {
 
@@ -11,8 +11,8 @@ public class EqualityDataCheck<T> implements DataCheck<T> {
   }
 
   @Override
-  public boolean check(Device<T> device) throws Exception {
-    T currentData = device.getData();
+  public boolean check(Resource<T> resource) throws Exception {
+    T currentData = resource.getData();
     return (data == null && currentData == null)
         || (data != null && data.equals(currentData));
   }

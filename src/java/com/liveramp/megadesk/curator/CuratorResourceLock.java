@@ -1,8 +1,8 @@
 package com.liveramp.megadesk.curator;
 
 import com.liveramp.megadesk.data.DataCheck;
-import com.liveramp.megadesk.device.DeviceReadLock;
-import com.liveramp.megadesk.device.DeviceWriteLock;
+import com.liveramp.megadesk.resource.ResourceReadLock;
+import com.liveramp.megadesk.resource.ResourceWriteLock;
 import com.liveramp.megadesk.util.ZkPath;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
@@ -12,9 +12,9 @@ import org.apache.zookeeper.CreateMode;
 
 import java.util.List;
 
-public class CuratorDeviceLock<T> {
+public class CuratorResourceLock<T> {
 
-  private static final Logger LOGGER = Logger.getLogger(CuratorDeviceLock.class);
+  private static final Logger LOGGER = Logger.getLogger(CuratorResourceLock.class);
 
   private static final int SLEEP_TIME_MS = 1000;
 
@@ -23,34 +23,34 @@ public class CuratorDeviceLock<T> {
   private static final String INTERNAL_LOCK_PATH = "lock";
 
   private final CuratorFramework curator;
-  private final CuratorDevice<T> device;
+  private final CuratorResource<T> resource;
   private final InterProcessMutex internalLock;
-  private final DeviceReadLock<T> readLock;
-  private final DeviceWriteLock writeLock;
+  private final ResourceReadLock<T> readLock;
+  private final ResourceWriteLock writeLock;
   private final String readersPath;
   private final String writerPath;
 
-  public CuratorDeviceLock(CuratorFramework curator,
-                           CuratorDevice<T> device) throws Exception {
+  public CuratorResourceLock(CuratorFramework curator,
+                             CuratorResource<T> resource) throws Exception {
     this.curator = curator;
-    this.device = device;
-    String internalLockPath = ZkPath.append(device.getPath(), INTERNAL_LOCK_PATH);
+    this.resource = resource;
+    String internalLockPath = ZkPath.append(resource.getPath(), INTERNAL_LOCK_PATH);
     new EnsurePath(internalLockPath).ensure(curator.getZookeeperClient());
     this.internalLock = new InterProcessMutex(curator, internalLockPath);
-    this.readersPath = ZkPath.append(device.getPath(), READERS_PATH);
-    this.writerPath = ZkPath.append(device.getPath(), WRITER_PATH);
+    this.readersPath = ZkPath.append(resource.getPath(), READERS_PATH);
+    this.writerPath = ZkPath.append(resource.getPath(), WRITER_PATH);
 
     new EnsurePath(readersPath).ensure(curator.getZookeeperClient());
     new EnsurePath(writerPath).ensure(curator.getZookeeperClient());
-    this.readLock = new CuratorDeviceReadLock();
-    this.writeLock = new CuratorDeviceWriteLock();
+    this.readLock = new CuratorResourceReadLock();
+    this.writeLock = new CuratorResourceWriteLock();
   }
 
-  public DeviceReadLock<T> getReadLock() {
+  public ResourceReadLock<T> getReadLock() {
     return readLock;
   }
 
-  public DeviceWriteLock getWriteLock() {
+  public ResourceWriteLock getWriteLock() {
     return writeLock;
   }
 
@@ -92,11 +92,11 @@ public class CuratorDeviceLock<T> {
     return currentOwner != null && currentOwner.equals(owner);
   }
 
-  private class CuratorDeviceReadLock implements DeviceReadLock<T> {
+  private class CuratorResourceReadLock implements ResourceReadLock<T> {
 
     @Override
     public void acquire(String owner, DataCheck<T> dataCheck, boolean persistent) throws Exception {
-      LOGGER.info("'" + owner + "' acquiring read lock on device '" + device.getId() + "' with data check: " + dataCheck);
+      LOGGER.info("'" + owner + "' acquiring read lock on resource '" + resource.getId() + "' with data check: " + dataCheck);
       while (true) {
         String writeLockOwner;
         internalLock.acquire();
@@ -106,27 +106,27 @@ public class CuratorDeviceLock<T> {
             return;
           }
           writeLockOwner = getWriteLockOwner();
-          if ((writeLockOwner == null || isWriteLockOwner(owner, writeLockOwner)) && dataCheck.check(device)) {
+          if ((writeLockOwner == null || isWriteLockOwner(owner, writeLockOwner)) && dataCheck.check(resource)) {
             doAcquireReadLock(owner, persistent);
             return;
           }
         } finally {
           internalLock.release();
         }
-        LOGGER.info(owner + " could not acquire device read lock on '" + device.getId() +
+        LOGGER.info(owner + " could not acquire resource read lock on '" + resource.getId() +
             "' because there is either already another writer: '" + writeLockOwner + "' or data check: '" + dataCheck +
-            "' failed against '" + device.getData() + "' Device: " + device);
+            "' failed against '" + resource.getData() + "' Resource: " + resource);
         Thread.sleep(SLEEP_TIME_MS);
       }
     }
 
     @Override
     public void release(String owner) throws Exception {
-      LOGGER.info("'" + owner + "' releasing read lock on device '" + device.getId() + "'");
+      LOGGER.info("'" + owner + "' releasing read lock on resource '" + resource.getId() + "'");
       internalLock.acquire();
       try {
         if (!isReadLockOwner(owner)) {
-          throw new IllegalStateException("Cannot release device read lock on '" + device.getId() + "' by owner '" + owner + "' that did not acquire it.");
+          throw new IllegalStateException("Cannot release resource read lock on '" + resource.getId() + "' by owner '" + owner + "' that did not acquire it.");
         }
         curator.delete().forPath(ZkPath.append(readersPath, owner));
       } finally {
@@ -140,11 +140,11 @@ public class CuratorDeviceLock<T> {
     }
   }
 
-  private class CuratorDeviceWriteLock implements DeviceWriteLock {
+  private class CuratorResourceWriteLock implements ResourceWriteLock {
 
     @Override
     public void acquire(String owner, boolean persistent) throws Exception {
-      LOGGER.info("'" + owner + "' acquiring write lock on device '" + device.getId() + "'");
+      LOGGER.info("'" + owner + "' acquiring write lock on resource '" + resource.getId() + "'");
       while (true) {
         String writeLockOwner;
         List<String> readers;
@@ -163,18 +163,18 @@ public class CuratorDeviceLock<T> {
         } finally {
           internalLock.release();
         }
-        LOGGER.info("'" + owner + "' could not acquire device write lock on '" + device.getId() + "' because there is either a writer: '" + writeLockOwner + "' or another reader: " + getReadLockOwners());
+        LOGGER.info("'" + owner + "' could not acquire resource write lock on '" + resource.getId() + "' because there is either a writer: '" + writeLockOwner + "' or another reader: " + getReadLockOwners());
         Thread.sleep(SLEEP_TIME_MS);
       }
     }
 
     @Override
     public void release(String owner) throws Exception {
-      LOGGER.info("'" + owner + "' releasing write lock on device '" + device.getId() + "'");
+      LOGGER.info("'" + owner + "' releasing write lock on resource '" + resource.getId() + "'");
       internalLock.acquire();
       try {
         if (!isWriteLockOwner(owner)) {
-          throw new IllegalStateException("Cannot release device write lock on '" + device.getId() + "' by owner '" + owner + "' that did not acquire it.");
+          throw new IllegalStateException("Cannot release resource write lock on '" + resource.getId() + "' by owner '" + owner + "' that did not acquire it.");
         }
         curator.delete().forPath(ZkPath.append(writerPath, owner));
       } finally {

@@ -1,7 +1,7 @@
 package com.liveramp.megadesk.maneuver;
 
-import com.liveramp.megadesk.device.Device;
-import com.liveramp.megadesk.device.Read;
+import com.liveramp.megadesk.resource.Resource;
+import com.liveramp.megadesk.resource.Read;
 import org.apache.log4j.Logger;
 
 import java.util.Arrays;
@@ -14,7 +14,7 @@ public abstract class BaseManeuver<T, SELF extends BaseManeuver> implements Mane
 
   private String id;
   private List<Read> reads = Collections.emptyList();
-  private List<Device> writes = Collections.emptyList();
+  private List<Resource> writes = Collections.emptyList();
 
   public BaseManeuver(String id) {
     this.id = id;
@@ -31,7 +31,7 @@ public abstract class BaseManeuver<T, SELF extends BaseManeuver> implements Mane
   }
 
   @Override
-  public List<Device> getWrites() {
+  public List<Resource> getWrites() {
     return writes;
   }
 
@@ -44,7 +44,7 @@ public abstract class BaseManeuver<T, SELF extends BaseManeuver> implements Mane
 
   @Override
   @SuppressWarnings("unchecked")
-  public SELF writes(Device... writes) {
+  public SELF writes(Resource... writes) {
     this.writes = Arrays.asList(writes);
     return (SELF) this;
   }
@@ -57,9 +57,9 @@ public abstract class BaseManeuver<T, SELF extends BaseManeuver> implements Mane
     // TODO: potential dead locks
     getLock().acquire();
     for (Read read : reads) {
-      read.getDevice().getReadLock().acquire(getId(), read.getDataCheck(), true);
+      read.getResource().getReadLock().acquire(getId(), read.getDataCheck(), true);
     }
-    for (Device write : writes) {
+    for (Resource write : writes) {
       write.getWriteLock().acquire(getId(), true);
     }
   }
@@ -73,9 +73,9 @@ public abstract class BaseManeuver<T, SELF extends BaseManeuver> implements Mane
     }
     // Release all locks in order
     for (Read read : reads) {
-      read.getDevice().getReadLock().release(getId());
+      read.getResource().getReadLock().release(getId());
     }
-    for (Device write : writes) {
+    for (Resource write : writes) {
       write.getWriteLock().release(getId());
     }
     getLock().release();
@@ -83,14 +83,14 @@ public abstract class BaseManeuver<T, SELF extends BaseManeuver> implements Mane
 
   @Override
   @SuppressWarnings("unchecked")
-  public void write(Device device, Object data) throws Exception {
+  public void write(Resource resource, Object data) throws Exception {
     if (!getLock().isAcquiredInThisProcess()) {
-      throw new IllegalStateException("Cannot set data of device '" + device.getId() + "' from maneuver '" + getId() + "' that is not acquired by this process.");
+      throw new IllegalStateException("Cannot set data of resource '" + resource.getId() + "' from maneuver '" + getId() + "' that is not acquired by this process.");
     }
-    if (!getWrites().contains(device)) {
-      throw new IllegalStateException("Cannot set data of device '" + device.getId() + "' from maneuver '" + getId() + "' that does not write it.");
+    if (!getWrites().contains(resource)) {
+      throw new IllegalStateException("Cannot set data of resource '" + resource.getId() + "' from maneuver '" + getId() + "' that does not write it.");
     }
-    device.setData(getId(), data);
+    resource.setData(getId(), data);
   }
 
   @Override

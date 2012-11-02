@@ -1,10 +1,10 @@
-package com.liveramp.megadesk.device;
+package com.liveramp.megadesk.resource;
 
 import com.liveramp.megadesk.data.DataCheck;
 
 import java.util.List;
 
-public interface DeviceReadLock<T> {
+public interface ResourceReadLock<T> {
 
   public void acquire(String owner, DataCheck<T> dataCheck, boolean persistent) throws Exception;
 

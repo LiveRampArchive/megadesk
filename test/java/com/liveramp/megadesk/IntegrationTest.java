@@ -17,10 +17,10 @@
 package com.liveramp.megadesk;
 
 import com.google.common.base.Throwables;
-import com.liveramp.megadesk.curator.IntegerDevice;
+import com.liveramp.megadesk.curator.IntegerResource;
 import com.liveramp.megadesk.curator.IntegerManeuver;
 import com.liveramp.megadesk.curator.SimpleManeuver;
-import com.liveramp.megadesk.curator.StringDevice;
+import com.liveramp.megadesk.curator.StringResource;
 import com.liveramp.megadesk.maneuver.Maneuver;
 import com.liveramp.megadesk.test.BaseTestCase;
 import com.netflix.curator.framework.CuratorFramework;
@@ -41,23 +41,23 @@ public class IntegrationTest extends BaseTestCase {
         .build();
     curator.start();
 
-    final StringDevice deviceA = new StringDevice(curator, "deviceA");
-    final StringDevice deviceB = new StringDevice(curator, "deviceB");
-    final StringDevice deviceC = new StringDevice(curator, "deviceC");
-    final StringDevice deviceD = new StringDevice(curator, "deviceD");
-    final IntegerDevice deviceE = new IntegerDevice(curator, "deviceE");
-    final IntegerDevice deviceF = new IntegerDevice(curator, "deviceF");
+    final StringResource resourceA = new StringResource(curator, "resourceA");
+    final StringResource resourceB = new StringResource(curator, "resourceB");
+    final StringResource resourceC = new StringResource(curator, "resourceC");
+    final StringResource resourceD = new StringResource(curator, "resourceD");
+    final IntegerResource resourceE = new IntegerResource(curator, "resourceE");
+    final IntegerResource resourceF = new IntegerResource(curator, "resourceF");
 
     Thread maneuverZ = new Thread(new Runnable() {
       @Override
       public void run() {
         try {
           SimpleManeuver maneuver = new SimpleManeuver(curator, "maneuverZ")
-              .reads(deviceA.at("ready"))
-              .writes(deviceB, deviceE);
+              .reads(resourceA.at("ready"))
+              .writes(resourceB, resourceE);
           maneuver.acquire();
-          maneuver.write(deviceB, "ready");
-          maneuver.write(deviceE, 0);
+          maneuver.write(resourceB, "ready");
+          maneuver.write(resourceE, 0);
           maneuver.release();
         } catch (Exception e) {
           throw Throwables.propagate(e);
@@ -70,10 +70,10 @@ public class IntegrationTest extends BaseTestCase {
       public void run() {
         try {
           Maneuver maneuver = new SimpleManeuver(curator, "maneuverA")
-              .reads(deviceA.at("ready"), deviceB.at("ready"))
-              .writes(deviceC);
+              .reads(resourceA.at("ready"), resourceB.at("ready"))
+              .writes(resourceC);
           maneuver.acquire();
-          maneuver.write(deviceC, "done");
+          maneuver.write(resourceC, "done");
           maneuver.release();
         } catch (Exception e) {
           throw Throwables.propagate(e);
@@ -86,19 +86,19 @@ public class IntegrationTest extends BaseTestCase {
       public void run() {
         try {
           IntegerManeuver maneuver = new IntegerManeuver(curator, "maneuverB")
-              .writes(deviceD, deviceE, deviceF);
+              .writes(resourceD, resourceE, resourceF);
           Integer processedVersion = -1;
           while (processedVersion < 2) {
             processedVersion = maneuver.getData();
             if (processedVersion == null) {
               processedVersion = -1;
             }
-            maneuver.reads(deviceC.at("done"), deviceE.greaterThan(processedVersion));
+            maneuver.reads(resourceC.at("done"), resourceE.greaterThan(processedVersion));
             maneuver.acquire();
-            Integer eVersion = deviceE.getData();
-            maneuver.write(deviceD, "done");
-            maneuver.write(deviceE, eVersion + 1);
-            maneuver.write(deviceF, eVersion);
+            Integer eVersion = resourceE.getData();
+            maneuver.write(resourceD, "done");
+            maneuver.write(resourceE, eVersion + 1);
+            maneuver.write(resourceF, eVersion);
             maneuver.setData(eVersion);
             maneuver.release();
           }
@@ -114,17 +114,17 @@ public class IntegrationTest extends BaseTestCase {
 
     Thread.sleep(1000);
 
-    deviceA.setData("ready");
+    resourceA.setData("ready");
 
     maneuverA.join();
     maneuverB.join();
     maneuverZ.join();
 
-    assertEquals("ready", deviceA.getData());
-    assertEquals("ready", deviceB.getData());
-    assertEquals("done", deviceC.getData());
-    assertEquals("done", deviceD.getData());
-    assertEquals(Integer.valueOf(4), deviceE.getData());
-    assertEquals(Integer.valueOf(3), deviceF.getData());
+    assertEquals("ready", resourceA.getData());
+    assertEquals("ready", resourceB.getData());
+    assertEquals("done", resourceC.getData());
+    assertEquals("done", resourceD.getData());
+    assertEquals(Integer.valueOf(4), resourceE.getData());
+    assertEquals(Integer.valueOf(3), resourceF.getData());
   }
 }

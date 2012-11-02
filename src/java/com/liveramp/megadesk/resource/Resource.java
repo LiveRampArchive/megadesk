@@ -1,6 +1,6 @@
-package com.liveramp.megadesk.device;
+package com.liveramp.megadesk.resource;
 
-public interface Device<T> {
+public interface Resource<T> {
 
   public String getId();
 
@@ -10,7 +10,7 @@ public interface Device<T> {
 
   public void setData(String owner, T data) throws Exception;
 
-  public DeviceReadLock<T> getReadLock();
+  public ResourceReadLock<T> getReadLock();
 
-  public DeviceWriteLock getWriteLock();
+  public ResourceWriteLock getWriteLock();
 }

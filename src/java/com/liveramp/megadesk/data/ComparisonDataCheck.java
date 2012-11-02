@@ -1,6 +1,6 @@
 package com.liveramp.megadesk.data;
 
-import com.liveramp.megadesk.device.Device;
+import com.liveramp.megadesk.resource.Resource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +19,8 @@ public class ComparisonDataCheck<T extends Comparable<T>> implements DataCheck<T
   }
 
   @Override
-  public boolean check(Device<T> device) throws Exception {
-    T currentData = device.getData();
+  public boolean check(Resource<T> resource) throws Exception {
+    T currentData = resource.getData();
     if (data == null || currentData == null) {
       return false;
     } else {
