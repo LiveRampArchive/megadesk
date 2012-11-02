@@ -17,8 +17,9 @@
 package com.liveramp.megadesk;
 
 import com.google.common.base.Throwables;
-import com.liveramp.megadesk.curator.CuratorManeuver;
 import com.liveramp.megadesk.curator.IntegerDevice;
+import com.liveramp.megadesk.curator.IntegerManeuver;
+import com.liveramp.megadesk.curator.SimpleManeuver;
 import com.liveramp.megadesk.curator.StringDevice;
 import com.liveramp.megadesk.maneuver.Maneuver;
 import com.liveramp.megadesk.test.BaseTestCase;
@@ -51,7 +52,7 @@ public class IntegrationTest extends BaseTestCase {
       @Override
       public void run() {
         try {
-          Maneuver maneuver = new CuratorManeuver(curator, "maneuverZ")
+          SimpleManeuver maneuver = new SimpleManeuver(curator, "maneuverZ")
               .reads(deviceA.at("ready"))
               .writes(deviceB, deviceE);
           maneuver.acquire();
@@ -68,7 +69,7 @@ public class IntegrationTest extends BaseTestCase {
       @Override
       public void run() {
         try {
-          Maneuver maneuver = new CuratorManeuver(curator, "maneuverA")
+          Maneuver maneuver = new SimpleManeuver(curator, "maneuverA")
               .reads(deviceA.at("ready"), deviceB.at("ready"))
               .writes(deviceC);
           maneuver.acquire();
@@ -85,11 +86,12 @@ public class IntegrationTest extends BaseTestCase {
       public void run() {
         try {
           int processedEVersion = -1;
+          IntegerManeuver maneuver = new IntegerManeuver(curator, "maneuverB")
+              .reads(deviceC.at("done"), deviceE.greaterThan(processedEVersion))
+              .writes(deviceD, deviceE, deviceF);
           while (processedEVersion < 2) {
-            Maneuver maneuver = new CuratorManeuver(curator, "maneuverB")
-                .reads(deviceC.at("done"), deviceE.greaterThan(processedEVersion))
-                .writes(deviceD, deviceE, deviceF);
             maneuver.acquire();
+            maneuver.setStatus(-1);
             processedEVersion = deviceE.getStatus();
             maneuver.write(deviceD, "done");
             maneuver.write(deviceE, processedEVersion + 1);

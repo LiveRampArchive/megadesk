@@ -10,7 +10,7 @@ public interface Device<T> {
 
   public void setStatus(String owner, T status) throws Exception;
 
-  public DeviceReadLock getReadLock();
+  public DeviceReadLock<T> getReadLock();
 
   public DeviceWriteLock getWriteLock();
 }

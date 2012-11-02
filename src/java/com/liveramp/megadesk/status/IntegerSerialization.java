@@ -2,7 +2,7 @@ package com.liveramp.megadesk.status;
 
 import com.liveramp.megadesk.serialization.Serialization;
 
-public class IntegerStatusSerialization implements Serialization<Integer> {
+public class IntegerSerialization implements Serialization<Integer> {
 
   @Override
   public byte[] serialize(Integer status) {

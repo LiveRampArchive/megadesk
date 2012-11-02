@@ -8,7 +8,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class BaseManeuver implements Maneuver {
+public abstract class BaseManeuver<T, CRTP extends BaseManeuver>
+    implements Maneuver<T, CRTP> {
 
   private static final Logger LOGGER = Logger.getLogger(BaseManeuver.class);
 
@@ -36,18 +37,21 @@ public abstract class BaseManeuver implements Maneuver {
   }
 
   @Override
-  public Maneuver reads(Read... reads) {
+  @SuppressWarnings("unchecked")
+  public CRTP reads(Read... reads) {
     this.reads = Arrays.asList(reads);
-    return this;
+    return (CRTP) this;
   }
 
   @Override
-  public Maneuver writes(Device... writes) {
+  @SuppressWarnings("unchecked")
+  public CRTP writes(Device... writes) {
     this.writes = Arrays.asList(writes);
-    return this;
+    return (CRTP) this;
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public void acquire() throws Exception {
     LOGGER.info("Attempting maneuver '" + getId() + "'");
     // Acquire all locks in order
@@ -79,7 +83,8 @@ public abstract class BaseManeuver implements Maneuver {
   }
 
   @Override
-  public <T> void write(Device<T> device, T status) throws Exception {
+  @SuppressWarnings("unchecked")
+  public void write(Device device, Object status) throws Exception {
     if (!getLock().isAcquiredInThisProcess()) {
       throw new IllegalStateException("Cannot set status of device '" + device.getId() + "' from maneuver '" + getId() + "' that is not being attempted in this process.");
     }

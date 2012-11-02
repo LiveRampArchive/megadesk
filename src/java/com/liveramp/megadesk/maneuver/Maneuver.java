@@ -5,7 +5,7 @@ import com.liveramp.megadesk.device.Read;
 
 import java.util.List;
 
-public interface Maneuver {
+public interface Maneuver<T, CRTP extends Maneuver> {
 
   public String getId();
 
@@ -13,13 +13,17 @@ public interface Maneuver {
 
   public List<Device> getWrites();
 
-  public Maneuver reads(Read... reads);
+  public CRTP reads(Read... reads);
 
-  public Maneuver writes(Device... writes);
+  public CRTP writes(Device... writes);
 
   public void acquire() throws Exception;
 
   public void release() throws Exception;
 
-  public <T> void write(Device<T> device, T status) throws Exception;
+  public T getStatus() throws Exception;
+
+  public void setStatus(T status) throws Exception;
+
+  public void write(Device device, Object status) throws Exception;
 }
