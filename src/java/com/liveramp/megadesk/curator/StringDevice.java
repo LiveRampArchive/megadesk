@@ -1,6 +1,7 @@
 package com.liveramp.megadesk.curator;
 
 import com.liveramp.megadesk.data.EqualityDataCheck;
+import com.liveramp.megadesk.data.NotEmptyStringDataCheck;
 import com.liveramp.megadesk.device.Device;
 import com.liveramp.megadesk.device.Read;
 import com.liveramp.megadesk.serialization.StringSerialization;
@@ -15,5 +16,9 @@ public class StringDevice extends CuratorDevice<String> implements Device<String
 
   public Read at(String data) {
     return new Read<String>(this, new EqualityDataCheck<String>(data));
+  }
+
+  public Read notEmpty() {
+    return new Read<String>(this, new NotEmptyStringDataCheck());
   }
 }
