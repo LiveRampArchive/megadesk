@@ -5,9 +5,9 @@ import com.liveramp.megadesk.data.DataCheck;
 public class Read<T> {
 
   private final Device<T> device;
-  private final DataCheck dataCheck;
+  private final DataCheck<T> dataCheck;
 
-  public Read(Device<T> device, DataCheck dataCheck) {
+  public Read(Device<T> device, DataCheck<T> dataCheck) {
     this.device = device;
     this.dataCheck = dataCheck;
   }
@@ -16,7 +16,7 @@ public class Read<T> {
     return device;
   }
 
-  public DataCheck getDataCheck() {
+  public DataCheck<T> getDataCheck() {
     return dataCheck;
   }
 }
