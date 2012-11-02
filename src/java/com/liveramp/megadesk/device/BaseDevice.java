@@ -22,7 +22,7 @@ public abstract class BaseDevice<T> implements Device<T> {
 
   @Override
   public void setStatus(T status) throws Exception {
-    String owner = "_MANUAL_SET_STATE_" + UUID.randomUUID().toString();
+    String owner = "_MANUAL_SET_STATUS_" + UUID.randomUUID().toString();
     getWriteLock().acquire(owner, false);
     try {
       doSetStatus(status);

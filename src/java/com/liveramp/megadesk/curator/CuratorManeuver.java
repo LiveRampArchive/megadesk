@@ -9,14 +9,14 @@ import com.netflix.curator.utils.EnsurePath;
 
 public class CuratorManeuver extends BaseManeuver implements Maneuver {
 
-  private static final String STEPS_PATH = "/maneuvers";
+  private static final String MANEUVERS_PATH = "/maneuvers";
 
   private final CuratorManeuverLock lock;
 
   public CuratorManeuver(CuratorFramework curator,
                          String id) throws Exception {
     super(id);
-    String path = ZkPath.append(STEPS_PATH, id);
+    String path = ZkPath.append(MANEUVERS_PATH, id);
     new EnsurePath(path).ensure(curator.getZookeeperClient());
     this.lock = new CuratorManeuverLock(curator, path);
   }

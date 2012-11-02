@@ -13,7 +13,7 @@ public class CuratorDevice<T> extends BaseDevice<T> implements Device<T> {
 
   private static final Logger LOGGER = Logger.getLogger(CuratorDevice.class);
 
-  private static final String RESOURCES_PATH = "/devices";
+  private static final String DEVICES_PATH = "/devices";
 
   private final CuratorFramework curator;
   private final String path;
@@ -26,7 +26,7 @@ public class CuratorDevice<T> extends BaseDevice<T> implements Device<T> {
     super(id);
     this.curator = curator;
     this.statusSerialization = statusSerialization;
-    this.path = ZkPath.append(RESOURCES_PATH, id);
+    this.path = ZkPath.append(DEVICES_PATH, id);
     this.lock = new CuratorDeviceLock<T>(curator, this);
   }
 
