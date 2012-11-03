@@ -96,6 +96,7 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
           for (Resource write : writes) {
             write.getWriteLock().acquire(getId(), true);
           }
+          LOGGER.info("Acquired step '" + id + "'");
           return;
         }
       } finally {
@@ -161,5 +162,6 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
     } else {
       driver.setData(dataSerialization.serialize(data));
     }
+    LOGGER.info("Setting step '" + id + "' data to: " + data);
   }
 }

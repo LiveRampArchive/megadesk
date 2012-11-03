@@ -2,10 +2,13 @@ package com.liveramp.megadesk.resource;
 
 import com.liveramp.megadesk.driver.ResourceDriver;
 import com.liveramp.megadesk.serialization.Serialization;
+import org.apache.log4j.Logger;
 
 import java.util.UUID;
 
 public abstract class BaseResource<T> implements Resource<T> {
+
+  private static final Logger LOGGER = Logger.getLogger(BaseResource.class);
 
   private final String id;
   private final ResourceDriver driver;
@@ -30,6 +33,7 @@ public abstract class BaseResource<T> implements Resource<T> {
   }
 
   private void doSetData(T data) throws Exception {
+    LOGGER.info("Setting resource '" + id + "' data to: " + data);
     driver.setData(dataSerialization.serialize(data));
   }
 
