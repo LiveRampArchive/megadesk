@@ -20,11 +20,11 @@ public interface Resource<T> {
 
   public String getId();
 
-  public T getData() throws Exception;
+  public T read() throws Exception;
 
-  public void setData(T data) throws Exception;
+  public void write(T data) throws Exception;
 
-  public void setData(String owner, T data) throws Exception;
+  public void write(String owner, T data) throws Exception;
 
   public ResourceReadLock getReadLock() throws Exception;
 

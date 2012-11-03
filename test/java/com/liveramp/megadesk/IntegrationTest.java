@@ -92,17 +92,17 @@ public class IntegrationTest extends BaseTestCase {
               .writes(resourceD, resourceE, resourceF);
           Integer processedVersion = -1;
           while (processedVersion < 2) {
-            processedVersion = step.getData();
+            processedVersion = step.get();
             if (processedVersion == null) {
               processedVersion = -1;
             }
             step.reads(resourceC.at("done"), resourceE.greaterThan(processedVersion));
             step.acquire();
-            Integer eVersion = resourceE.getData();
+            Integer eVersion = resourceE.read();
             step.write(resourceD, "done");
             step.write(resourceE, eVersion + 1);
             step.write(resourceF, eVersion);
-            step.setData(eVersion);
+            step.set(eVersion);
             step.release();
           }
         } catch (Exception e) {
@@ -117,17 +117,17 @@ public class IntegrationTest extends BaseTestCase {
 
     Thread.sleep(1000);
 
-    resourceA.setData("ready");
+    resourceA.write("ready");
 
     stepA.join();
     stepB.join();
     stepZ.join();
 
-    assertEquals("ready", resourceA.getData());
-    assertEquals("ready", resourceB.getData());
-    assertEquals("done", resourceC.getData());
-    assertEquals("done", resourceD.getData());
-    assertEquals(Integer.valueOf(4), resourceE.getData());
-    assertEquals(Integer.valueOf(3), resourceF.getData());
+    assertEquals("ready", resourceA.read());
+    assertEquals("ready", resourceB.read());
+    assertEquals("done", resourceC.read());
+    assertEquals("done", resourceD.read());
+    assertEquals(Integer.valueOf(4), resourceE.read());
+    assertEquals(Integer.valueOf(3), resourceF.read());
   }
 }

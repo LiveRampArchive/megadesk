@@ -37,9 +37,9 @@ public interface Step<T, SELF extends Step> {
 
   public void release() throws Exception;
 
-  public T getData() throws Exception;
+  public T get() throws Exception;
 
-  public void setData(T data) throws Exception;
+  public void set(T data) throws Exception;
 
   public void write(Resource resource, Object data) throws Exception;
 }

@@ -44,7 +44,7 @@ public abstract class BaseResource<T> implements Resource<T> {
   }
 
   @Override
-  public T getData() throws Exception {
+  public T read() throws Exception {
     return dataSerialization.deserialize(driver.getData());
   }
 
@@ -54,7 +54,7 @@ public abstract class BaseResource<T> implements Resource<T> {
   }
 
   @Override
-  public void setData(T data) throws Exception {
+  public void write(T data) throws Exception {
     String owner = "_MANUAL_SET_STATUS_" + UUID.randomUUID().toString();
     getWriteLock().acquire(owner, false);
     try {
@@ -65,7 +65,7 @@ public abstract class BaseResource<T> implements Resource<T> {
   }
 
   @Override
-  public void setData(String owner, T data) throws Exception {
+  public void write(String owner, T data) throws Exception {
     getWriteLock().acquire(owner, false);
     doSetData(data);
     // Note: do not release the write lock as this assumes the lock is held and will be released later

@@ -149,11 +149,11 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
     if (!getWrites().contains(resource)) {
       throw new IllegalStateException("Cannot set data of resource '" + resource.getId() + "' from step '" + getId() + "' that does not write it.");
     }
-    resource.setData(getId(), data);
+    resource.write(getId(), data);
   }
 
   @Override
-  public T getData() throws Exception {
+  public T get() throws Exception {
     if (!driver.getLock().isAcquiredInThisProcess()) {
       driver.getLock().acquire();
       try {
@@ -167,7 +167,7 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
   }
 
   @Override
-  public void setData(T data) throws Exception {
+  public void set(T data) throws Exception {
     if (!driver.getLock().isAcquiredInThisProcess()) {
       driver.getLock().acquire();
       try {
