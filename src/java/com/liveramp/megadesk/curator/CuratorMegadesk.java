@@ -1,7 +1,7 @@
 package com.liveramp.megadesk.curator;
 
 import com.liveramp.megadesk.Megadesk;
-import com.liveramp.megadesk.driver.Driver;
+import com.liveramp.megadesk.driver.MainDriver;
 import com.liveramp.megadesk.driver.ResourceDriver;
 import com.liveramp.megadesk.driver.StepDriver;
 import com.netflix.curator.framework.CuratorFramework;
@@ -9,16 +9,16 @@ import com.netflix.curator.framework.CuratorFramework;
 public class CuratorMegadesk implements Megadesk {
 
   private final CuratorFramework curator;
-  private final CuratorDriver driver;
+  private final CuratorMainDriver mainDriver;
 
   public CuratorMegadesk(CuratorFramework curator) {
     this.curator = curator;
-    this.driver = new CuratorDriver(curator);
+    this.mainDriver = new CuratorMainDriver(curator);
   }
 
   @Override
-  public Driver getDriver() {
-    return driver;
+  public MainDriver getMainDriver() {
+    return mainDriver;
   }
 
   @Override

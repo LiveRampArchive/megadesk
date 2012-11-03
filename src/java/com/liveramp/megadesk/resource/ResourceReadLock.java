@@ -9,4 +9,6 @@ public interface ResourceReadLock {
   public void release(String owner) throws Exception;
 
   List<String> getOwners() throws Exception;
+
+  boolean isOwnedByAnother(String id) throws Exception;
 }

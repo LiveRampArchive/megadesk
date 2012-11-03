@@ -1,5 +1,6 @@
 package com.liveramp.megadesk.step;
 
+import com.liveramp.megadesk.driver.MainDriver;
 import com.liveramp.megadesk.driver.StepDriver;
 import com.liveramp.megadesk.resource.Read;
 import com.liveramp.megadesk.resource.Resource;
@@ -12,16 +13,22 @@ import java.util.List;
 
 public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF> {
 
+  private static final long SLEEP_TIME_MS = 1000;
   private static final Logger LOGGER = Logger.getLogger(BaseStep.class);
 
   private final String id;
+  private final MainDriver mainDriver;
   private final StepDriver driver;
   private final Serialization<T> dataSerialization;
   private List<Read> reads = Collections.emptyList();
   private List<Resource> writes = Collections.emptyList();
 
-  public BaseStep(String id, StepDriver driver, Serialization<T> dataSerialization) {
+  public BaseStep(String id,
+                  MainDriver mainDriver,
+                  StepDriver driver,
+                  Serialization<T> dataSerialization) {
     this.id = id;
+    this.mainDriver = mainDriver;
     this.driver = driver;
     this.dataSerialization = dataSerialization;
   }
@@ -55,18 +62,47 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
     return (SELF) this;
   }
 
+  private boolean isReady() throws Exception {
+    // Check if we can acquire all resources
+    for (Read read : reads) {
+      if (read.getResource().getWriteLock().isOwnedByAnother(id)
+          || !read.getDataCheck().check(read.getResource())) {
+        return false;
+      }
+    }
+    for (Resource write : writes) {
+      if (write.getWriteLock().isOwnedByAnother(id)
+          || write.getReadLock().isOwnedByAnother(id)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   @Override
   @SuppressWarnings("unchecked")
   public void acquire() throws Exception {
     LOGGER.info("Attempting step '" + getId() + "'");
-    // Acquire all locks in order
-    // TODO: potential dead locks
     driver.getLock().acquire();
-    for (Read read : reads) {
-      read.getResource().getReadLock().acquire(getId(), true);
-    }
-    for (Resource write : writes) {
-      write.getWriteLock().acquire(getId(), true);
+    while (true) {
+      // Acquire resources lock to avoid dead locks
+      mainDriver.getResourcesLock().acquire();
+      try {
+        if (isReady()) {
+          // If ready, acquire all locks in order
+          for (Read read : reads) {
+            read.getResource().getReadLock().acquire(getId(), true);
+          }
+          for (Resource write : writes) {
+            write.getWriteLock().acquire(getId(), true);
+          }
+          return;
+        }
+      } finally {
+        mainDriver.getResourcesLock().release();
+      }
+      LOGGER.info("Could not acquire step '" + id + "'");
+      Thread.sleep(SLEEP_TIME_MS);
     }
   }
 
