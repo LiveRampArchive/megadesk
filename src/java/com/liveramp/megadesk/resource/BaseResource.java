@@ -45,12 +45,12 @@ public abstract class BaseResource<T> implements Resource<T> {
 
   @Override
   public T read() throws Exception {
-    return dataSerialization.deserialize(driver.getData());
+    return dataSerialization.deserialize(driver.read());
   }
 
   private void doSetData(T data) throws Exception {
     LOGGER.info("Setting resource '" + id + "' data to: " + data);
-    driver.setData(dataSerialization.serialize(data));
+    driver.write(dataSerialization.serialize(data));
   }
 
   @Override

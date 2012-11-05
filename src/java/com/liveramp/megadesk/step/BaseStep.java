@@ -157,12 +157,12 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
     if (!driver.getLock().isAcquiredInThisProcess()) {
       driver.getLock().acquire();
       try {
-        return dataSerialization.deserialize(driver.getData());
+        return dataSerialization.deserialize(driver.get());
       } finally {
         driver.getLock().release();
       }
     } else {
-      return dataSerialization.deserialize(driver.getData());
+      return dataSerialization.deserialize(driver.get());
     }
   }
 
@@ -171,12 +171,12 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
     if (!driver.getLock().isAcquiredInThisProcess()) {
       driver.getLock().acquire();
       try {
-        driver.setData(dataSerialization.serialize(data));
+        driver.set(dataSerialization.serialize(data));
       } finally {
         driver.getLock().release();
       }
     } else {
-      driver.setData(dataSerialization.serialize(data));
+      driver.set(dataSerialization.serialize(data));
     }
     LOGGER.info("Setting step '" + id + "' data to: " + data);
   }

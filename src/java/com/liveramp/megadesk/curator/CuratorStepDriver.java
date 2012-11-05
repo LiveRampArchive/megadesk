@@ -43,12 +43,12 @@ public class CuratorStepDriver implements StepDriver {
   }
 
   @Override
-  public byte[] getData() throws Exception {
+  public byte[] get() throws Exception {
     return curator.getData().forPath(path);
   }
 
   @Override
-  public void setData(byte[] data) throws Exception {
+  public void set(byte[] data) throws Exception {
     curator.setData().forPath(path, data);
   }
 }

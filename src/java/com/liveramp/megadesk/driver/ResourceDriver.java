@@ -22,7 +22,7 @@ public interface ResourceDriver {
 
   public ResourceLock getLock() throws Exception;
 
-  public byte[] getData() throws Exception;
+  public byte[] read() throws Exception;
 
-  public void setData(byte[] data) throws Exception;
+  public void write(byte[] data) throws Exception;
 }

@@ -22,7 +22,7 @@ public interface StepDriver {
 
   public StepLock getLock();
 
-  public byte[] getData() throws Exception;
+  public byte[] get() throws Exception;
 
-  public void setData(byte[] data) throws Exception;
+  public void set(byte[] data) throws Exception;
 }
