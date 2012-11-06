@@ -9,7 +9,11 @@ public class YamlSerialization implements Serialization<Object> {
 
   @Override
   public byte[] serialize(Object value) {
-    return yaml.dump(value).getBytes();
+    if (value == null) {
+      return null;
+    } else {
+      return yaml.dump(value).getBytes();
+    }
   }
 
   @Override
