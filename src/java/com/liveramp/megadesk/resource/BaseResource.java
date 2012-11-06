@@ -55,7 +55,7 @@ public abstract class BaseResource<T> implements Resource<T> {
 
   @Override
   public void write(T data) throws Exception {
-    String owner = "_manual_set_status_" + UUID.randomUUID().toString();
+    String owner = "__manual_set_status_" + UUID.randomUUID().toString();
     getWriteLock().acquire(owner, false);
     try {
       doSetData(data);
