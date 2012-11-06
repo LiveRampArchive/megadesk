@@ -14,25 +14,16 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.serialization;
+package com.liveramp.megadesk.data.lib;
 
-public class IntegerSerialization implements Serialization<Integer> {
+import com.liveramp.megadesk.data.DataCheck;
+import com.liveramp.megadesk.resource.Resource;
 
-  @Override
-  public byte[] serialize(Integer data) {
-    if (data == null) {
-      return null;
-    } else {
-      return data.toString().getBytes();
-    }
-  }
+public class NotEmptyStringDataCheck implements DataCheck<String> {
 
   @Override
-  public Integer deserialize(byte[] serializedData) {
-    if (serializedData == null || serializedData.length == 0) {
-      return null;
-    } else {
-      return Integer.valueOf(new String(serializedData));
-    }
+  public boolean check(Resource<String> resource) throws Exception {
+    String data = resource.read();
+    return data != null && data.length() > 0;
   }
 }

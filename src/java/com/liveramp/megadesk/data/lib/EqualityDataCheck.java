@@ -14,25 +14,28 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.serialization;
+package com.liveramp.megadesk.data.lib;
 
-public class StringSerialization implements Serialization<String> {
+import com.liveramp.megadesk.data.DataCheck;
+import com.liveramp.megadesk.resource.Resource;
 
-  @Override
-  public byte[] serialize(String data) {
-    if (data == null) {
-      return null;
-    } else {
-      return data.getBytes();
-    }
+public class EqualityDataCheck<T> implements DataCheck<T> {
+
+  private final T data;
+
+  public EqualityDataCheck(T data) {
+    this.data = data;
   }
 
   @Override
-  public String deserialize(byte[] serializedData) {
-    if (serializedData == null) {
-      return null;
-    } else {
-      return new String(serializedData);
-    }
+  public boolean check(Resource<T> resource) throws Exception {
+    T currentData = resource.read();
+    return (data == null && currentData == null)
+        || (data != null && data.equals(currentData));
+  }
+
+  @Override
+  public String toString() {
+    return "[EqualityDataCheck: '" + data + "']";
   }
 }

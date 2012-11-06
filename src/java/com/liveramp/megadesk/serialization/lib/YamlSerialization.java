@@ -1,5 +1,6 @@
-package com.liveramp.megadesk.serialization;
+package com.liveramp.megadesk.serialization.lib;
 
+import com.liveramp.megadesk.serialization.Serialization;
 import org.yaml.snakeyaml.Yaml;
 
 public class YamlSerialization implements Serialization<Object> {
