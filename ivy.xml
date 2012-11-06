@@ -5,5 +5,6 @@
         <dependency org="log4j" name="log4j" rev="1.2.17"/>
         <dependency org="com.netflix.curator" name="curator-recipes" rev="1.2.3"/>
         <dependency org="com.netflix.curator" name="curator-test" rev="1.2.3"/>
+        <dependency org="org.yaml" name="snakeyaml" rev="1.11"/>
     </dependencies>
 </ivy-module>
