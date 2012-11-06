@@ -33,9 +33,9 @@ public class CuratorResourceLock implements ResourceLock {
   private static final long SLEEP_TIME_MS = 1000;
   private static final Logger LOGGER = Logger.getLogger(CuratorResourceLock.class);
 
-  private static final String READERS_PATH = "readers";
-  private static final String WRITER_PATH = "writer";
-  private static final String INTERNAL_LOCK_PATH = "lock";
+  private static final String READERS_PATH = "_readers";
+  private static final String WRITER_PATH = "_writer";
+  private static final String INTERNAL_LOCK_PATH = "_lock";
 
   private final CuratorFramework curator;
   private final String path;
