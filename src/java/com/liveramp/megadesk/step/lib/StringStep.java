@@ -26,6 +26,6 @@ public class StringStep
     implements Step<String, StringStep> {
 
   public StringStep(Megadesk megadesk, String id) throws Exception {
-    super(id, megadesk.getMainDriver(), megadesk.getStepDriver(id), new StringSerialization());
+    super(id, megadesk, new StringSerialization());
   }
 }

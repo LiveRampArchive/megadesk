@@ -25,7 +25,7 @@ public class SimpleStep
     implements Step<Object, SimpleStep> {
 
   public SimpleStep(Megadesk megadesk, String id) throws Exception {
-    super(id, megadesk.getMainDriver(), megadesk.getStepDriver(id), null);
+    super(id, megadesk, null);
   }
 
   @Override

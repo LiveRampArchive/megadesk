@@ -16,6 +16,7 @@
 
 package com.liveramp.megadesk.step;
 
+import com.liveramp.megadesk.Megadesk;
 import com.liveramp.megadesk.driver.MainDriver;
 import com.liveramp.megadesk.driver.StepDriver;
 import com.liveramp.megadesk.resource.Read;
@@ -38,6 +39,12 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
   private final Serialization<T> dataSerialization;
   private List<Read> reads = Collections.emptyList();
   private List<Resource> writes = Collections.emptyList();
+
+  public BaseStep(String id,
+                  Megadesk megadesk,
+                  Serialization<T> dataSerialization) throws Exception {
+    this(id, megadesk.getMainDriver(), megadesk.getStepDriver(id), dataSerialization);
+  }
 
   public BaseStep(String id,
                   MainDriver mainDriver,

@@ -26,6 +26,6 @@ public class IntegerStep
     implements Step<Integer, IntegerStep> {
 
   public IntegerStep(Megadesk megadesk, String id) throws Exception {
-    super(id, megadesk.getMainDriver(), megadesk.getStepDriver(id), new IntegerSerialization());
+    super(id, megadesk, new IntegerSerialization());
   }
 }
