@@ -21,20 +21,20 @@ import com.liveramp.megadesk.serialization.Serialization;
 public class StringSerialization implements Serialization<String> {
 
   @Override
-  public byte[] serialize(String data) {
-    if (data == null) {
+  public byte[] serialize(String object) {
+    if (object == null) {
       return null;
     } else {
-      return data.getBytes();
+      return object.getBytes();
     }
   }
 
   @Override
-  public String deserialize(byte[] serializedData) {
-    if (serializedData == null) {
+  public String deserialize(byte[] serializedObject) {
+    if (serializedObject == null) {
       return null;
     } else {
-      return new String(serializedData);
+      return new String(serializedObject);
     }
   }
 }

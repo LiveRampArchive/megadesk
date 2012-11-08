@@ -21,20 +21,20 @@ import com.liveramp.megadesk.serialization.Serialization;
 public class IntegerSerialization implements Serialization<Integer> {
 
   @Override
-  public byte[] serialize(Integer data) {
-    if (data == null) {
+  public byte[] serialize(Integer object) {
+    if (object == null) {
       return null;
     } else {
-      return data.toString().getBytes();
+      return object.toString().getBytes();
     }
   }
 
   @Override
-  public Integer deserialize(byte[] serializedData) {
-    if (serializedData == null || serializedData.length == 0) {
+  public Integer deserialize(byte[] serializedObject) {
+    if (serializedObject == null || serializedObject.length == 0) {
       return null;
     } else {
-      return Integer.valueOf(new String(serializedData));
+      return Integer.valueOf(new String(serializedObject));
     }
   }
 }

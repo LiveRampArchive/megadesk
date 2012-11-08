@@ -8,20 +8,20 @@ public class YamlSerialization implements Serialization<Object> {
   private final Yaml yaml = new Yaml();
 
   @Override
-  public byte[] serialize(Object value) {
-    if (value == null) {
+  public byte[] serialize(Object object) {
+    if (object == null) {
       return null;
     } else {
-      return yaml.dump(value).getBytes();
+      return yaml.dump(object).getBytes();
     }
   }
 
   @Override
-  public Object deserialize(byte[] serializedValue) {
-    if (serializedValue == null) {
+  public Object deserialize(byte[] serializedObject) {
+    if (serializedObject == null) {
       return null;
     } else {
-      return yaml.load(new String(serializedValue));
+      return yaml.load(new String(serializedObject));
     }
   }
 }

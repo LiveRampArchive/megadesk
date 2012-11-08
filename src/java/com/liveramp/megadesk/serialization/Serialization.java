@@ -16,9 +16,11 @@
 
 package com.liveramp.megadesk.serialization;
 
+import java.io.IOException;
+
 public interface Serialization<T> {
 
-  public byte[] serialize(T value);
+  public byte[] serialize(T object) throws IOException;
 
-  public T deserialize(byte[] serializedValue);
+  public T deserialize(byte[] serializedObject) throws IOException;
 }
