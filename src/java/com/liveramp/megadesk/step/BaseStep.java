@@ -17,9 +17,9 @@
 package com.liveramp.megadesk.step;
 
 import com.liveramp.megadesk.Megadesk;
+import com.liveramp.megadesk.dependency.DependencyWatcher;
 import com.liveramp.megadesk.driver.MainDriver;
 import com.liveramp.megadesk.driver.StepDriver;
-import com.liveramp.megadesk.dependency.DependencyWatcher;
 import com.liveramp.megadesk.resource.Read;
 import com.liveramp.megadesk.resource.Resource;
 import com.liveramp.megadesk.serialization.Serialization;
@@ -118,12 +118,7 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
       }
 
       @Override
-      public void onResourceReadLockChange() {
-        semaphore.release();
-      }
-
-      @Override
-      public void onResourceWriteLockChange() {
+      public void onResourceLockChange() {
         semaphore.release();
       }
 

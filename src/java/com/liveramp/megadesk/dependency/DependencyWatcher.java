@@ -22,7 +22,5 @@ public interface DependencyWatcher {
 
   public void onResourceDataChange();
 
-  public void onResourceReadLockChange();
-
-  public void onResourceWriteLockChange();
+  public void onResourceLockChange();
 }
