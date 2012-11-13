@@ -16,7 +16,7 @@
 
 package com.liveramp.megadesk.curator;
 
-import com.liveramp.megadesk.resource.DependencyWatcher;
+import com.liveramp.megadesk.dependency.DependencyWatcher;
 import com.netflix.curator.framework.api.CuratorWatcher;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;

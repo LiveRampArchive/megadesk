@@ -16,6 +16,7 @@
 
 package com.liveramp.megadesk.resource;
 
+import com.liveramp.megadesk.dependency.DependencyWatcher;
 import com.liveramp.megadesk.driver.ResourceDriver;
 import com.liveramp.megadesk.serialization.Serialization;
 import org.apache.log4j.Logger;

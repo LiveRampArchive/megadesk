@@ -16,7 +16,7 @@
 
 package com.liveramp.megadesk.curator;
 
-import com.liveramp.megadesk.resource.DependencyWatcher;
+import com.liveramp.megadesk.dependency.DependencyWatcher;
 import com.liveramp.megadesk.resource.ResourceLock;
 import com.liveramp.megadesk.resource.ResourceReadLock;
 import com.liveramp.megadesk.resource.ResourceWriteLock;

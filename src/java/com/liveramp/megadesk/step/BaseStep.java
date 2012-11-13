@@ -19,7 +19,7 @@ package com.liveramp.megadesk.step;
 import com.liveramp.megadesk.Megadesk;
 import com.liveramp.megadesk.driver.MainDriver;
 import com.liveramp.megadesk.driver.StepDriver;
-import com.liveramp.megadesk.resource.DependencyWatcher;
+import com.liveramp.megadesk.dependency.DependencyWatcher;
 import com.liveramp.megadesk.resource.Read;
 import com.liveramp.megadesk.resource.Resource;
 import com.liveramp.megadesk.serialization.Serialization;

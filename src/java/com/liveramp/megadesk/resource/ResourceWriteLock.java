@@ -16,6 +16,8 @@
 
 package com.liveramp.megadesk.resource;
 
+import com.liveramp.megadesk.dependency.DependencyWatcher;
+
 public interface ResourceWriteLock {
 
   public void acquire(String owner, boolean persistent) throws Exception;

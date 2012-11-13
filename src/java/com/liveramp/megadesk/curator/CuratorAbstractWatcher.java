@@ -16,7 +16,7 @@
 
 package com.liveramp.megadesk.curator;
 
-import com.liveramp.megadesk.resource.DependencyWatcher;
+import com.liveramp.megadesk.dependency.DependencyWatcher;
 import com.netflix.curator.framework.api.CuratorWatcher;
 
 public abstract class CuratorAbstractWatcher implements CuratorWatcher {

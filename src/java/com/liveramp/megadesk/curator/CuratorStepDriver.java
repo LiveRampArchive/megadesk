@@ -17,7 +17,7 @@
 package com.liveramp.megadesk.curator;
 
 import com.liveramp.megadesk.driver.StepDriver;
-import com.liveramp.megadesk.resource.DependencyWatcher;
+import com.liveramp.megadesk.dependency.DependencyWatcher;
 import com.liveramp.megadesk.step.StepLock;
 import com.liveramp.megadesk.util.ZkPath;
 import com.netflix.curator.framework.CuratorFramework;

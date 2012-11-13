@@ -16,6 +16,8 @@
 
 package com.liveramp.megadesk.resource;
 
+import com.liveramp.megadesk.dependency.DependencyWatcher;
+
 import java.util.List;
 
 public interface ResourceReadLock {

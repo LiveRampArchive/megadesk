@@ -16,7 +16,6 @@
 
 package com.liveramp.megadesk.dependency;
 
-import com.liveramp.megadesk.resource.DependencyWatcher;
 import com.liveramp.megadesk.resource.Resource;
 import com.liveramp.megadesk.step.Step;
 

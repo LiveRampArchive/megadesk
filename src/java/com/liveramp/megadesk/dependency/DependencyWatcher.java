@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.resource;
+package com.liveramp.megadesk.dependency;
 
 public interface DependencyWatcher {
 
