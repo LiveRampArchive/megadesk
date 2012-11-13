@@ -16,6 +16,7 @@
 
 package com.liveramp.megadesk.step;
 
+import com.liveramp.megadesk.resource.DependencyWatcher;
 import com.liveramp.megadesk.resource.Read;
 import com.liveramp.megadesk.resource.Resource;
 
@@ -37,7 +38,7 @@ public interface Step<T, SELF extends Step> {
 
   public void release() throws Exception;
 
-  public T get() throws Exception;
+  public T get(DependencyWatcher watcher) throws Exception;
 
   public void set(T data) throws Exception;
 

@@ -16,18 +16,15 @@
 
 package com.liveramp.megadesk.data.lib;
 
-import com.liveramp.megadesk.data.BaseDataCheck;
 import com.liveramp.megadesk.data.DataCheck;
-import com.liveramp.megadesk.resource.Resource;
-import com.liveramp.megadesk.resource.ResourceWatcher;
+import com.liveramp.megadesk.data.SimpleDataCheck;
 
 public class NotEmptyStringDataCheck
-    extends BaseDataCheck<String>
-    implements DataCheck<String> {
+    extends SimpleDataCheck<String>
+    implements DataCheck<Object, String> {
 
   @Override
-  public boolean check(Resource<String> resource, ResourceWatcher watcher) throws Exception {
-    String data = resource.read(watcher);
-    return data != null && data.length() > 0;
+  public boolean check(String resourceData) throws Exception {
+    return resourceData != null && resourceData.length() > 0;
   }
 }

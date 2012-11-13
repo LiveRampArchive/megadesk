@@ -21,11 +21,11 @@ import com.netflix.curator.framework.api.CuratorWatcher;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 
-public class CuratorResourceDataWatcher
+public class CuratorStepDataWatcher
     extends CuratorAbstractWatcher
     implements CuratorWatcher {
 
-  public CuratorResourceDataWatcher(DependencyWatcher watcher) {
+  public CuratorStepDataWatcher(DependencyWatcher watcher) {
     super(watcher);
   }
 
@@ -35,7 +35,7 @@ public class CuratorResourceDataWatcher
       if (watchedEvent.getType() == Watcher.Event.EventType.NodeDataChanged
           || watchedEvent.getType() == Watcher.Event.EventType.NodeDeleted
           || watchedEvent.getType() == Watcher.Event.EventType.NodeCreated) {
-        watcher.onResourceDataChange();
+        watcher.onStepDataChange();
       }
     }
   }

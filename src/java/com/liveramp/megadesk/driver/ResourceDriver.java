@@ -16,14 +16,14 @@
 
 package com.liveramp.megadesk.driver;
 
+import com.liveramp.megadesk.resource.DependencyWatcher;
 import com.liveramp.megadesk.resource.ResourceLock;
-import com.liveramp.megadesk.resource.ResourceWatcher;
 
 public interface ResourceDriver {
 
   public ResourceLock getLock() throws Exception;
 
-  public byte[] read(ResourceWatcher watcher) throws Exception;
+  public byte[] read(DependencyWatcher watcher) throws Exception;
 
   public void write(byte[] data) throws Exception;
 }

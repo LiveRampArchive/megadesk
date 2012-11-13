@@ -17,6 +17,7 @@
 package com.liveramp.megadesk.step.lib;
 
 import com.liveramp.megadesk.Megadesk;
+import com.liveramp.megadesk.resource.DependencyWatcher;
 import com.liveramp.megadesk.step.BaseStep;
 import com.liveramp.megadesk.step.Step;
 
@@ -29,7 +30,7 @@ public class SimpleStep
   }
 
   @Override
-  public Object get() {
+  public Object get(DependencyWatcher watcher) {
     throw new IllegalStateException("A SimpleStep has no data.");
   }
 }

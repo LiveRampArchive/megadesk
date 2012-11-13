@@ -16,10 +16,11 @@
 
 package com.liveramp.megadesk.data;
 
+import com.liveramp.megadesk.resource.DependencyWatcher;
 import com.liveramp.megadesk.resource.Resource;
-import com.liveramp.megadesk.resource.ResourceWatcher;
+import com.liveramp.megadesk.step.Step;
 
-public interface DataCheck<T> {
+public interface DataCheck<STEP, RESOURCE> {
 
-  public boolean check(Resource<T> resource, ResourceWatcher watcher) throws Exception;
+  public boolean check(Step<STEP, ?> step, Resource<RESOURCE> resource, DependencyWatcher watcher) throws Exception;
 }

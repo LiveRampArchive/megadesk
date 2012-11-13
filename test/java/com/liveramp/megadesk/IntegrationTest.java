@@ -90,13 +90,8 @@ public class IntegrationTest extends BaseTestCase {
         try {
           IntegerStep step = new IntegerStep(megadesk, "stepB")
               .writes(resourceD, resourceE, resourceF);
-          Integer processedVersion = -1;
-          while (processedVersion < 2) {
-            processedVersion = step.get();
-            if (processedVersion == null) {
-              processedVersion = -1;
-            }
-            step.reads(resourceC.equals("done"), resourceE.greaterThan(processedVersion));
+          while (true) {
+            step.reads(resourceC.equals("done"), resourceE.greaterThan(step));
             step.acquire();
             Integer eVersion = resourceE.read();
             step.write(resourceD, "done");
@@ -104,6 +99,9 @@ public class IntegrationTest extends BaseTestCase {
             step.write(resourceF, eVersion);
             step.set(eVersion);
             step.release();
+            if (eVersion == 3) {
+              break;
+            }
           }
         } catch (Exception e) {
           throw Throwables.propagate(e);

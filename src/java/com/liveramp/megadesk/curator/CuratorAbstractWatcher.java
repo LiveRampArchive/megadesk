@@ -14,13 +14,16 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.resource;
+package com.liveramp.megadesk.curator;
 
-public interface ResourceWatcher {
+import com.liveramp.megadesk.resource.DependencyWatcher;
+import com.netflix.curator.framework.api.CuratorWatcher;
 
-  public void onResourceDataChange();
+public abstract class CuratorAbstractWatcher implements CuratorWatcher {
 
-  public void onResourceReadLockChange();
+  protected final DependencyWatcher watcher;
 
-  public void onResourceWriteLockChange();
+  public CuratorAbstractWatcher(DependencyWatcher watcher) {
+    this.watcher = watcher;
+  }
 }

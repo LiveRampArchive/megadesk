@@ -16,13 +16,14 @@
 
 package com.liveramp.megadesk.driver;
 
+import com.liveramp.megadesk.resource.DependencyWatcher;
 import com.liveramp.megadesk.step.StepLock;
 
 public interface StepDriver {
 
   public StepLock getLock();
 
-  public byte[] get() throws Exception;
+  public byte[] get(DependencyWatcher watcher) throws Exception;
 
   public void set(byte[] data) throws Exception;
 }

@@ -26,5 +26,5 @@ public interface ResourceWriteLock {
 
   boolean isOwnedByAnother(String id) throws Exception;
 
-  boolean isOwnedByAnother(String id, ResourceWatcher watcher) throws Exception;
+  boolean isOwnedByAnother(String id, DependencyWatcher watcher) throws Exception;
 }

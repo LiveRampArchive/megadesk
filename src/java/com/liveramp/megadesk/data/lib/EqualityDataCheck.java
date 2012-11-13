@@ -16,14 +16,12 @@
 
 package com.liveramp.megadesk.data.lib;
 
-import com.liveramp.megadesk.data.BaseDataCheck;
 import com.liveramp.megadesk.data.DataCheck;
-import com.liveramp.megadesk.resource.Resource;
-import com.liveramp.megadesk.resource.ResourceWatcher;
+import com.liveramp.megadesk.data.SimpleDataCheck;
 
 public class EqualityDataCheck<T>
-    extends BaseDataCheck<T>
-    implements DataCheck<T> {
+    extends SimpleDataCheck<T>
+    implements DataCheck<Object, T> {
 
   private final T data;
 
@@ -32,10 +30,9 @@ public class EqualityDataCheck<T>
   }
 
   @Override
-  public boolean check(Resource<T> resource, ResourceWatcher watcher) throws Exception {
-    T currentData = resource.read(watcher);
-    return (data == null && currentData == null)
-        || (data != null && data.equals(currentData));
+  public boolean check(T resourceData) throws Exception {
+    return (data == null && resourceData == null)
+        || (data != null && data.equals(resourceData));
   }
 
   @Override

@@ -22,7 +22,7 @@ public interface Resource<T> {
 
   public T read() throws Exception;
 
-  public T read(ResourceWatcher watcher) throws Exception;
+  public T read(DependencyWatcher watcher) throws Exception;
 
   public void write(T data) throws Exception;
 

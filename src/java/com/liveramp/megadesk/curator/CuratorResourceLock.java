@@ -16,9 +16,9 @@
 
 package com.liveramp.megadesk.curator;
 
+import com.liveramp.megadesk.resource.DependencyWatcher;
 import com.liveramp.megadesk.resource.ResourceLock;
 import com.liveramp.megadesk.resource.ResourceReadLock;
-import com.liveramp.megadesk.resource.ResourceWatcher;
 import com.liveramp.megadesk.resource.ResourceWriteLock;
 import com.liveramp.megadesk.util.ZkPath;
 import com.netflix.curator.framework.CuratorFramework;
@@ -85,7 +85,7 @@ public class CuratorResourceLock implements ResourceLock {
     return getWriteLockOwner(null);
   }
 
-  private String getWriteLockOwner(ResourceWatcher watcher) throws Exception {
+  private String getWriteLockOwner(DependencyWatcher watcher) throws Exception {
     List<String> writers;
     if (watcher == null) {
       writers = curator.getChildren().forPath(writerPath);
@@ -99,7 +99,7 @@ public class CuratorResourceLock implements ResourceLock {
     }
   }
 
-  private List<String> getReadLockOwners(ResourceWatcher watcher) throws Exception {
+  private List<String> getReadLockOwners(DependencyWatcher watcher) throws Exception {
     if (watcher == null) {
       return curator.getChildren().forPath(readersPath);
     } else {
@@ -117,12 +117,12 @@ public class CuratorResourceLock implements ResourceLock {
     return currentOwner != null && currentOwner.equals(owner);
   }
 
-  private boolean isReadLockOwnedByAnother(String id, ResourceWatcher watcher) throws Exception {
+  private boolean isReadLockOwnedByAnother(String id, DependencyWatcher watcher) throws Exception {
     String owner = getWriteLockOwner(watcher);
     return owner != null && !owner.equals(id);
   }
 
-  private boolean isWriteLockOwnedByAnother(String id, ResourceWatcher watcher) throws Exception {
+  private boolean isWriteLockOwnedByAnother(String id, DependencyWatcher watcher) throws Exception {
     List<String> owners = getReadLockOwners(watcher);
     // Is owned by another only if there are readers
     return owners.size() != 0 // no readers
@@ -181,7 +181,7 @@ public class CuratorResourceLock implements ResourceLock {
     }
 
     @Override
-    public boolean isOwnedByAnother(String id, ResourceWatcher watcher) throws Exception {
+    public boolean isOwnedByAnother(String id, DependencyWatcher watcher) throws Exception {
       return isReadLockOwnedByAnother(id, watcher);
     }
   }
@@ -238,7 +238,7 @@ public class CuratorResourceLock implements ResourceLock {
     }
 
     @Override
-    public boolean isOwnedByAnother(String id, ResourceWatcher watcher) throws Exception {
+    public boolean isOwnedByAnother(String id, DependencyWatcher watcher) throws Exception {
       return isWriteLockOwnedByAnother(id, watcher);
     }
   }

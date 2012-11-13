@@ -19,9 +19,9 @@ package com.liveramp.megadesk.step;
 import com.liveramp.megadesk.Megadesk;
 import com.liveramp.megadesk.driver.MainDriver;
 import com.liveramp.megadesk.driver.StepDriver;
+import com.liveramp.megadesk.resource.DependencyWatcher;
 import com.liveramp.megadesk.resource.Read;
 import com.liveramp.megadesk.resource.Resource;
-import com.liveramp.megadesk.resource.ResourceWatcher;
 import com.liveramp.megadesk.serialization.Serialization;
 import org.apache.log4j.Logger;
 
@@ -87,11 +87,11 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
     return (SELF) this;
   }
 
-  private boolean isReady(ResourceWatcher watcher) throws Exception {
+  private boolean isReady(DependencyWatcher watcher) throws Exception {
     // Check if we can acquire all resources
     for (Read read : reads) {
       if (read.getResource().getWriteLock().isOwnedByAnother(id, watcher)
-          || !read.getDataCheck().check(read.getResource(), watcher)) {
+          || !read.getDataCheck().check(this, read.getResource(), watcher)) {
         return false;
       }
     }
@@ -110,7 +110,8 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
     // An empty fair semaphore
     final Semaphore semaphore = new Semaphore(0, true);
     // A watcher that releases the semaphore in all cases
-    ResourceWatcher watcher = new ResourceWatcher() {
+    DependencyWatcher watcher = new DependencyWatcher() {
+
       @Override
       public void onResourceDataChange() {
         semaphore.release();
@@ -123,6 +124,11 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
 
       @Override
       public void onResourceWriteLockChange() {
+        semaphore.release();
+      }
+
+      @Override
+      public void onStepDataChange() {
         semaphore.release();
       }
     };
@@ -185,16 +191,16 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
   }
 
   @Override
-  public T get() throws Exception {
+  public T get(DependencyWatcher watcher) throws Exception {
     if (!driver.getLock().isAcquiredInThisProcess()) {
       driver.getLock().acquire();
       try {
-        return dataSerialization.deserialize(driver.get());
+        return dataSerialization.deserialize(driver.get(watcher));
       } finally {
         driver.getLock().release();
       }
     } else {
-      return dataSerialization.deserialize(driver.get());
+      return dataSerialization.deserialize(driver.get(watcher));
     }
   }
 

@@ -16,5 +16,16 @@
 
 package com.liveramp.megadesk.data;
 
-public abstract class BaseDataCheck<T> implements DataCheck<T> {
+import com.liveramp.megadesk.resource.DependencyWatcher;
+import com.liveramp.megadesk.resource.Resource;
+import com.liveramp.megadesk.step.Step;
+
+public abstract class BaseDataCheck<STEP, RESOURCE> implements DataCheck<STEP, RESOURCE> {
+
+  @Override
+  public boolean check(Step<STEP, ?> step, Resource<RESOURCE> resource, DependencyWatcher watcher) throws Exception {
+    return check(step.get(watcher), resource.read(watcher));
+  }
+
+  public abstract boolean check(STEP stepData, RESOURCE resourceData) throws Exception;
 }

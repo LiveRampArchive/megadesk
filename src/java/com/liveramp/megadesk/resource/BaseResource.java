@@ -49,7 +49,7 @@ public abstract class BaseResource<T> implements Resource<T> {
   }
 
   @Override
-  public T read(ResourceWatcher watcher) throws Exception {
+  public T read(DependencyWatcher watcher) throws Exception {
     return dataSerialization.deserialize(driver.read(watcher));
   }
 
