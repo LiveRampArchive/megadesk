@@ -16,12 +16,5 @@
 
 package com.liveramp.megadesk.data;
 
-import com.liveramp.megadesk.resource.Resource;
-
 public abstract class BaseDataCheck<T> implements DataCheck<T> {
-
-  @Override
-  public boolean check(Resource<T> resource) throws Exception {
-    return check(resource, null);
-  }
 }
