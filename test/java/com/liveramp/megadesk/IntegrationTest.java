@@ -91,7 +91,7 @@ public class IntegrationTest extends BaseTestCase {
           IntegerStep step = new IntegerStep(megadesk, "stepB")
               .writes(resourceD, resourceE, resourceF);
           while (true) {
-            step.reads(resourceC.equals("done"), resourceE.greaterThan(step));
+            step.reads(resourceC.equals("done"), resourceE.greaterThanStep());
             step.acquire();
             Integer eVersion = resourceE.read();
             step.write(resourceD, "done");

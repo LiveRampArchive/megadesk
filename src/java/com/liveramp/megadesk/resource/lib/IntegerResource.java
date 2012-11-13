@@ -23,7 +23,6 @@ import com.liveramp.megadesk.resource.BaseResource;
 import com.liveramp.megadesk.resource.Read;
 import com.liveramp.megadesk.resource.Resource;
 import com.liveramp.megadesk.serialization.lib.IntegerSerialization;
-import com.liveramp.megadesk.step.lib.IntegerStep;
 
 public class IntegerResource extends BaseResource<Integer> implements Resource<Integer> {
 
@@ -43,7 +42,7 @@ public class IntegerResource extends BaseResource<Integer> implements Resource<I
     return new Read<Integer>(this, new ComparisonDataCheck<Integer>(version, 1));
   }
 
-  public Read greaterThan(final IntegerStep step) {
+  public Read greaterThanStep() {
     return new Read<Integer>(this, new BaseDataCheck<Integer, Integer>() {
       @Override
       public boolean check(Integer stepData, Integer resourceData) throws Exception {
