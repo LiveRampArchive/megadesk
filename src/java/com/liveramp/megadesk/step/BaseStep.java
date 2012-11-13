@@ -126,7 +126,7 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
         semaphore.release();
       }
     };
-    LOGGER.info("Attempting step '" + getId() + "'");
+    LOGGER.info("Acquiring step '" + getId() + "'");
     driver.getLock().acquire();
     while (true) {
       // Acquire resources lock to avoid dead locks
