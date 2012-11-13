@@ -17,6 +17,7 @@
 package com.liveramp.megadesk.step;
 
 import com.liveramp.megadesk.Megadesk;
+import com.liveramp.megadesk.dependency.Dependency;
 import com.liveramp.megadesk.dependency.DependencyWatcher;
 import com.liveramp.megadesk.driver.MainDriver;
 import com.liveramp.megadesk.driver.StepDriver;
@@ -25,22 +26,21 @@ import com.liveramp.megadesk.resource.Resource;
 import com.liveramp.megadesk.serialization.Serialization;
 import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
 public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF> {
 
-  private static final long SLEEP_TIME_MS = 1000;
   private static final Logger LOGGER = Logger.getLogger(BaseStep.class);
 
   private final String id;
   private final MainDriver mainDriver;
   private final StepDriver driver;
   private final Serialization<T> dataSerialization;
-  private List<Read> reads = Collections.emptyList();
-  private List<Resource> writes = Collections.emptyList();
+  private List<Read> reads = new ArrayList<Read>();
+  private List<Resource> writes = new ArrayList<Resource>();
 
   public BaseStep(String id,
                   Megadesk megadesk,
@@ -76,14 +76,21 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
   @Override
   @SuppressWarnings("unchecked")
   public SELF reads(Read... reads) {
-    this.reads = Arrays.asList(reads);
+    this.reads.addAll(Arrays.asList(reads));
+    return (SELF) this;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public SELF reads(Resource resource, Dependency dependency) {
+    this.reads.add(new Read(resource, dependency));
     return (SELF) this;
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public SELF writes(Resource... writes) {
-    this.writes = Arrays.asList(writes);
+    this.writes.addAll(Arrays.asList(writes));
     return (SELF) this;
   }
 

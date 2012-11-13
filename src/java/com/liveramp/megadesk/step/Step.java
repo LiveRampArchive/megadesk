@@ -16,6 +16,7 @@
 
 package com.liveramp.megadesk.step;
 
+import com.liveramp.megadesk.dependency.Dependency;
 import com.liveramp.megadesk.dependency.DependencyWatcher;
 import com.liveramp.megadesk.resource.Read;
 import com.liveramp.megadesk.resource.Resource;
@@ -31,6 +32,8 @@ public interface Step<T, SELF extends Step> {
   public List<Resource> getWrites();
 
   public SELF reads(Read... reads);
+
+  public SELF reads(Resource resource, Dependency dependency);
 
   public SELF writes(Resource... writes);
 
