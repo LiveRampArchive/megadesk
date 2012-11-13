@@ -16,13 +16,17 @@
 
 package com.liveramp.megadesk.data.lib;
 
+import com.liveramp.megadesk.data.BaseDataCheck;
 import com.liveramp.megadesk.data.DataCheck;
 import com.liveramp.megadesk.resource.Resource;
+import com.liveramp.megadesk.resource.ResourceWatcher;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ComparisonDataCheck<T extends Comparable<T>> implements DataCheck<T> {
+public class ComparisonDataCheck<T extends Comparable<T>>
+    extends BaseDataCheck<T>
+    implements DataCheck<T> {
 
   private final T data;
   private final List<Integer> acceptableComparisonResults;
@@ -36,8 +40,8 @@ public class ComparisonDataCheck<T extends Comparable<T>> implements DataCheck<T
   }
 
   @Override
-  public boolean check(Resource<T> resource) throws Exception {
-    T currentData = resource.read();
+  public boolean check(Resource<T> resource, ResourceWatcher watcher) throws Exception {
+    T currentData = resource.read(watcher);
     if (data == null || currentData == null) {
       return false;
     } else {

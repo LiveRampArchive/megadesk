@@ -14,20 +14,14 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.data.lib;
+package com.liveramp.megadesk.data;
 
-import com.liveramp.megadesk.data.BaseDataCheck;
-import com.liveramp.megadesk.data.DataCheck;
 import com.liveramp.megadesk.resource.Resource;
-import com.liveramp.megadesk.resource.ResourceWatcher;
 
-public class NotEmptyStringDataCheck
-    extends BaseDataCheck<String>
-    implements DataCheck<String> {
+public abstract class BaseDataCheck<T> implements DataCheck<T> {
 
   @Override
-  public boolean check(Resource<String> resource, ResourceWatcher watcher) throws Exception {
-    String data = resource.read(watcher);
-    return data != null && data.length() > 0;
+  public boolean check(Resource<T> resource) throws Exception {
+    return check(resource, null);
   }
 }

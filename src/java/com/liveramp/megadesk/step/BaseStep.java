@@ -21,12 +21,14 @@ import com.liveramp.megadesk.driver.MainDriver;
 import com.liveramp.megadesk.driver.StepDriver;
 import com.liveramp.megadesk.resource.Read;
 import com.liveramp.megadesk.resource.Resource;
+import com.liveramp.megadesk.resource.ResourceWatcher;
 import com.liveramp.megadesk.serialization.Serialization;
 import org.apache.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF> {
 
@@ -85,17 +87,17 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
     return (SELF) this;
   }
 
-  private boolean isReady() throws Exception {
+  private boolean isReady(ResourceWatcher watcher) throws Exception {
     // Check if we can acquire all resources
     for (Read read : reads) {
-      if (read.getResource().getWriteLock().isOwnedByAnother(id)
-          || !read.getDataCheck().check(read.getResource())) {
+      if (read.getResource().getWriteLock().isOwnedByAnother(id, watcher)
+          || !read.getDataCheck().check(read.getResource(), watcher)) {
         return false;
       }
     }
     for (Resource write : writes) {
-      if (write.getWriteLock().isOwnedByAnother(id)
-          || write.getReadLock().isOwnedByAnother(id)) {
+      if (write.getWriteLock().isOwnedByAnother(id, watcher)
+          || write.getReadLock().isOwnedByAnother(id, watcher)) {
         return false;
       }
     }
@@ -105,13 +107,34 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
   @Override
   @SuppressWarnings("unchecked")
   public void acquire() throws Exception {
+    // An empty fair semaphore
+    final Semaphore semaphore = new Semaphore(0, true);
+    // A watcher that releases the semaphore in all cases
+    ResourceWatcher watcher = new ResourceWatcher() {
+      @Override
+      public void onResourceDataChange() {
+        semaphore.release();
+      }
+
+      @Override
+      public void onResourceReadLockChange() {
+        semaphore.release();
+      }
+
+      @Override
+      public void onResourceWriteLockChange() {
+        semaphore.release();
+      }
+    };
     LOGGER.info("Attempting step '" + getId() + "'");
     driver.getLock().acquire();
     while (true) {
       // Acquire resources lock to avoid dead locks
       mainDriver.getResourcesLock().acquire();
       try {
-        if (isReady()) {
+        // Ignore all changes up until now
+        semaphore.drainPermits();
+        if (isReady(watcher)) {
           // If ready, acquire all locks in order
           for (Read read : reads) {
             read.getResource().getReadLock().acquire(getId(), true);
@@ -125,8 +148,10 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
       } finally {
         mainDriver.getResourcesLock().release();
       }
-      LOGGER.info("Could not acquire step '" + id + "'");
-      Thread.sleep(SLEEP_TIME_MS);
+      LOGGER.info("Could not acquire step '" + id + "'. Waiting.");
+      // Wait on semaphore for resource changes
+      semaphore.acquire();
+      LOGGER.info("Waking up step '" + getId() + "'");
     }
   }
 

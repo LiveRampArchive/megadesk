@@ -18,6 +18,7 @@ package com.liveramp.megadesk.curator;
 
 import com.liveramp.megadesk.driver.ResourceDriver;
 import com.liveramp.megadesk.resource.ResourceLock;
+import com.liveramp.megadesk.resource.ResourceWatcher;
 import com.liveramp.megadesk.util.ZkPath;
 import com.netflix.curator.framework.CuratorFramework;
 
@@ -41,8 +42,12 @@ public class CuratorResourceDriver implements ResourceDriver {
   }
 
   @Override
-  public byte[] read() throws Exception {
-    return curator.getData().forPath(path);
+  public byte[] read(ResourceWatcher watcher) throws Exception {
+    if (watcher == null) {
+      return curator.getData().forPath(path);
+    } else {
+      return curator.getData().usingWatcher(new CuratorResourceDataWatcher(watcher)).forPath(path);
+    }
   }
 
   @Override

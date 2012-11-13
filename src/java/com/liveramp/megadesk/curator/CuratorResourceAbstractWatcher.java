@@ -14,20 +14,16 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.data.lib;
+package com.liveramp.megadesk.curator;
 
-import com.liveramp.megadesk.data.BaseDataCheck;
-import com.liveramp.megadesk.data.DataCheck;
-import com.liveramp.megadesk.resource.Resource;
 import com.liveramp.megadesk.resource.ResourceWatcher;
+import com.netflix.curator.framework.api.CuratorWatcher;
 
-public class NotEmptyStringDataCheck
-    extends BaseDataCheck<String>
-    implements DataCheck<String> {
+public abstract class CuratorResourceAbstractWatcher implements CuratorWatcher {
 
-  @Override
-  public boolean check(Resource<String> resource, ResourceWatcher watcher) throws Exception {
-    String data = resource.read(watcher);
-    return data != null && data.length() > 0;
+  protected final ResourceWatcher watcher;
+
+  public CuratorResourceAbstractWatcher(ResourceWatcher watcher) {
+    this.watcher = watcher;
   }
 }

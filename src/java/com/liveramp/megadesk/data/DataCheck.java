@@ -17,8 +17,11 @@
 package com.liveramp.megadesk.data;
 
 import com.liveramp.megadesk.resource.Resource;
+import com.liveramp.megadesk.resource.ResourceWatcher;
 
 public interface DataCheck<T> {
 
   public boolean check(Resource<T> resource) throws Exception;
+
+  public boolean check(Resource<T> resource, ResourceWatcher watcher) throws Exception;
 }

@@ -45,7 +45,12 @@ public abstract class BaseResource<T> implements Resource<T> {
 
   @Override
   public T read() throws Exception {
-    return dataSerialization.deserialize(driver.read());
+    return read(null);
+  }
+
+  @Override
+  public T read(ResourceWatcher watcher) throws Exception {
+    return dataSerialization.deserialize(driver.read(watcher));
   }
 
   private void doSetData(T data) throws Exception {

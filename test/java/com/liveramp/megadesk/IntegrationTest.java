@@ -56,7 +56,7 @@ public class IntegrationTest extends BaseTestCase {
       public void run() {
         try {
           SimpleStep step = new SimpleStep(megadesk, "stepZ")
-              .reads(resourceA.is("ready"))
+              .reads(resourceA.equals("ready"))
               .writes(resourceB, resourceE);
           step.acquire();
           step.write(resourceB, "ready");
@@ -73,7 +73,7 @@ public class IntegrationTest extends BaseTestCase {
       public void run() {
         try {
           Step step = new SimpleStep(megadesk, "stepA")
-              .reads(resourceA.is("ready"), resourceB.is("ready"))
+              .reads(resourceA.equals("ready"), resourceB.equals("ready"))
               .writes(resourceC);
           step.acquire();
           step.write(resourceC, "done");
@@ -96,7 +96,7 @@ public class IntegrationTest extends BaseTestCase {
             if (processedVersion == null) {
               processedVersion = -1;
             }
-            step.reads(resourceC.is("done"), resourceE.greaterThan(processedVersion));
+            step.reads(resourceC.equals("done"), resourceE.greaterThan(processedVersion));
             step.acquire();
             Integer eVersion = resourceE.read();
             step.write(resourceD, "done");

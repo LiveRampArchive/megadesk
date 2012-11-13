@@ -18,6 +18,7 @@ package com.liveramp.megadesk.curator;
 
 import com.liveramp.megadesk.resource.ResourceLock;
 import com.liveramp.megadesk.resource.ResourceReadLock;
+import com.liveramp.megadesk.resource.ResourceWatcher;
 import com.liveramp.megadesk.resource.ResourceWriteLock;
 import com.liveramp.megadesk.util.ZkPath;
 import com.netflix.curator.framework.CuratorFramework;
@@ -81,7 +82,16 @@ public class CuratorResourceLock implements ResourceLock {
   }
 
   private String getWriteLockOwner() throws Exception {
-    List<String> writers = curator.getChildren().forPath(writerPath);
+    return getWriteLockOwner(null);
+  }
+
+  private String getWriteLockOwner(ResourceWatcher watcher) throws Exception {
+    List<String> writers;
+    if (watcher == null) {
+      writers = curator.getChildren().forPath(writerPath);
+    } else {
+      writers = curator.getChildren().usingWatcher(new CuratorResourceLockWatcher(watcher)).forPath(writerPath);
+    }
     if (writers.size() != 1) {
       return null;
     } else {
@@ -89,30 +99,31 @@ public class CuratorResourceLock implements ResourceLock {
     }
   }
 
-  private List<String> getReadLockOwners() throws Exception {
-    return curator.getChildren().forPath(readersPath);
+  private List<String> getReadLockOwners(ResourceWatcher watcher) throws Exception {
+    if (watcher == null) {
+      return curator.getChildren().forPath(readersPath);
+    } else {
+      return curator.getChildren().usingWatcher(new CuratorResourceLockWatcher(watcher)).forPath(readersPath);
+    }
   }
 
   private boolean isReadLockOwner(String owner) throws Exception {
-    List<String> readers = getReadLockOwners();
+    List<String> readers = getReadLockOwners(null);
     return readers.contains(owner);
   }
 
   private boolean isWriteLockOwner(String owner) throws Exception {
-    return isWriteLockOwner(owner, getWriteLockOwner());
-  }
-
-  private boolean isWriteLockOwner(String owner, String currentOwner) throws Exception {
+    String currentOwner = getWriteLockOwner();
     return currentOwner != null && currentOwner.equals(owner);
   }
 
-  private boolean isReadLockOwnedByAnother(String id) throws Exception {
-    String owner = getWriteLockOwner();
+  private boolean isReadLockOwnedByAnother(String id, ResourceWatcher watcher) throws Exception {
+    String owner = getWriteLockOwner(watcher);
     return owner != null && !owner.equals(id);
   }
 
-  private boolean isWriteLockOwnedByAnother(String id) throws Exception {
-    List<String> owners = getReadLockOwners();
+  private boolean isWriteLockOwnedByAnother(String id, ResourceWatcher watcher) throws Exception {
+    List<String> owners = getReadLockOwners(watcher);
     // Is owned by another only if there are readers
     return owners.size() != 0 // no readers
         && (owners.size() > 1 // many readers
@@ -131,7 +142,7 @@ public class CuratorResourceLock implements ResourceLock {
             // Already owned
             return;
           }
-          if (!isWriteLockOwnedByAnother(owner)) {
+          if (!isWriteLockOwnedByAnother(owner, null)) {
             doAcquireReadLock(owner, persistent);
             return;
           }
@@ -161,12 +172,17 @@ public class CuratorResourceLock implements ResourceLock {
 
     @Override
     public List<String> getOwners() throws Exception {
-      return getReadLockOwners();
+      return getReadLockOwners(null);
     }
 
     @Override
     public boolean isOwnedByAnother(String id) throws Exception {
-      return isReadLockOwnedByAnother(id);
+      return isReadLockOwnedByAnother(id, null);
+    }
+
+    @Override
+    public boolean isOwnedByAnother(String id, ResourceWatcher watcher) throws Exception {
+      return isReadLockOwnedByAnother(id, watcher);
     }
   }
 
@@ -182,7 +198,7 @@ public class CuratorResourceLock implements ResourceLock {
             // Already owned
             return;
           }
-          if (!isWriteLockOwnedByAnother(owner) && !isReadLockOwnedByAnother(owner)) {
+          if (!isWriteLockOwnedByAnother(owner, null) && !isReadLockOwnedByAnother(owner, null)) {
             doAcquireWriteLock(owner, persistent);
             return;
           }
@@ -191,7 +207,7 @@ public class CuratorResourceLock implements ResourceLock {
         }
         LOGGER.info("'" + owner + "' could not acquire resource write lock on '" + path
             + "' because there is either a writer: '" + getWriteLockOwner()
-            + "' or another reader: " + getReadLockOwners());
+            + "' or another reader: " + getReadLockOwners(null));
         Thread.sleep(SLEEP_TIME_MS);
       }
     }
@@ -218,7 +234,12 @@ public class CuratorResourceLock implements ResourceLock {
 
     @Override
     public boolean isOwnedByAnother(String id) throws Exception {
-      return isWriteLockOwnedByAnother(id);
+      return isWriteLockOwnedByAnother(id, null);
+    }
+
+    @Override
+    public boolean isOwnedByAnother(String id, ResourceWatcher watcher) throws Exception {
+      return isWriteLockOwnedByAnother(id, watcher);
     }
   }
 }
