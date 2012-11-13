@@ -14,13 +14,13 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.data;
+package com.liveramp.megadesk.dependency;
 
 import com.liveramp.megadesk.resource.DependencyWatcher;
 import com.liveramp.megadesk.resource.Resource;
 import com.liveramp.megadesk.step.Step;
 
-public abstract class BaseDataCheck<STEP, RESOURCE> implements DataCheck<STEP, RESOURCE> {
+public abstract class BaseDependency<STEP, RESOURCE> implements Dependency<STEP, RESOURCE> {
 
   @Override
   public boolean check(Step<STEP, ?> step, Resource<RESOURCE> resource, DependencyWatcher watcher) throws Exception {

@@ -1,10 +1,10 @@
-package com.liveramp.megadesk.data;
+package com.liveramp.megadesk.dependency;
 
 import com.liveramp.megadesk.resource.DependencyWatcher;
 import com.liveramp.megadesk.resource.Resource;
 import com.liveramp.megadesk.step.Step;
 
-public abstract class SimpleDataCheck<T> implements DataCheck<Object, T> {
+public abstract class SimpleDependency<T> implements Dependency<Object, T> {
 
   @Override
   public boolean check(Step<Object, ?> step, Resource<T> resource, DependencyWatcher watcher) throws Exception {

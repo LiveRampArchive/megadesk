@@ -17,8 +17,8 @@
 package com.liveramp.megadesk.resource.lib;
 
 import com.liveramp.megadesk.Megadesk;
-import com.liveramp.megadesk.data.BaseDataCheck;
-import com.liveramp.megadesk.data.lib.ComparisonDataCheck;
+import com.liveramp.megadesk.dependency.BaseDependency;
+import com.liveramp.megadesk.dependency.lib.ComparisonDependency;
 import com.liveramp.megadesk.resource.BaseResource;
 import com.liveramp.megadesk.resource.Read;
 import com.liveramp.megadesk.resource.Resource;
@@ -31,19 +31,19 @@ public class IntegerResource extends BaseResource<Integer> implements Resource<I
   }
 
   public Read equals(Integer version) {
-    return new Read<Integer>(this, new ComparisonDataCheck<Integer>(version, 0));
+    return new Read<Integer>(this, new ComparisonDependency<Integer>(version, 0));
   }
 
   public Read lessThan(final Integer version) {
-    return new Read<Integer>(this, new ComparisonDataCheck<Integer>(version, -1));
+    return new Read<Integer>(this, new ComparisonDependency<Integer>(version, -1));
   }
 
   public Read greaterThan(final Integer version) {
-    return new Read<Integer>(this, new ComparisonDataCheck<Integer>(version, 1));
+    return new Read<Integer>(this, new ComparisonDependency<Integer>(version, 1));
   }
 
   public Read greaterThanStep() {
-    return new Read<Integer>(this, new BaseDataCheck<Integer, Integer>() {
+    return new Read<Integer>(this, new BaseDependency<Integer, Integer>() {
       @Override
       public boolean check(Integer stepData, Integer resourceData) throws Exception {
         return resourceData != null && (stepData == null || resourceData > stepData);

@@ -14,18 +14,18 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.data.lib;
+package com.liveramp.megadesk.dependency.lib;
 
-import com.liveramp.megadesk.data.DataCheck;
-import com.liveramp.megadesk.data.SimpleDataCheck;
+import com.liveramp.megadesk.dependency.Dependency;
+import com.liveramp.megadesk.dependency.SimpleDependency;
 
-public class EqualityDataCheck<T>
-    extends SimpleDataCheck<T>
-    implements DataCheck<Object, T> {
+public class EqualityDependency<T>
+    extends SimpleDependency<T>
+    implements Dependency<Object, T> {
 
   private final T data;
 
-  public EqualityDataCheck(T data) {
+  public EqualityDependency(T data) {
     this.data = data;
   }
 

@@ -17,8 +17,8 @@
 package com.liveramp.megadesk.resource.lib;
 
 import com.liveramp.megadesk.Megadesk;
-import com.liveramp.megadesk.data.lib.EqualityDataCheck;
-import com.liveramp.megadesk.data.lib.NotEmptyStringDataCheck;
+import com.liveramp.megadesk.dependency.lib.EqualityDependency;
+import com.liveramp.megadesk.dependency.lib.NotEmptyStringDependency;
 import com.liveramp.megadesk.resource.BaseResource;
 import com.liveramp.megadesk.resource.Read;
 import com.liveramp.megadesk.resource.Resource;
@@ -31,10 +31,10 @@ public class StringResource extends BaseResource<String> implements Resource<Str
   }
 
   public Read equals(String data) {
-    return new Read<String>(this, new EqualityDataCheck<String>(data));
+    return new Read<String>(this, new EqualityDependency<String>(data));
   }
 
   public Read notEmpty() {
-    return new Read<String>(this, new NotEmptyStringDataCheck());
+    return new Read<String>(this, new NotEmptyStringDependency());
   }
 }

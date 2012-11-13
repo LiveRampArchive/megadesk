@@ -91,7 +91,7 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
     // Check if we can acquire all resources
     for (Read read : reads) {
       if (read.getResource().getWriteLock().isOwnedByAnother(id, watcher)
-          || !read.getDataCheck().check(this, read.getResource(), watcher)) {
+          || !read.getDependency().check(this, read.getResource(), watcher)) {
         return false;
       }
     }

@@ -16,23 +16,23 @@
 
 package com.liveramp.megadesk.resource;
 
-import com.liveramp.megadesk.data.DataCheck;
+import com.liveramp.megadesk.dependency.Dependency;
 
 public class Read<T> {
 
   private final Resource<T> resource;
-  private final DataCheck<?, T> dataCheck;
+  private final Dependency<?, T> dependency;
 
-  public Read(Resource<T> resource, DataCheck<?, T> dataCheck) {
+  public Read(Resource<T> resource, Dependency<?, T> dependency) {
     this.resource = resource;
-    this.dataCheck = dataCheck;
+    this.dependency = dependency;
   }
 
   public Resource<T> getResource() {
     return resource;
   }
 
-  public DataCheck<?, T> getDataCheck() {
-    return dataCheck;
+  public Dependency<?, T> getDependency() {
+    return dependency;
   }
 }

@@ -14,13 +14,17 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.data;
+package com.liveramp.megadesk.dependency.lib;
 
-import com.liveramp.megadesk.resource.DependencyWatcher;
-import com.liveramp.megadesk.resource.Resource;
-import com.liveramp.megadesk.step.Step;
+import com.liveramp.megadesk.dependency.Dependency;
+import com.liveramp.megadesk.dependency.SimpleDependency;
 
-public interface DataCheck<STEP, RESOURCE> {
+public class NotEmptyStringDependency
+    extends SimpleDependency<String>
+    implements Dependency<Object, String> {
 
-  public boolean check(Step<STEP, ?> step, Resource<RESOURCE> resource, DependencyWatcher watcher) throws Exception;
+  @Override
+  public boolean check(String resourceData) throws Exception {
+    return resourceData != null && resourceData.length() > 0;
+  }
 }

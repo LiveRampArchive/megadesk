@@ -14,22 +14,22 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.data.lib;
+package com.liveramp.megadesk.dependency.lib;
 
-import com.liveramp.megadesk.data.DataCheck;
-import com.liveramp.megadesk.data.SimpleDataCheck;
+import com.liveramp.megadesk.dependency.Dependency;
+import com.liveramp.megadesk.dependency.SimpleDependency;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ComparisonDataCheck<T extends Comparable<T>>
-    extends SimpleDataCheck<T>
-    implements DataCheck<Object, T> {
+public class ComparisonDependency<T extends Comparable<T>>
+    extends SimpleDependency<T>
+    implements Dependency<Object, T> {
 
   private final T data;
   private final List<Integer> acceptableComparisonResults;
 
-  public ComparisonDataCheck(T data, int... acceptableComparisonResults) {
+  public ComparisonDependency(T data, int... acceptableComparisonResults) {
     this.data = data;
     this.acceptableComparisonResults = new ArrayList<Integer>(acceptableComparisonResults.length);
     for (int acceptableComparisonResult : acceptableComparisonResults) {
