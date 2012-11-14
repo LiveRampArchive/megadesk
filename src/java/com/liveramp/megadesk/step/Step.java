@@ -41,6 +41,8 @@ public interface Step<T, SELF extends Step> {
 
   public void release() throws Exception;
 
+  public T get() throws Exception;
+
   public T get(DependencyWatcher watcher) throws Exception;
 
   public void set(T data) throws Exception;

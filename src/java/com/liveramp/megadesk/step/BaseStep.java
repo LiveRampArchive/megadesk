@@ -193,6 +193,11 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
   }
 
   @Override
+  public T get() throws Exception {
+    return get(null);
+  }
+
+  @Override
   public T get(DependencyWatcher watcher) throws Exception {
     if (!driver.getLock().isAcquiredInThisProcess()) {
       driver.getLock().acquire();
