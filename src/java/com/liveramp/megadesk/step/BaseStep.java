@@ -64,16 +64,6 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
   }
 
   @Override
-  public List<Read> getReads() {
-    return reads;
-  }
-
-  @Override
-  public List<Resource> getWrites() {
-    return writes;
-  }
-
-  @Override
   @SuppressWarnings("unchecked")
   public SELF reads(Read... reads) {
     this.reads.addAll(Arrays.asList(reads));
@@ -186,7 +176,7 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
     if (!driver.getLock().isAcquiredInThisProcess()) {
       throw new IllegalStateException("Cannot set data of resource '" + resource.getId() + "' from step '" + getId() + "' that is not acquired by this process.");
     }
-    if (!getWrites().contains(resource)) {
+    if (!writes.contains(resource)) {
       throw new IllegalStateException("Cannot set data of resource '" + resource.getId() + "' from step '" + getId() + "' that does not write it.");
     }
     resource.write(getId(), data);

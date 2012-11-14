@@ -21,15 +21,9 @@ import com.liveramp.megadesk.dependency.DependencyWatcher;
 import com.liveramp.megadesk.resource.Read;
 import com.liveramp.megadesk.resource.Resource;
 
-import java.util.List;
-
 public interface Step<T, SELF extends Step> {
 
   public String getId();
-
-  public List<Read> getReads();
-
-  public List<Resource> getWrites();
 
   public SELF reads(Read... reads);
 
