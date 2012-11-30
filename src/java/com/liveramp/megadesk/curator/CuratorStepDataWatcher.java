@@ -35,7 +35,7 @@ public class CuratorStepDataWatcher
       if (watchedEvent.getType() == Watcher.Event.EventType.NodeDataChanged
           || watchedEvent.getType() == Watcher.Event.EventType.NodeDeleted
           || watchedEvent.getType() == Watcher.Event.EventType.NodeCreated) {
-        watcher.onStepDataChange();
+        watcher.onDependencyChange();
       }
     }
   }

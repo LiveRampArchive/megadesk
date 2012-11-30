@@ -17,10 +17,10 @@
 package com.liveramp.megadesk.resource.lib;
 
 import com.liveramp.megadesk.Megadesk;
+import com.liveramp.megadesk.dependency.Dependency;
 import com.liveramp.megadesk.dependency.lib.EqualityDependency;
 import com.liveramp.megadesk.dependency.lib.NotEmptyStringDependency;
 import com.liveramp.megadesk.resource.BaseResource;
-import com.liveramp.megadesk.resource.Read;
 import com.liveramp.megadesk.resource.Resource;
 import com.liveramp.megadesk.serialization.lib.StringSerialization;
 
@@ -30,11 +30,11 @@ public class StringResource extends BaseResource<String> implements Resource<Str
     super(id, megadesk.getResourceDriver(id), new StringSerialization());
   }
 
-  public Read equals(String data) {
-    return new Read<String>(this, new EqualityDependency<String>(data));
+  public Dependency equals(String data) {
+    return new EqualityDependency<String>(this, data);
   }
 
-  public Read notEmpty() {
-    return new Read<String>(this, new NotEmptyStringDependency());
+  public Dependency notEmpty() {
+    return new NotEmptyStringDependency(this);
   }
 }

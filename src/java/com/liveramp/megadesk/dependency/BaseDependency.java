@@ -19,11 +19,25 @@ package com.liveramp.megadesk.dependency;
 import com.liveramp.megadesk.resource.Resource;
 import com.liveramp.megadesk.step.Step;
 
-public abstract class BaseDependency<STEP, RESOURCE> implements Dependency<STEP, RESOURCE> {
+import java.util.Collections;
+import java.util.Set;
+
+public abstract class BaseDependency<STEP, RESOURCE> implements Dependency {
+
+  private final Resource<RESOURCE> resource;
+
+  public BaseDependency(Resource<RESOURCE> resource) {
+    this.resource = resource;
+  }
 
   @Override
-  public boolean check(Step<STEP, ?> step, Resource<RESOURCE> resource, DependencyWatcher watcher) throws Exception {
-    return check(step.get(watcher), resource.read(watcher));
+  public Set<Resource> getResources() {
+    return Collections.singleton((Resource) resource);
+  }
+
+  @Override
+  public boolean check(Step step, DependencyWatcher watcher) throws Exception {
+    return check((STEP) step.get(watcher), resource.read(watcher));
   }
 
   public abstract boolean check(STEP stepData, RESOURCE resourceData) throws Exception;

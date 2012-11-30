@@ -18,18 +18,20 @@ package com.liveramp.megadesk.dependency.lib;
 
 import com.liveramp.megadesk.dependency.Dependency;
 import com.liveramp.megadesk.dependency.SimpleDependency;
+import com.liveramp.megadesk.resource.Resource;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ComparisonDependency<T extends Comparable<T>>
-    extends SimpleDependency<T>
-    implements Dependency<Object, T> {
+public class ComparisonDependency<RESOURCE extends Comparable<RESOURCE>>
+    extends SimpleDependency<RESOURCE>
+    implements Dependency {
 
-  private final T data;
+  private final RESOURCE data;
   private final List<Integer> acceptableComparisonResults;
 
-  public ComparisonDependency(T data, int... acceptableComparisonResults) {
+  public ComparisonDependency(Resource<RESOURCE> resource, RESOURCE data, int... acceptableComparisonResults) {
+    super(resource);
     this.data = data;
     this.acceptableComparisonResults = new ArrayList<Integer>(acceptableComparisonResults.length);
     for (int acceptableComparisonResult : acceptableComparisonResults) {
@@ -38,7 +40,7 @@ public class ComparisonDependency<T extends Comparable<T>>
   }
 
   @Override
-  public boolean check(T resourceData) throws Exception {
+  public boolean check(RESOURCE resourceData) throws Exception {
     if (data == null || resourceData == null) {
       return false;
     } else {

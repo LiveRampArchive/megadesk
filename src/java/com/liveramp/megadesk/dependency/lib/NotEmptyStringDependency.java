@@ -18,10 +18,15 @@ package com.liveramp.megadesk.dependency.lib;
 
 import com.liveramp.megadesk.dependency.Dependency;
 import com.liveramp.megadesk.dependency.SimpleDependency;
+import com.liveramp.megadesk.resource.Resource;
 
 public class NotEmptyStringDependency
     extends SimpleDependency<String>
-    implements Dependency<Object, String> {
+    implements Dependency {
+
+  public NotEmptyStringDependency(Resource<String> resource) {
+    super(resource);
+  }
 
   @Override
   public boolean check(String resourceData) throws Exception {

@@ -21,7 +21,6 @@ import com.liveramp.megadesk.dependency.BaseDependency;
 import com.liveramp.megadesk.dependency.Dependency;
 import com.liveramp.megadesk.dependency.lib.ComparisonDependency;
 import com.liveramp.megadesk.resource.BaseResource;
-import com.liveramp.megadesk.resource.Read;
 import com.liveramp.megadesk.resource.Resource;
 import com.liveramp.megadesk.serialization.lib.IntegerSerialization;
 
@@ -31,22 +30,24 @@ public class IntegerResource extends BaseResource<Integer> implements Resource<I
     super(id, megadesk.getResourceDriver(id), new IntegerSerialization());
   }
 
-  public Read equals(Integer version) {
-    return new Read<Integer>(this, new ComparisonDependency<Integer>(version, 0));
+  public Dependency equals(Integer version) {
+    return new ComparisonDependency<Integer>(this, version, 0);
   }
 
-  public Read lessThan(final Integer version) {
-    return new Read<Integer>(this, new ComparisonDependency<Integer>(version, -1));
+  public Dependency lessThan(final Integer version) {
+    return new ComparisonDependency<Integer>(this, version, -1);
   }
 
-  public Read greaterThan(final Integer version) {
-    return new Read<Integer>(this, new ComparisonDependency<Integer>(version, 1));
+  public Dependency greaterThan(final Integer version) {
+    return new ComparisonDependency<Integer>(this, version, 1);
   }
 
-  public static Dependency<Integer, Integer> GREATER_THAN_STEP = new BaseDependency<Integer, Integer>() {
-    @Override
-    public boolean check(Integer stepData, Integer resourceData) throws Exception {
-      return resourceData != null && (stepData == null || resourceData > stepData);
-    }
-  };
+  public Dependency greaterThanStep() {
+    return new BaseDependency<Integer, Integer>(this) {
+      @Override
+      public boolean check(Integer stepData, Integer resourceData) throws Exception {
+        return resourceData != null && (stepData == null || resourceData > stepData);
+      }
+    };
+  }
 }

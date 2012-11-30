@@ -18,19 +18,21 @@ package com.liveramp.megadesk.dependency.lib;
 
 import com.liveramp.megadesk.dependency.Dependency;
 import com.liveramp.megadesk.dependency.SimpleDependency;
+import com.liveramp.megadesk.resource.Resource;
 
-public class EqualityDependency<T>
-    extends SimpleDependency<T>
-    implements Dependency<Object, T> {
+public class EqualityDependency<RESOURCE>
+    extends SimpleDependency<RESOURCE>
+    implements Dependency {
 
-  private final T data;
+  private final RESOURCE data;
 
-  public EqualityDependency(T data) {
+  public EqualityDependency(Resource<RESOURCE> resource, RESOURCE data) {
+    super(resource);
     this.data = data;
   }
 
   @Override
-  public boolean check(T resourceData) throws Exception {
+  public boolean check(RESOURCE resourceData) throws Exception {
     return (data == null && resourceData == null)
         || (data != null && data.equals(resourceData));
   }

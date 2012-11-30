@@ -88,9 +88,9 @@ public class IntegrationTest extends BaseTestCase {
       @Override
       public void run() {
         try {
-          IntegerStep step = new IntegerStep(megadesk, "stepB")
-              .reads(resourceC.equals("done"))
-              .reads(resourceE, IntegerResource.GREATER_THAN_STEP)
+          IntegerStep step = new IntegerStep(megadesk, "stepB");
+          step.reads(resourceC.equals("done"))
+              .reads(resourceE.greaterThanStep())
               .writes(resourceD, resourceE, resourceF);
           while (true) {
             step.acquire();

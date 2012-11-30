@@ -21,7 +21,6 @@ import com.liveramp.megadesk.dependency.Dependency;
 import com.liveramp.megadesk.dependency.DependencyWatcher;
 import com.liveramp.megadesk.driver.MainDriver;
 import com.liveramp.megadesk.driver.StepDriver;
-import com.liveramp.megadesk.resource.Read;
 import com.liveramp.megadesk.resource.Resource;
 import com.liveramp.megadesk.serialization.Serialization;
 import org.apache.log4j.Logger;
@@ -39,7 +38,7 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
   private final MainDriver mainDriver;
   private final StepDriver driver;
   private final Serialization<T> dataSerialization;
-  private List<Read> reads = new ArrayList<Read>();
+  private List<Dependency> dependencies = new ArrayList<Dependency>();
   private List<Resource> writes = new ArrayList<Resource>();
 
   public BaseStep(String id,
@@ -65,15 +64,15 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
 
   @Override
   @SuppressWarnings("unchecked")
-  public SELF reads(Read... reads) {
-    this.reads.addAll(Arrays.asList(reads));
+  public SELF reads(Dependency... dependencies) {
+    this.dependencies.addAll(Arrays.asList(dependencies));
     return (SELF) this;
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public SELF reads(Resource resource, Dependency dependency) {
-    this.reads.add(new Read(resource, dependency));
+  public SELF reads(Dependency dependency) {
+    this.dependencies.add(dependency);
     return (SELF) this;
   }
 
@@ -86,10 +85,14 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
 
   private boolean isReady(DependencyWatcher watcher) throws Exception {
     // Check if we can acquire all resources
-    for (Read read : reads) {
-      if (read.getResource().getWriteLock().isOwnedByAnother(id, watcher)
-          || !read.getDependency().check(this, read.getResource(), watcher)) {
-        return false;
+    for (Dependency dependency : dependencies) {
+      for (Resource resource : dependency.getResources()) {
+        if (resource.getWriteLock().isOwnedByAnother(id, watcher)) {
+          return false;
+        }
+        if (!dependency.check(this, watcher)) {
+          return false;
+        }
       }
     }
     for (Resource write : writes) {
@@ -110,17 +113,7 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
     DependencyWatcher watcher = new DependencyWatcher() {
 
       @Override
-      public void onResourceDataChange() {
-        semaphore.release();
-      }
-
-      @Override
-      public void onResourceLockChange() {
-        semaphore.release();
-      }
-
-      @Override
-      public void onStepDataChange() {
+      public void onDependencyChange() {
         semaphore.release();
       }
     };
@@ -134,8 +127,10 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
         semaphore.drainPermits();
         if (isReady(watcher)) {
           // If ready, acquire all locks in order
-          for (Read read : reads) {
-            read.getResource().getReadLock().acquire(getId(), true);
+          for (Dependency dependency : dependencies) {
+            for (Resource resource : dependency.getResources()) {
+              resource.getReadLock().acquire(getId(), true);
+            }
           }
           for (Resource write : writes) {
             write.getWriteLock().acquire(getId(), true);
@@ -161,8 +156,10 @@ public abstract class BaseStep<T, SELF extends BaseStep> implements Step<T, SELF
       throw new IllegalStateException("Cannot complete step '" + getId() + "' that is not acquired by this process.");
     }
     // Release all locks in order
-    for (Read read : reads) {
-      read.getResource().getReadLock().release(getId());
+    for (Dependency dependency : dependencies) {
+      for (Resource resource : dependency.getResources()) {
+        resource.getReadLock().release(getId());
+      }
     }
     for (Resource write : writes) {
       write.getWriteLock().release(getId());

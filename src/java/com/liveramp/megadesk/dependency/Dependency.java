@@ -19,7 +19,11 @@ package com.liveramp.megadesk.dependency;
 import com.liveramp.megadesk.resource.Resource;
 import com.liveramp.megadesk.step.Step;
 
-public interface Dependency<STEP, RESOURCE> {
+import java.util.Set;
 
-  public boolean check(Step<STEP, ?> step, Resource<RESOURCE> resource, DependencyWatcher watcher) throws Exception;
+public interface Dependency {
+
+  public Set<Resource> getResources();
+
+  public boolean check(Step step, DependencyWatcher watcher) throws Exception;
 }

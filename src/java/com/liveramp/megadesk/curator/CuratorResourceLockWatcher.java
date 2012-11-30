@@ -35,7 +35,7 @@ public class CuratorResourceLockWatcher
       if (watchedEvent.getType() == Watcher.Event.EventType.NodeChildrenChanged
           || watchedEvent.getType() == Watcher.Event.EventType.NodeDeleted
           || watchedEvent.getType() == Watcher.Event.EventType.NodeCreated) {
-        watcher.onResourceLockChange();
+        watcher.onDependencyChange();
       }
     }
   }

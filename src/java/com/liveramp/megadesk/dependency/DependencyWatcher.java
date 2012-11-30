@@ -18,9 +18,5 @@ package com.liveramp.megadesk.dependency;
 
 public interface DependencyWatcher {
 
-  public void onStepDataChange();
-
-  public void onResourceDataChange();
-
-  public void onResourceLockChange();
+  public void onDependencyChange();
 }
