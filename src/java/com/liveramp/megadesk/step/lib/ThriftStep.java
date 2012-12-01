@@ -22,9 +22,9 @@ import com.liveramp.megadesk.step.BaseStep;
 import com.liveramp.megadesk.step.Step;
 import org.apache.thrift.TBase;
 
-public class ThriftStep<T extends TBase>
-    extends BaseStep<T, ThriftStep<T>>
-    implements Step<T, ThriftStep<T>> {
+public abstract class ThriftStep<T extends TBase>
+    extends BaseStep<T>
+    implements Step<T> {
 
   public ThriftStep(String id,
                     Megadesk megadesk,

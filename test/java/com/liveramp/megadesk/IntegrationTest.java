@@ -16,11 +16,14 @@
 
 package com.liveramp.megadesk;
 
-import com.google.common.base.Throwables;
 import com.liveramp.megadesk.curator.CuratorMegadesk;
+import com.liveramp.megadesk.dependency.Dependencies;
+import com.liveramp.megadesk.dependency.Dependency;
+import com.liveramp.megadesk.executor.Executor;
+import com.liveramp.megadesk.resource.Resource;
+import com.liveramp.megadesk.resource.Resources;
 import com.liveramp.megadesk.resource.lib.IntegerResource;
 import com.liveramp.megadesk.resource.lib.StringResource;
-import com.liveramp.megadesk.step.Step;
 import com.liveramp.megadesk.step.lib.IntegerStep;
 import com.liveramp.megadesk.step.lib.SimpleStep;
 import com.liveramp.megadesk.test.BaseTestCase;
@@ -28,6 +31,9 @@ import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.CuratorFrameworkFactory;
 import com.netflix.curator.retry.RetryNTimes;
 import com.netflix.curator.test.TestingServer;
+
+import java.util.List;
+import java.util.concurrent.Semaphore;
 
 public class IntegrationTest extends BaseTestCase {
 
@@ -51,76 +57,82 @@ public class IntegrationTest extends BaseTestCase {
     final IntegerResource resourceE = new IntegerResource(megadesk, "resourceE");
     final IntegerResource resourceF = new IntegerResource(megadesk, "resourceF");
 
-    Thread stepZ = new Thread(new Runnable() {
+    final Executor executor = new Executor();
+    final Semaphore semaphore = new Semaphore(0);
+
+    SimpleStep stepZ = new SimpleStep(megadesk, "stepZ") {
+
       @Override
-      public void run() {
-        try {
-          SimpleStep step = new SimpleStep(megadesk, "stepZ")
-              .reads(resourceA.equals("ready"))
-              .writes(resourceB, resourceE);
-          step.acquire();
-          step.write(resourceB, "ready");
-          step.write(resourceE, 0);
-          step.release();
-        } catch (Exception e) {
-          throw Throwables.propagate(e);
+      public List<Dependency> getDependencies() {
+        return Dependencies.list(resourceA.equals("ready"));
+      }
+
+      @Override
+      public List<Resource> getWrites() {
+        return Resources.list(resourceB, resourceE);
+      }
+
+      @Override
+      public void execute() throws Exception {
+        write(resourceB, "ready");
+        write(resourceE, 0);
+      }
+    };
+
+    SimpleStep stepA = new SimpleStep(megadesk, "stepA") {
+
+      @Override
+      public List<Dependency> getDependencies() {
+        return Dependencies.list(resourceA.equals("ready"), resourceB.equals("ready"));
+      }
+
+      @Override
+      public List<Resource> getWrites() {
+        return Resources.list(resourceC);
+      }
+
+      @Override
+      public void execute() throws Exception {
+        write(resourceC, "done");
+      }
+    };
+
+    IntegerStep stepB = new IntegerStep(megadesk, "stepB") {
+
+      @Override
+      public List<Dependency> getDependencies() {
+        return Dependencies.list(resourceC.equals("done"), resourceE.greaterThanStep());
+      }
+
+      @Override
+      public List<Resource> getWrites() {
+        return Resources.list(resourceD, resourceE, resourceF);
+      }
+
+      @Override
+      public void execute() throws Exception {
+        Integer eVersion = resourceE.read();
+        write(resourceD, "done");
+        write(resourceE, eVersion + 1);
+        write(resourceF, eVersion);
+        set(eVersion);
+        if (eVersion < 3) {
+          executor.execute(this);
+        } else {
+          semaphore.release();
         }
       }
-    }, "stepZ");
+    };
 
-    Thread stepA = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          Step step = new SimpleStep(megadesk, "stepA")
-              .reads(resourceA.equals("ready"), resourceB.equals("ready"))
-              .writes(resourceC);
-          step.acquire();
-          step.write(resourceC, "done");
-          step.release();
-        } catch (Exception e) {
-          throw Throwables.propagate(e);
-        }
-      }
-    }, "stepA");
-
-    Thread stepB = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          IntegerStep step = new IntegerStep(megadesk, "stepB");
-          step.reads(resourceC.equals("done"))
-              .reads(resourceE.greaterThanStep())
-              .writes(resourceD, resourceE, resourceF);
-          while (true) {
-            step.acquire();
-            Integer eVersion = resourceE.read();
-            step.write(resourceD, "done");
-            step.write(resourceE, eVersion + 1);
-            step.write(resourceF, eVersion);
-            step.set(eVersion);
-            step.release();
-            if (eVersion == 3) {
-              break;
-            }
-          }
-        } catch (Exception e) {
-          throw Throwables.propagate(e);
-        }
-      }
-    }, "stepB");
-
-    stepA.start();
-    stepB.start();
-    stepZ.start();
+    executor.execute(stepA);
+    executor.execute(stepB);
+    executor.execute(stepZ);
 
     Thread.sleep(1000);
 
     resourceA.write("ready");
 
-    stepA.join();
-    stepB.join();
-    stepZ.join();
+    semaphore.acquire();
 
     assertEquals("ready", resourceA.read());
     assertEquals("ready", resourceB.read());

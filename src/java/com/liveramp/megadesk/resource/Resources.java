@@ -14,23 +14,14 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.step.lib;
+package com.liveramp.megadesk.resource;
 
-import com.liveramp.megadesk.Megadesk;
-import com.liveramp.megadesk.dependency.DependencyWatcher;
-import com.liveramp.megadesk.step.BaseStep;
-import com.liveramp.megadesk.step.Step;
+import java.util.Arrays;
+import java.util.List;
 
-public abstract class SimpleStep
-    extends BaseStep<Object>
-    implements Step<Object> {
+public class Resources {
 
-  public SimpleStep(Megadesk megadesk, String id) throws Exception {
-    super(id, megadesk, null);
-  }
-
-  @Override
-  public Object get(DependencyWatcher watcher) {
-    throw new IllegalStateException("A SimpleStep has no data.");
+  public static List<Resource> list(Resource... resources) {
+    return Arrays.asList(resources);
   }
 }

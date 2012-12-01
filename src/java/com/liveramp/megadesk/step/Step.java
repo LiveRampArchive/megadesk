@@ -20,17 +20,17 @@ import com.liveramp.megadesk.dependency.Dependency;
 import com.liveramp.megadesk.dependency.DependencyWatcher;
 import com.liveramp.megadesk.resource.Resource;
 
-public interface Step<T, SELF extends Step> {
+import java.util.List;
+
+public interface Step<T> {
 
   public String getId();
 
-  public SELF reads(Dependency... dependencies);
+  public List<Dependency> getDependencies();
 
-  public SELF reads(Dependency dependency);
+  public List<Resource> getWrites();
 
-  public SELF writes(Resource... writes);
-
-  public void acquire() throws Exception;
+  public boolean acquire(DependencyWatcher watcher) throws Exception;
 
   public void release() throws Exception;
 
@@ -41,4 +41,8 @@ public interface Step<T, SELF extends Step> {
   public void set(T data) throws Exception;
 
   public void write(Resource resource, Object data) throws Exception;
+
+  boolean isReady(DependencyWatcher watcher) throws Exception;
+
+  public void execute() throws Exception;
 }

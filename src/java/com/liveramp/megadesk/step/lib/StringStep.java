@@ -21,9 +21,9 @@ import com.liveramp.megadesk.serialization.lib.StringSerialization;
 import com.liveramp.megadesk.step.BaseStep;
 import com.liveramp.megadesk.step.Step;
 
-public class StringStep
-    extends BaseStep<String, StringStep>
-    implements Step<String, StringStep> {
+public abstract class StringStep
+    extends BaseStep<String>
+    implements Step<String> {
 
   public StringStep(Megadesk megadesk, String id) throws Exception {
     super(id, megadesk, new StringSerialization());

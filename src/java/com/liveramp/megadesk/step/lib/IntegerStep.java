@@ -21,9 +21,9 @@ import com.liveramp.megadesk.serialization.lib.IntegerSerialization;
 import com.liveramp.megadesk.step.BaseStep;
 import com.liveramp.megadesk.step.Step;
 
-public class IntegerStep
-    extends BaseStep<Integer, IntegerStep>
-    implements Step<Integer, IntegerStep> {
+public abstract class IntegerStep
+    extends BaseStep<Integer>
+    implements Step<Integer> {
 
   public IntegerStep(Megadesk megadesk, String id) throws Exception {
     super(id, megadesk, new IntegerSerialization());
