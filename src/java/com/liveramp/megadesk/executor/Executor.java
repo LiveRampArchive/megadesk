@@ -18,6 +18,7 @@ package com.liveramp.megadesk.executor;
 
 import com.liveramp.megadesk.dependency.DependencyWatcher;
 import com.liveramp.megadesk.step.Step;
+import org.apache.log4j.Logger;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -26,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Executor {
 
+  private static final Logger LOGGER = Logger.getLogger(Executor.class);
   private static final int DEFAULT_MAX_THREAD_POOL_SIZE = 1;
 
   private final ThreadPoolExecutor executor;
@@ -75,6 +77,7 @@ public class Executor {
             step.execute();
             step.release();
           } catch (Throwable t) {
+            LOGGER.error("Step '" + step.getId() + "' encountered throwable: ", t);
             // TODO
           }
         } else {
@@ -106,6 +109,7 @@ public class Executor {
       }
 
       private synchronized void execute() {
+        LOGGER.info("Waking up step '" + step.getId() + "'.");
         Executor.this.execute(step);
         activated = false;
       }
