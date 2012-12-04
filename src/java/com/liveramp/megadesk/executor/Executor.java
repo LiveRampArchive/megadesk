@@ -28,7 +28,8 @@ import java.util.concurrent.TimeUnit;
 public class Executor {
 
   private static final Logger LOGGER = Logger.getLogger(Executor.class);
-  private static final int DEFAULT_MAX_THREAD_POOL_SIZE = 1;
+  // Default is quasi unbounded
+  private static final int DEFAULT_MAX_THREAD_POOL_SIZE = 1 << 10;
 
   private final ThreadPoolExecutor executor;
 
