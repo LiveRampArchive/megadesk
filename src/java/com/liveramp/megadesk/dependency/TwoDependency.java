@@ -25,6 +25,7 @@ public abstract class TwoDependency<A, B> implements Dependency {
 
   private final Resource<A> resourceA;
   private final Resource<B> resourceB;
+
   private final Set<Resource> resources = new HashSet<Resource>();
 
   public TwoDependency(Resource<A> resourceA,
@@ -42,7 +43,8 @@ public abstract class TwoDependency<A, B> implements Dependency {
 
   @Override
   public boolean check(DependencyWatcher watcher) throws Exception {
-    return check(resourceA.read(watcher), resourceB.read(watcher));
+    return check(resourceA.read(watcher),
+                 resourceB.read(watcher));
   }
 
   public abstract boolean check(A a,
