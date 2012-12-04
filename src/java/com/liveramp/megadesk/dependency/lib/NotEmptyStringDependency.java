@@ -16,12 +16,12 @@
 
 package com.liveramp.megadesk.dependency.lib;
 
+import com.liveramp.megadesk.dependency.BaseDependency;
 import com.liveramp.megadesk.dependency.Dependency;
-import com.liveramp.megadesk.dependency.SimpleDependency;
 import com.liveramp.megadesk.resource.Resource;
 
 public class NotEmptyStringDependency
-    extends SimpleDependency<String>
+    extends BaseDependency<String>
     implements Dependency {
 
   public NotEmptyStringDependency(Resource<String> resource) {

@@ -24,8 +24,8 @@ import com.liveramp.megadesk.resource.Resource;
 import com.liveramp.megadesk.resource.Resources;
 import com.liveramp.megadesk.resource.lib.IntegerResource;
 import com.liveramp.megadesk.resource.lib.StringResource;
-import com.liveramp.megadesk.step.lib.IntegerStep;
-import com.liveramp.megadesk.step.lib.SimpleStep;
+import com.liveramp.megadesk.step.BaseStep;
+import com.liveramp.megadesk.step.Step;
 import com.liveramp.megadesk.test.BaseTestCase;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.CuratorFrameworkFactory;
@@ -60,7 +60,7 @@ public class IntegrationTest extends BaseTestCase {
     final Executor executor = new Executor();
     final Semaphore semaphore = new Semaphore(0);
 
-    SimpleStep stepZ = new SimpleStep(megadesk, "stepZ") {
+    BaseStep stepZ = new BaseStep(megadesk, "stepZ") {
 
       @Override
       public List<Dependency> getDependencies() {
@@ -79,7 +79,7 @@ public class IntegrationTest extends BaseTestCase {
       }
     };
 
-    SimpleStep stepA = new SimpleStep(megadesk, "stepA") {
+    BaseStep stepA = new BaseStep(megadesk, "stepA") {
 
       @Override
       public List<Dependency> getDependencies() {
@@ -97,11 +97,11 @@ public class IntegrationTest extends BaseTestCase {
       }
     };
 
-    IntegerStep stepB = new IntegerStep(megadesk, "stepB") {
+    Step stepB = new BaseStep(megadesk, "stepB") {
 
       @Override
       public List<Dependency> getDependencies() {
-        return Dependencies.list(resourceC.equals("done"), resourceE.greaterThanStep());
+        return Dependencies.list(resourceC.equals("done"), resourceE.greaterThan(resourceF));
       }
 
       @Override
@@ -115,7 +115,6 @@ public class IntegrationTest extends BaseTestCase {
         write(resourceD, "done");
         write(resourceE, eVersion + 1);
         write(resourceF, eVersion);
-        set(eVersion);
         if (eVersion < 3) {
           executor.execute(this);
         } else {

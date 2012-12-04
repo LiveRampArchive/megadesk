@@ -18,26 +18,33 @@ package com.liveramp.megadesk.dependency;
 
 import com.liveramp.megadesk.resource.Resource;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
-public abstract class BaseDependency<RESOURCE> implements Dependency {
+public abstract class TwoDependency<A, B> implements Dependency {
 
-  private final Resource<RESOURCE> resource;
+  private final Resource<A> resourceA;
+  private final Resource<B> resourceB;
+  private final Set<Resource> resources = new HashSet<Resource>();
 
-  public BaseDependency(Resource<RESOURCE> resource) {
-    this.resource = resource;
+  public TwoDependency(Resource<A> resourceA,
+                       Resource<B> resourceB) {
+    this.resourceA = resourceA;
+    this.resourceB = resourceB;
+    resources.add(resourceA);
+    resources.add(resourceB);
   }
 
   @Override
   public Set<Resource> getResources() {
-    return Collections.singleton((Resource) resource);
+    return resources;
   }
 
   @Override
   public boolean check(DependencyWatcher watcher) throws Exception {
-    return check(resource.read(watcher));
+    return check(resourceA.read(watcher), resourceB.read(watcher));
   }
 
-  public abstract boolean check(RESOURCE resourceData) throws Exception;
+  public abstract boolean check(A a,
+                                B b) throws Exception;
 }

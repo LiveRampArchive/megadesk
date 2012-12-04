@@ -22,32 +22,27 @@ import com.liveramp.megadesk.dependency.DependencyWatcher;
 import com.liveramp.megadesk.driver.MainDriver;
 import com.liveramp.megadesk.driver.StepDriver;
 import com.liveramp.megadesk.resource.Resource;
-import com.liveramp.megadesk.serialization.Serialization;
 import org.apache.log4j.Logger;
 
-public abstract class BaseStep<T> implements Step<T> {
+public abstract class BaseStep implements Step {
 
   private static final Logger LOGGER = Logger.getLogger(BaseStep.class);
 
   private final String id;
   private final MainDriver mainDriver;
   private final StepDriver driver;
-  private final Serialization<T> dataSerialization;
 
-  public BaseStep(String id,
-                  Megadesk megadesk,
-                  Serialization<T> dataSerialization) throws Exception {
-    this(id, megadesk.getMainDriver(), megadesk.getStepDriver(id), dataSerialization);
+  public BaseStep(Megadesk megadesk,
+                  String id) throws Exception {
+    this(megadesk.getMainDriver(), megadesk.getStepDriver(id), id);
   }
 
-  public BaseStep(String id,
-                  MainDriver mainDriver,
+  public BaseStep(MainDriver mainDriver,
                   StepDriver driver,
-                  Serialization<T> dataSerialization) {
+                  String id) {
     this.id = id;
     this.mainDriver = mainDriver;
     this.driver = driver;
-    this.dataSerialization = dataSerialization;
   }
 
   @Override
@@ -63,7 +58,7 @@ public abstract class BaseStep<T> implements Step<T> {
         if (resource.getWriteLock().isOwnedByAnother(id, watcher)) {
           return false;
         }
-        if (!dependency.check(this, watcher)) {
+        if (!dependency.check(watcher)) {
           return false;
         }
       }
@@ -134,39 +129,5 @@ public abstract class BaseStep<T> implements Step<T> {
       throw new IllegalStateException("Cannot set data of resource '" + resource.getId() + "' from step '" + getId() + "' that does not write it.");
     }
     resource.write(getId(), data);
-  }
-
-  @Override
-  public T get() throws Exception {
-    return get(null);
-  }
-
-  @Override
-  public T get(DependencyWatcher watcher) throws Exception {
-    if (!driver.getLock().isAcquiredInThisProcess()) {
-      driver.getLock().acquire();
-      try {
-        return dataSerialization.deserialize(driver.get(watcher));
-      } finally {
-        driver.getLock().release();
-      }
-    } else {
-      return dataSerialization.deserialize(driver.get(watcher));
-    }
-  }
-
-  @Override
-  public void set(T data) throws Exception {
-    if (!driver.getLock().isAcquiredInThisProcess()) {
-      driver.getLock().acquire();
-      try {
-        driver.set(dataSerialization.serialize(data));
-      } finally {
-        driver.getLock().release();
-      }
-    } else {
-      driver.set(dataSerialization.serialize(data));
-    }
-    LOGGER.info("Setting step '" + id + "' data to: " + data);
   }
 }

@@ -16,12 +16,12 @@
 
 package com.liveramp.megadesk.dependency.lib;
 
+import com.liveramp.megadesk.dependency.BaseDependency;
 import com.liveramp.megadesk.dependency.Dependency;
-import com.liveramp.megadesk.dependency.SimpleDependency;
 import com.liveramp.megadesk.resource.Resource;
 
 public class EqualityDependency<RESOURCE>
-    extends SimpleDependency<RESOURCE>
+    extends BaseDependency<RESOURCE>
     implements Dependency {
 
   private final RESOURCE data;

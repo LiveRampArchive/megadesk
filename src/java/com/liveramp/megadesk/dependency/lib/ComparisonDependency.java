@@ -16,15 +16,15 @@
 
 package com.liveramp.megadesk.dependency.lib;
 
+import com.liveramp.megadesk.dependency.BaseDependency;
 import com.liveramp.megadesk.dependency.Dependency;
-import com.liveramp.megadesk.dependency.SimpleDependency;
 import com.liveramp.megadesk.resource.Resource;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ComparisonDependency<RESOURCE extends Comparable<RESOURCE>>
-    extends SimpleDependency<RESOURCE>
+    extends BaseDependency<RESOURCE>
     implements Dependency {
 
   private final RESOURCE data;

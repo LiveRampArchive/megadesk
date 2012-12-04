@@ -17,8 +17,8 @@
 package com.liveramp.megadesk.resource.lib;
 
 import com.liveramp.megadesk.Megadesk;
-import com.liveramp.megadesk.dependency.BaseDependency;
 import com.liveramp.megadesk.dependency.Dependency;
+import com.liveramp.megadesk.dependency.TwoDependency;
 import com.liveramp.megadesk.dependency.lib.ComparisonDependency;
 import com.liveramp.megadesk.resource.BaseResource;
 import com.liveramp.megadesk.resource.Resource;
@@ -42,11 +42,11 @@ public class IntegerResource extends BaseResource<Integer> implements Resource<I
     return new ComparisonDependency<Integer>(this, version, 1);
   }
 
-  public Dependency greaterThanStep() {
-    return new BaseDependency<Integer, Integer>(this) {
+  public Dependency greaterThan(final Resource<Integer> other) {
+    return new TwoDependency<Integer, Integer>(this, other) {
       @Override
-      public boolean check(Integer stepData, Integer resourceData) throws Exception {
-        return resourceData != null && (stepData == null || resourceData > stepData);
+      public boolean check(Integer a, Integer b) throws Exception {
+        return a != null && (b == null || a > b);
       }
     };
   }

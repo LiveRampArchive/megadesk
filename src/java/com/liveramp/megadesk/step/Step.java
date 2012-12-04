@@ -22,7 +22,7 @@ import com.liveramp.megadesk.resource.Resource;
 
 import java.util.List;
 
-public interface Step<T> {
+public interface Step {
 
   public String getId();
 
@@ -33,12 +33,6 @@ public interface Step<T> {
   public boolean acquire(DependencyWatcher watcher) throws Exception;
 
   public void release() throws Exception;
-
-  public T get() throws Exception;
-
-  public T get(DependencyWatcher watcher) throws Exception;
-
-  public void set(T data) throws Exception;
 
   public void write(Resource resource, Object data) throws Exception;
 

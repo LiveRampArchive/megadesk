@@ -17,7 +17,6 @@
 package com.liveramp.megadesk.curator;
 
 import com.liveramp.megadesk.driver.StepDriver;
-import com.liveramp.megadesk.dependency.DependencyWatcher;
 import com.liveramp.megadesk.step.StepLock;
 import com.liveramp.megadesk.util.ZkPath;
 import com.netflix.curator.framework.CuratorFramework;
@@ -41,19 +40,5 @@ public class CuratorStepDriver implements StepDriver {
   @Override
   public StepLock getLock() {
     return lock;
-  }
-
-  @Override
-  public byte[] get(DependencyWatcher watcher) throws Exception {
-    if (watcher == null) {
-      return curator.getData().forPath(path);
-    } else {
-      return curator.getData().usingWatcher(new CuratorStepDataWatcher(watcher)).forPath(path);
-    }
-  }
-
-  @Override
-  public void set(byte[] data) throws Exception {
-    curator.setData().forPath(path, data);
   }
 }
