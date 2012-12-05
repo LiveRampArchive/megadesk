@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.executor;
+package com.liveramp.megadesk.worker;
 
 import com.liveramp.megadesk.condition.ConditionWatcher;
 import com.liveramp.megadesk.step.Step;
@@ -25,39 +25,39 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class Executor {
+public class Worker {
 
-  private static final Logger LOGGER = Logger.getLogger(Executor.class);
+  private static final Logger LOGGER = Logger.getLogger(Worker.class);
   // Default is quasi unbounded
   private static final int DEFAULT_MAX_THREAD_POOL_SIZE = 1 << 10;
 
   private final ThreadPoolExecutor executor;
 
-  public Executor() {
+  public Worker() {
     this(DEFAULT_MAX_THREAD_POOL_SIZE);
   }
 
-  public Executor(int maxThreadPoolSize) {
+  public Worker(int maxThreadPoolSize) {
     this.executor = new ThreadPoolExecutor(
         0,
         maxThreadPoolSize,
         1,
         TimeUnit.SECONDS,
         new LinkedBlockingQueue<Runnable>(),
-        new ExecutorThreadFactory());
+        new WorkerThreadFactory());
   }
 
   public void execute(Step step) {
     executor.execute(new ExecutorTask(step));
   }
 
-  private static class ExecutorThreadFactory implements ThreadFactory {
+  private static class WorkerThreadFactory implements ThreadFactory {
 
     private int threadId = 0;
 
     @Override
     public Thread newThread(Runnable runnable) {
-      return new Thread(runnable, "Executor thread #" + threadId++);
+      return new Thread(runnable, "Worker thread #" + threadId++);
     }
   }
 
@@ -71,7 +71,7 @@ public class Executor {
 
     @Override
     public void run() {
-      ExecutorTaskDependencyWatcher watcher = new ExecutorTaskDependencyWatcher();
+      ExecutorTaskWatcher watcher = new ExecutorTaskWatcher();
       try {
         if (step.acquire(watcher)) {
           try {
@@ -89,7 +89,7 @@ public class Executor {
       }
     }
 
-    private class ExecutorTaskDependencyWatcher implements ConditionWatcher {
+    private class ExecutorTaskWatcher implements ConditionWatcher {
 
       private boolean changed = false;
       private boolean activated = false;
@@ -111,7 +111,7 @@ public class Executor {
 
       private synchronized void execute() {
         LOGGER.info("Waking up step '" + step.getId() + "'.");
-        Executor.this.execute(step);
+        Worker.this.execute(step);
         activated = false;
       }
     }

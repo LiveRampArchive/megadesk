@@ -21,7 +21,7 @@ import com.liveramp.megadesk.condition.Condition;
 import com.liveramp.megadesk.condition.Conditions;
 import com.liveramp.megadesk.curator.CuratorMegadesk;
 import com.liveramp.megadesk.dependency.Dependencies;
-import com.liveramp.megadesk.executor.Executor;
+import com.liveramp.megadesk.worker.Worker;
 import com.liveramp.megadesk.resource.Resources;
 import com.liveramp.megadesk.resource.lib.IntegerResource;
 import com.liveramp.megadesk.resource.lib.StringResource;
@@ -48,7 +48,7 @@ public class IntegrationTest extends BaseTestCase {
     final IntegerResource resourceE = new IntegerResource(megadesk, "resourceE");
     final IntegerResource resourceF = new IntegerResource(megadesk, "resourceF");
 
-    final Executor executor = new Executor();
+    final Worker executor = new Worker();
     final Semaphore semaphore = new Semaphore(0);
 
     BaseStep stepZ = new BaseStep(megadesk,
