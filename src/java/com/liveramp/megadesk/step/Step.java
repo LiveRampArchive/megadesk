@@ -41,5 +41,5 @@ public interface Step {
 
   boolean isReady(ConditionWatcher watcher) throws Exception;
 
-  public void execute() throws Exception;
+  public void run() throws Exception;
 }

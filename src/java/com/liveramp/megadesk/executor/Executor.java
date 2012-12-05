@@ -75,7 +75,7 @@ public class Executor {
       try {
         if (step.acquire(watcher)) {
           try {
-            step.execute();
+            step.run();
             step.release();
           } catch (Throwable t) {
             LOGGER.error("Step '" + step.getId() + "' encountered throwable: ", t);

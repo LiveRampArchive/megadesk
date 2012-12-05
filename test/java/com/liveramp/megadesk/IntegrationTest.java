@@ -58,7 +58,7 @@ public class IntegrationTest extends BaseTestCase {
         null) {
 
       @Override
-      public void execute() throws Exception {
+      public void run() throws Exception {
         write(resourceB, "ready");
         write(resourceE, 0);
       }
@@ -71,7 +71,7 @@ public class IntegrationTest extends BaseTestCase {
         null) {
 
       @Override
-      public void execute() throws Exception {
+      public void run() throws Exception {
         write(resourceC, "done");
       }
     };
@@ -83,7 +83,7 @@ public class IntegrationTest extends BaseTestCase {
         null) {
 
       @Override
-      public void execute() throws Exception {
+      public void run() throws Exception {
         Integer eVersion = resourceE.read();
         write(resourceD, "done");
         write(resourceE, eVersion + 1);
@@ -113,7 +113,7 @@ public class IntegrationTest extends BaseTestCase {
         Conditions.list(finished)) {
 
       @Override
-      public void execute() throws Exception {
+      public void run() throws Exception {
         semaphore.release();
       }
     };
