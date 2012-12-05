@@ -87,6 +87,21 @@ public abstract class BaseStep implements Step {
   }
 
   @Override
+  public List<Condition> conditions() {
+    return conditions;
+  }
+
+  @Override
+  public List<Dependency> dependencies() {
+    return dependencies;
+  }
+
+  @Override
+  public List<Resource> writes() {
+    return writes;
+  }
+
+  @Override
   public boolean isReady(ConditionWatcher watcher) throws Exception {
     // Check all conditions
     for (Condition condition : conditions) {
@@ -172,20 +187,5 @@ public abstract class BaseStep implements Step {
       throw new IllegalStateException("Cannot set data of resource '" + resource.getId() + "' from step '" + getId() + "' that does not write it.");
     }
     resource.write(getId(), data);
-  }
-
-  @Override
-  public List<Condition> conditions() {
-    return Collections.emptyList();
-  }
-
-  @Override
-  public List<Dependency> dependencies() {
-    return Collections.emptyList();
-  }
-
-  @Override
-  public List<Resource> writes() {
-    return Collections.emptyList();
   }
 }
