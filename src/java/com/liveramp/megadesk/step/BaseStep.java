@@ -35,9 +35,9 @@ public abstract class BaseStep implements Step {
   private final String id;
   private final MainDriver mainDriver;
   private final StepDriver driver;
-  private final List<Condition> conditions;
   private final List<Dependency> dependencies;
   private final List<Resource> writes;
+  private final List<Condition> conditions;
 
   public BaseStep(Megadesk megadesk,
                   String id,
