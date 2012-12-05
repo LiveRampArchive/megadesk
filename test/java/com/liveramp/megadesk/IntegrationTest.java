@@ -34,6 +34,7 @@ import com.netflix.curator.retry.RetryNTimes;
 import com.netflix.curator.test.TestingServer;
 
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 public class IntegrationTest extends BaseTestCase {
 
@@ -103,7 +104,7 @@ public class IntegrationTest extends BaseTestCase {
       }
     };
 
-    Condition finished = new BaseCondition(1000) {
+    Condition finished = new BaseCondition(1, TimeUnit.SECONDS) {
       @Override
       public boolean check() {
         try {

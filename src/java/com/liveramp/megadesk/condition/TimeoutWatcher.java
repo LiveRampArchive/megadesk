@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 public abstract class TimeoutWatcher {
 
   public TimeoutWatcher(final long timeout, TimeUnit unit) {
-    this(unit.convert(timeout, TimeUnit.MILLISECONDS));
+    this(TimeUnit.MILLISECONDS.convert(timeout, unit));
   }
 
   public TimeoutWatcher(final long timeoutMs) {
