@@ -16,6 +16,7 @@
 
 package com.liveramp.megadesk.dependency;
 
+import com.liveramp.megadesk.condition.ConditionWatcher;
 import com.liveramp.megadesk.resource.Resource;
 
 import java.util.Collections;
@@ -35,7 +36,7 @@ public abstract class BaseDependency<RESOURCE> implements Dependency {
   }
 
   @Override
-  public boolean check(DependencyWatcher watcher) throws Exception {
+  public boolean check(ConditionWatcher watcher) throws Exception {
     return check(resource.read(watcher));
   }
 

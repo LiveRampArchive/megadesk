@@ -14,9 +14,23 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.dependency;
+package com.liveramp.megadesk.condition;
 
-public interface DependencyWatcher {
+public abstract class TimeoutWatcher {
 
-  public void onDependencyChange();
+  public TimeoutWatcher(final long timeoutMs) {
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          Thread.sleep(timeoutMs);
+        } catch (InterruptedException e) {
+          throw new RuntimeException(e);
+        }
+        onTimeout();
+      }
+    }).start();
+  }
+
+  public abstract void onTimeout();
 }

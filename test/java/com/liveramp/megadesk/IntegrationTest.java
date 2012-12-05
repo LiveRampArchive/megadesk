@@ -16,6 +16,9 @@
 
 package com.liveramp.megadesk;
 
+import com.liveramp.megadesk.condition.BaseCondition;
+import com.liveramp.megadesk.condition.Condition;
+import com.liveramp.megadesk.condition.Conditions;
 import com.liveramp.megadesk.curator.CuratorMegadesk;
 import com.liveramp.megadesk.dependency.Dependencies;
 import com.liveramp.megadesk.dependency.Dependency;
@@ -63,12 +66,12 @@ public class IntegrationTest extends BaseTestCase {
     BaseStep stepZ = new BaseStep(megadesk, "stepZ") {
 
       @Override
-      public List<Dependency> getDependencies() {
+      public List<Dependency> dependencies() {
         return Dependencies.list(resourceA.equals("ready"));
       }
 
       @Override
-      public List<Resource> getWrites() {
+      public List<Resource> writes() {
         return Resources.list(resourceB, resourceE);
       }
 
@@ -82,12 +85,12 @@ public class IntegrationTest extends BaseTestCase {
     BaseStep stepA = new BaseStep(megadesk, "stepA") {
 
       @Override
-      public List<Dependency> getDependencies() {
+      public List<Dependency> dependencies() {
         return Dependencies.list(resourceA.equals("ready"), resourceB.equals("ready"));
       }
 
       @Override
-      public List<Resource> getWrites() {
+      public List<Resource> writes() {
         return Resources.list(resourceC);
       }
 
@@ -100,12 +103,12 @@ public class IntegrationTest extends BaseTestCase {
     Step stepB = new BaseStep(megadesk, "stepB") {
 
       @Override
-      public List<Dependency> getDependencies() {
+      public List<Dependency> dependencies() {
         return Dependencies.list(resourceC.equals("done"), resourceE.greaterThan(resourceF));
       }
 
       @Override
-      public List<Resource> getWrites() {
+      public List<Resource> writes() {
         return Resources.list(resourceD, resourceE, resourceF);
       }
 
@@ -117,15 +120,36 @@ public class IntegrationTest extends BaseTestCase {
         write(resourceF, eVersion);
         if (eVersion < 3) {
           executor.execute(this);
-        } else {
-          semaphore.release();
         }
+      }
+    };
+
+    Step stepW = new BaseStep(megadesk, "stepW") {
+      @Override
+      public List<Condition> conditions() {
+        return Conditions.list(new BaseCondition(1000) {
+          @Override
+          public boolean check() {
+            try {
+              return resourceF.read() != null
+                  && resourceF.read() == 3;
+            } catch (Exception e) {
+              throw new RuntimeException(e);
+            }
+          }
+        });
+      }
+
+      @Override
+      public void execute() throws Exception {
+        semaphore.release();
       }
     };
 
     executor.execute(stepA);
     executor.execute(stepB);
     executor.execute(stepZ);
+    executor.execute(stepW);
 
     Thread.sleep(1000);
 

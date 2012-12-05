@@ -16,7 +16,7 @@
 
 package com.liveramp.megadesk.executor;
 
-import com.liveramp.megadesk.dependency.DependencyWatcher;
+import com.liveramp.megadesk.condition.ConditionWatcher;
 import com.liveramp.megadesk.step.Step;
 import org.apache.log4j.Logger;
 
@@ -89,13 +89,13 @@ public class Executor {
       }
     }
 
-    private class ExecutorTaskDependencyWatcher implements DependencyWatcher {
+    private class ExecutorTaskDependencyWatcher implements ConditionWatcher {
 
       private boolean changed = false;
       private boolean activated = false;
 
       @Override
-      public synchronized void onDependencyChange() {
+      public synchronized void onChange() {
         changed = true;
         if (activated) {
           execute();

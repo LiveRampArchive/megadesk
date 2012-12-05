@@ -16,6 +16,7 @@
 
 package com.liveramp.megadesk.dependency;
 
+import com.liveramp.megadesk.condition.ConditionWatcher;
 import com.liveramp.megadesk.resource.Resource;
 
 import java.util.HashSet;
@@ -42,7 +43,7 @@ public abstract class TwoDependency<A, B> implements Dependency {
   }
 
   @Override
-  public boolean check(DependencyWatcher watcher) throws Exception {
+  public boolean check(ConditionWatcher watcher) throws Exception {
     return check(resourceA.read(watcher),
                  resourceB.read(watcher));
   }

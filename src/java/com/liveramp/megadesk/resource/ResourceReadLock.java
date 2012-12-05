@@ -16,7 +16,7 @@
 
 package com.liveramp.megadesk.resource;
 
-import com.liveramp.megadesk.dependency.DependencyWatcher;
+import com.liveramp.megadesk.condition.ConditionWatcher;
 
 import java.util.List;
 
@@ -30,5 +30,5 @@ public interface ResourceReadLock {
 
   boolean isOwnedByAnother(String id) throws Exception;
 
-  boolean isOwnedByAnother(String id, DependencyWatcher watcher) throws Exception;
+  boolean isOwnedByAnother(String id, ConditionWatcher watcher) throws Exception;
 }

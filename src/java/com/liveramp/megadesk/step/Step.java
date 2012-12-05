@@ -16,8 +16,9 @@
 
 package com.liveramp.megadesk.step;
 
+import com.liveramp.megadesk.condition.Condition;
+import com.liveramp.megadesk.condition.ConditionWatcher;
 import com.liveramp.megadesk.dependency.Dependency;
-import com.liveramp.megadesk.dependency.DependencyWatcher;
 import com.liveramp.megadesk.resource.Resource;
 
 import java.util.List;
@@ -26,17 +27,19 @@ public interface Step {
 
   public String getId();
 
-  public List<Dependency> getDependencies();
+  public List<Condition> conditions();
 
-  public List<Resource> getWrites();
+  public List<Dependency> dependencies();
 
-  public boolean acquire(DependencyWatcher watcher) throws Exception;
+  public List<Resource> writes();
+
+  public boolean acquire(ConditionWatcher watcher) throws Exception;
 
   public void release() throws Exception;
 
   public void write(Resource resource, Object data) throws Exception;
 
-  boolean isReady(DependencyWatcher watcher) throws Exception;
+  boolean isReady(ConditionWatcher watcher) throws Exception;
 
   public void execute() throws Exception;
 }

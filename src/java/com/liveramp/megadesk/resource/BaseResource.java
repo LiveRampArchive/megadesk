@@ -16,7 +16,7 @@
 
 package com.liveramp.megadesk.resource;
 
-import com.liveramp.megadesk.dependency.DependencyWatcher;
+import com.liveramp.megadesk.condition.ConditionWatcher;
 import com.liveramp.megadesk.driver.ResourceDriver;
 import com.liveramp.megadesk.serialization.Serialization;
 import org.apache.log4j.Logger;
@@ -50,7 +50,7 @@ public abstract class BaseResource<T> implements Resource<T> {
   }
 
   @Override
-  public T read(DependencyWatcher watcher) throws Exception {
+  public T read(ConditionWatcher watcher) throws Exception {
     return dataSerialization.deserialize(driver.read(watcher));
   }
 

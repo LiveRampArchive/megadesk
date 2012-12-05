@@ -21,6 +21,9 @@ import java.util.List;
 
 public class Resources {
 
+  private Resources() {
+  }
+
   public static List<Resource> list(Resource... resources) {
     return Arrays.asList(resources);
   }

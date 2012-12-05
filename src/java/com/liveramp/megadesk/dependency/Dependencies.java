@@ -21,6 +21,9 @@ import java.util.List;
 
 public class Dependencies {
 
+  private Dependencies() {
+  }
+
   public static List<Dependency> list(Dependency... dependencies) {
     return Arrays.asList(dependencies);
   }

@@ -16,7 +16,7 @@
 
 package com.liveramp.megadesk.resource;
 
-import com.liveramp.megadesk.dependency.DependencyWatcher;
+import com.liveramp.megadesk.condition.ConditionWatcher;
 
 public interface Resource<T> {
 
@@ -24,7 +24,7 @@ public interface Resource<T> {
 
   public T read() throws Exception;
 
-  public T read(DependencyWatcher watcher) throws Exception;
+  public T read(ConditionWatcher watcher) throws Exception;
 
   public void write(T data) throws Exception;
 

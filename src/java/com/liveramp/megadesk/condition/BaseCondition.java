@@ -14,16 +14,26 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.driver;
+package com.liveramp.megadesk.condition;
 
-import com.liveramp.megadesk.condition.ConditionWatcher;
-import com.liveramp.megadesk.resource.ResourceLock;
+public abstract class BaseCondition implements Condition {
 
-public interface ResourceDriver {
+  private final long timeoutMs;
 
-  public ResourceLock getLock() throws Exception;
+  public BaseCondition(long timeoutMs) {
+    this.timeoutMs = timeoutMs;
+  }
 
-  public byte[] read(ConditionWatcher watcher) throws Exception;
+  @Override
+  public boolean check(final ConditionWatcher watcher) {
+    new TimeoutWatcher(timeoutMs) {
+      @Override
+      public void onTimeout() {
+        watcher.onChange();
+      }
+    };
+    return check();
+  }
 
-  public void write(byte[] data) throws Exception;
+  public abstract boolean check();
 }

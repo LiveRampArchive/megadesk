@@ -16,14 +16,14 @@
 
 package com.liveramp.megadesk.curator;
 
-import com.liveramp.megadesk.dependency.DependencyWatcher;
+import com.liveramp.megadesk.condition.ConditionWatcher;
 import com.netflix.curator.framework.api.CuratorWatcher;
 
 public abstract class CuratorAbstractWatcher implements CuratorWatcher {
 
-  protected final DependencyWatcher watcher;
+  protected final ConditionWatcher watcher;
 
-  public CuratorAbstractWatcher(DependencyWatcher watcher) {
+  public CuratorAbstractWatcher(ConditionWatcher watcher) {
     this.watcher = watcher;
   }
 }

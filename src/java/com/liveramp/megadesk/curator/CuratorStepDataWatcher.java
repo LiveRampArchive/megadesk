@@ -16,7 +16,7 @@
 
 package com.liveramp.megadesk.curator;
 
-import com.liveramp.megadesk.dependency.DependencyWatcher;
+import com.liveramp.megadesk.condition.ConditionWatcher;
 import com.netflix.curator.framework.api.CuratorWatcher;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -25,7 +25,7 @@ public class CuratorStepDataWatcher
     extends CuratorAbstractWatcher
     implements CuratorWatcher {
 
-  public CuratorStepDataWatcher(DependencyWatcher watcher) {
+  public CuratorStepDataWatcher(ConditionWatcher watcher) {
     super(watcher);
   }
 
@@ -35,7 +35,7 @@ public class CuratorStepDataWatcher
       if (watchedEvent.getType() == Watcher.Event.EventType.NodeDataChanged
           || watchedEvent.getType() == Watcher.Event.EventType.NodeDeleted
           || watchedEvent.getType() == Watcher.Event.EventType.NodeCreated) {
-        watcher.onDependencyChange();
+        watcher.onChange();
       }
     }
   }

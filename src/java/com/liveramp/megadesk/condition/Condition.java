@@ -14,16 +14,9 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.driver;
+package com.liveramp.megadesk.condition;
 
-import com.liveramp.megadesk.condition.ConditionWatcher;
-import com.liveramp.megadesk.resource.ResourceLock;
+public interface Condition {
 
-public interface ResourceDriver {
-
-  public ResourceLock getLock() throws Exception;
-
-  public byte[] read(ConditionWatcher watcher) throws Exception;
-
-  public void write(byte[] data) throws Exception;
+  public boolean check(ConditionWatcher watcher);
 }

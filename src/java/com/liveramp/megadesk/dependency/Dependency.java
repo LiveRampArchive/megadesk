@@ -16,6 +16,7 @@
 
 package com.liveramp.megadesk.dependency;
 
+import com.liveramp.megadesk.condition.ConditionWatcher;
 import com.liveramp.megadesk.resource.Resource;
 
 import java.util.Set;
@@ -24,5 +25,5 @@ public interface Dependency {
 
   public Set<Resource> getResources();
 
-  public boolean check(DependencyWatcher watcher) throws Exception;
+  public boolean check(ConditionWatcher watcher) throws Exception;
 }

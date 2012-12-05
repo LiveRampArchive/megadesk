@@ -14,16 +14,17 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.driver;
+package com.liveramp.megadesk.condition;
 
-import com.liveramp.megadesk.condition.ConditionWatcher;
-import com.liveramp.megadesk.resource.ResourceLock;
+import java.util.Arrays;
+import java.util.List;
 
-public interface ResourceDriver {
+public class Conditions {
 
-  public ResourceLock getLock() throws Exception;
+  private Conditions() {
+  }
 
-  public byte[] read(ConditionWatcher watcher) throws Exception;
-
-  public void write(byte[] data) throws Exception;
+  public static List<Condition> list(Condition... conditions) {
+    return Arrays.asList(conditions);
+  }
 }

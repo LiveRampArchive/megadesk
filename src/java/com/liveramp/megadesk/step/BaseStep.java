@@ -17,12 +17,16 @@
 package com.liveramp.megadesk.step;
 
 import com.liveramp.megadesk.Megadesk;
+import com.liveramp.megadesk.condition.Condition;
+import com.liveramp.megadesk.condition.ConditionWatcher;
 import com.liveramp.megadesk.dependency.Dependency;
-import com.liveramp.megadesk.dependency.DependencyWatcher;
 import com.liveramp.megadesk.driver.MainDriver;
 import com.liveramp.megadesk.driver.StepDriver;
 import com.liveramp.megadesk.resource.Resource;
 import org.apache.log4j.Logger;
+
+import java.util.Collections;
+import java.util.List;
 
 public abstract class BaseStep implements Step {
 
@@ -51,9 +55,15 @@ public abstract class BaseStep implements Step {
   }
 
   @Override
-  public boolean isReady(DependencyWatcher watcher) throws Exception {
-    // Check if we can acquire all resources
-    for (Dependency dependency : getDependencies()) {
+  public boolean isReady(ConditionWatcher watcher) throws Exception {
+    // Check all conditions
+    for (Condition condition : conditions()) {
+      if (!condition.check(watcher)) {
+        return false;
+      }
+    }
+    // Check all dependencies
+    for (Dependency dependency : dependencies()) {
       for (Resource resource : dependency.getResources()) {
         if (resource.getWriteLock().isOwnedByAnother(id, watcher)) {
           return false;
@@ -63,7 +73,8 @@ public abstract class BaseStep implements Step {
         }
       }
     }
-    for (Resource write : getWrites()) {
+    // Check all writes
+    for (Resource write : writes()) {
       if (write.getWriteLock().isOwnedByAnother(id, watcher)
           || write.getReadLock().isOwnedByAnother(id, watcher)) {
         return false;
@@ -74,7 +85,7 @@ public abstract class BaseStep implements Step {
 
   @Override
   @SuppressWarnings("unchecked")
-  public boolean acquire(DependencyWatcher watcher) throws Exception {
+  public boolean acquire(ConditionWatcher watcher) throws Exception {
     LOGGER.info("Acquiring step '" + getId() + "'");
     driver.getLock().acquire();
     // Acquire resources lock to avoid dead locks
@@ -82,12 +93,12 @@ public abstract class BaseStep implements Step {
     try {
       if (isReady(watcher)) {
         // If ready, acquire all locks in order
-        for (Dependency dependency : getDependencies()) {
+        for (Dependency dependency : dependencies()) {
           for (Resource resource : dependency.getResources()) {
             resource.getReadLock().acquire(getId(), true);
           }
         }
-        for (Resource write : getWrites()) {
+        for (Resource write : writes()) {
           write.getWriteLock().acquire(getId(), true);
         }
         LOGGER.info("Acquired step '" + id + "'");
@@ -108,12 +119,12 @@ public abstract class BaseStep implements Step {
       throw new IllegalStateException("Cannot complete step '" + getId() + "' that is not acquired by this process.");
     }
     // Release all locks in order
-    for (Dependency dependency : getDependencies()) {
+    for (Dependency dependency : dependencies()) {
       for (Resource resource : dependency.getResources()) {
         resource.getReadLock().release(getId());
       }
     }
-    for (Resource write : getWrites()) {
+    for (Resource write : writes()) {
       write.getWriteLock().release(getId());
     }
     driver.getLock().release();
@@ -125,9 +136,24 @@ public abstract class BaseStep implements Step {
     if (!driver.getLock().isAcquiredInThisProcess()) {
       throw new IllegalStateException("Cannot set data of resource '" + resource.getId() + "' from step '" + getId() + "' that is not acquired by this process.");
     }
-    if (!getWrites().contains(resource)) {
+    if (!writes().contains(resource)) {
       throw new IllegalStateException("Cannot set data of resource '" + resource.getId() + "' from step '" + getId() + "' that does not write it.");
     }
     resource.write(getId(), data);
+  }
+
+  @Override
+  public List<Condition> conditions() {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public List<Dependency> dependencies() {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public List<Resource> writes() {
+    return Collections.emptyList();
   }
 }
