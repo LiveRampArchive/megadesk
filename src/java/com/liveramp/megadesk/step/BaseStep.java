@@ -35,18 +35,50 @@ public abstract class BaseStep implements Step {
   private final String id;
   private final MainDriver mainDriver;
   private final StepDriver driver;
+  private final List<Condition> conditions;
+  private final List<Dependency> dependencies;
+  private final List<Resource> writes;
 
   public BaseStep(Megadesk megadesk,
-                  String id) throws Exception {
-    this(megadesk.getMainDriver(), megadesk.getStepDriver(id), id);
+                  String id,
+                  List<Dependency> dependencies,
+                  List<Resource> writes,
+                  List<Condition> conditions) throws Exception {
+    this(megadesk.getMainDriver(),
+        megadesk.getStepDriver(id),
+        id,
+        dependencies,
+        writes,
+        conditions);
   }
 
   public BaseStep(MainDriver mainDriver,
                   StepDriver driver,
-                  String id) {
+                  String id,
+                  List<Dependency> dependencies,
+                  List<Resource> writes,
+                  List<Condition> conditions) {
     this.id = id;
     this.mainDriver = mainDriver;
     this.driver = driver;
+    // Conditions
+    if (conditions != null) {
+      this.conditions = conditions;
+    } else {
+      this.conditions = Collections.emptyList();
+    }
+    // Dependencies
+    if (dependencies != null) {
+      this.dependencies = dependencies;
+    } else {
+      this.dependencies = Collections.emptyList();
+    }
+    // Writes
+    if (writes != null) {
+      this.writes = writes;
+    } else {
+      this.writes = Collections.emptyList();
+    }
   }
 
   @Override
@@ -57,13 +89,13 @@ public abstract class BaseStep implements Step {
   @Override
   public boolean isReady(ConditionWatcher watcher) throws Exception {
     // Check all conditions
-    for (Condition condition : conditions()) {
+    for (Condition condition : conditions) {
       if (!condition.check(watcher)) {
         return false;
       }
     }
     // Check all dependencies
-    for (Dependency dependency : dependencies()) {
+    for (Dependency dependency : dependencies) {
       for (Resource resource : dependency.getResources()) {
         if (resource.getWriteLock().isOwnedByAnother(id, watcher)) {
           return false;
@@ -74,7 +106,7 @@ public abstract class BaseStep implements Step {
       }
     }
     // Check all writes
-    for (Resource write : writes()) {
+    for (Resource write : writes) {
       if (write.getWriteLock().isOwnedByAnother(id, watcher)
           || write.getReadLock().isOwnedByAnother(id, watcher)) {
         return false;
@@ -93,12 +125,12 @@ public abstract class BaseStep implements Step {
     try {
       if (isReady(watcher)) {
         // If ready, acquire all locks in order
-        for (Dependency dependency : dependencies()) {
+        for (Dependency dependency : dependencies) {
           for (Resource resource : dependency.getResources()) {
             resource.getReadLock().acquire(getId(), true);
           }
         }
-        for (Resource write : writes()) {
+        for (Resource write : writes) {
           write.getWriteLock().acquire(getId(), true);
         }
         LOGGER.info("Acquired step '" + id + "'");
@@ -119,12 +151,12 @@ public abstract class BaseStep implements Step {
       throw new IllegalStateException("Cannot complete step '" + getId() + "' that is not acquired by this process.");
     }
     // Release all locks in order
-    for (Dependency dependency : dependencies()) {
+    for (Dependency dependency : dependencies) {
       for (Resource resource : dependency.getResources()) {
         resource.getReadLock().release(getId());
       }
     }
-    for (Resource write : writes()) {
+    for (Resource write : writes) {
       write.getWriteLock().release(getId());
     }
     driver.getLock().release();
@@ -136,7 +168,7 @@ public abstract class BaseStep implements Step {
     if (!driver.getLock().isAcquiredInThisProcess()) {
       throw new IllegalStateException("Cannot set data of resource '" + resource.getId() + "' from step '" + getId() + "' that is not acquired by this process.");
     }
-    if (!writes().contains(resource)) {
+    if (!writes.contains(resource)) {
       throw new IllegalStateException("Cannot set data of resource '" + resource.getId() + "' from step '" + getId() + "' that does not write it.");
     }
     resource.write(getId(), data);

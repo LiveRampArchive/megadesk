@@ -21,9 +21,7 @@ import com.liveramp.megadesk.condition.Condition;
 import com.liveramp.megadesk.condition.Conditions;
 import com.liveramp.megadesk.curator.CuratorMegadesk;
 import com.liveramp.megadesk.dependency.Dependencies;
-import com.liveramp.megadesk.dependency.Dependency;
 import com.liveramp.megadesk.executor.Executor;
-import com.liveramp.megadesk.resource.Resource;
 import com.liveramp.megadesk.resource.Resources;
 import com.liveramp.megadesk.resource.lib.IntegerResource;
 import com.liveramp.megadesk.resource.lib.StringResource;
@@ -35,7 +33,6 @@ import com.netflix.curator.framework.CuratorFrameworkFactory;
 import com.netflix.curator.retry.RetryNTimes;
 import com.netflix.curator.test.TestingServer;
 
-import java.util.List;
 import java.util.concurrent.Semaphore;
 
 public class IntegrationTest extends BaseTestCase {
@@ -63,17 +60,11 @@ public class IntegrationTest extends BaseTestCase {
     final Executor executor = new Executor();
     final Semaphore semaphore = new Semaphore(0);
 
-    BaseStep stepZ = new BaseStep(megadesk, "stepZ") {
-
-      @Override
-      public List<Dependency> dependencies() {
-        return Dependencies.list(resourceA.equals("ready"));
-      }
-
-      @Override
-      public List<Resource> writes() {
-        return Resources.list(resourceB, resourceE);
-      }
+    BaseStep stepZ = new BaseStep(megadesk,
+        "stepZ",
+        Dependencies.list(resourceA.equals("ready")),
+        Resources.list(resourceB, resourceE),
+        null) {
 
       @Override
       public void execute() throws Exception {
@@ -82,17 +73,11 @@ public class IntegrationTest extends BaseTestCase {
       }
     };
 
-    BaseStep stepA = new BaseStep(megadesk, "stepA") {
-
-      @Override
-      public List<Dependency> dependencies() {
-        return Dependencies.list(resourceA.equals("ready"), resourceB.equals("ready"));
-      }
-
-      @Override
-      public List<Resource> writes() {
-        return Resources.list(resourceC);
-      }
+    BaseStep stepA = new BaseStep(megadesk,
+        "stepA",
+        Dependencies.list(resourceA.equals("ready"), resourceB.equals("ready")),
+        Resources.list(resourceC),
+        null) {
 
       @Override
       public void execute() throws Exception {
@@ -100,17 +85,11 @@ public class IntegrationTest extends BaseTestCase {
       }
     };
 
-    Step stepB = new BaseStep(megadesk, "stepB") {
-
-      @Override
-      public List<Dependency> dependencies() {
-        return Dependencies.list(resourceC.equals("done"), resourceE.greaterThan(resourceF));
-      }
-
-      @Override
-      public List<Resource> writes() {
-        return Resources.list(resourceD, resourceE, resourceF);
-      }
+    Step stepB = new BaseStep(megadesk,
+        "stepB",
+        Dependencies.list(resourceC.equals("done"), resourceE.greaterThan(resourceF)),
+        Resources.list(resourceD, resourceE, resourceF),
+        null) {
 
       @Override
       public void execute() throws Exception {
@@ -124,21 +103,23 @@ public class IntegrationTest extends BaseTestCase {
       }
     };
 
-    Step stepW = new BaseStep(megadesk, "stepW") {
+    Condition finished = new BaseCondition(1000) {
       @Override
-      public List<Condition> conditions() {
-        return Conditions.list(new BaseCondition(1000) {
-          @Override
-          public boolean check() {
-            try {
-              return resourceF.read() != null
-                  && resourceF.read() == 3;
-            } catch (Exception e) {
-              throw new RuntimeException(e);
-            }
-          }
-        });
+      public boolean check() {
+        try {
+          return resourceF.read() != null
+              && resourceF.read() == 3;
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
       }
+    };
+
+    Step stepW = new BaseStep(megadesk,
+        "stepW",
+        null,
+        null,
+        Conditions.list(finished)) {
 
       @Override
       public void execute() throws Exception {
