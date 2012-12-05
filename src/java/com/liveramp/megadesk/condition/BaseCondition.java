@@ -16,17 +16,21 @@
 
 package com.liveramp.megadesk.condition;
 
+import java.util.concurrent.TimeUnit;
+
 public abstract class BaseCondition implements Condition {
 
-  private final long timeoutMs;
+  private final long time;
+  private final TimeUnit unit;
 
-  public BaseCondition(long timeoutMs) {
-    this.timeoutMs = timeoutMs;
+  public BaseCondition(long time, TimeUnit unit) {
+    this.time = time;
+    this.unit = unit;
   }
 
   @Override
   public boolean check(final ConditionWatcher watcher) {
-    new TimeoutWatcher(timeoutMs) {
+    new TimeoutWatcher(time, unit) {
       @Override
       public void onTimeout() {
         watcher.onChange();

@@ -16,7 +16,13 @@
 
 package com.liveramp.megadesk.condition;
 
+import java.util.concurrent.TimeUnit;
+
 public abstract class TimeoutWatcher {
+
+  public TimeoutWatcher(final long timeout, TimeUnit unit) {
+    this(unit.convert(timeout, TimeUnit.MILLISECONDS));
+  }
 
   public TimeoutWatcher(final long timeoutMs) {
     new Thread(new Runnable() {
