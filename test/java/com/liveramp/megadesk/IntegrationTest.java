@@ -28,9 +28,6 @@ import com.liveramp.megadesk.resource.lib.StringResource;
 import com.liveramp.megadesk.step.BaseStep;
 import com.liveramp.megadesk.step.Step;
 import com.liveramp.megadesk.test.BaseTestCase;
-import com.netflix.curator.framework.CuratorFramework;
-import com.netflix.curator.framework.CuratorFrameworkFactory;
-import com.netflix.curator.retry.RetryNTimes;
 import com.netflix.curator.test.TestingServer;
 
 import java.util.concurrent.Semaphore;
@@ -41,15 +38,8 @@ public class IntegrationTest extends BaseTestCase {
   public void testWorkflow() throws Exception {
 
     TestingServer testingServer = new TestingServer(12000);
-    final CuratorFramework curator;
-    curator = CuratorFrameworkFactory.builder()
-        .connectionTimeoutMs(1000)
-        .retryPolicy(new RetryNTimes(10, 500))
-        .connectString(testingServer.getConnectString())
-        .build();
-    curator.start();
 
-    final CuratorMegadesk megadesk = new CuratorMegadesk(curator);
+    final CuratorMegadesk megadesk = new CuratorMegadesk(testingServer.getConnectString());
 
     final StringResource resourceA = new StringResource(megadesk, "resourceA");
     final StringResource resourceB = new StringResource(megadesk, "resourceB");

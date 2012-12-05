@@ -45,6 +45,9 @@ public class CuratorMegadesk implements Megadesk {
   }
 
   public CuratorMegadesk(CuratorFramework curator) {
+    if (!curator.isStarted()) {
+      curator.start();
+    }
     this.curator = curator;
     this.mainDriver = new CuratorMainDriver(curator);
   }
