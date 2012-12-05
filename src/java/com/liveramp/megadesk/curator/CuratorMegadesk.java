@@ -20,12 +20,29 @@ import com.liveramp.megadesk.Megadesk;
 import com.liveramp.megadesk.driver.MainDriver;
 import com.liveramp.megadesk.driver.ResourceDriver;
 import com.liveramp.megadesk.driver.StepDriver;
+import com.netflix.curator.RetryPolicy;
 import com.netflix.curator.framework.CuratorFramework;
+import com.netflix.curator.framework.CuratorFrameworkFactory;
+import com.netflix.curator.retry.RetryNTimes;
 
 public class CuratorMegadesk implements Megadesk {
 
   private final CuratorFramework curator;
   private final CuratorMainDriver mainDriver;
+
+  public CuratorMegadesk(String connectString) {
+    this(connectString, 1000, new RetryNTimes(10, 500));
+  }
+
+  public CuratorMegadesk(String connectString,
+                         int connectionTimeoutMs,
+                         RetryPolicy retryPolicy) {
+    this(CuratorFrameworkFactory.builder()
+        .connectionTimeoutMs(connectionTimeoutMs)
+        .retryPolicy(retryPolicy)
+        .connectString(connectString)
+        .build());
+  }
 
   public CuratorMegadesk(CuratorFramework curator) {
     this.curator = curator;
