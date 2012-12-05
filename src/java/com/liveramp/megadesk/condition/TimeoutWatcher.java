@@ -18,25 +18,22 @@ package com.liveramp.megadesk.condition;
 
 import java.util.concurrent.TimeUnit;
 
-public abstract class TimeoutWatcher {
+public class TimeoutWatcher {
 
-  public TimeoutWatcher(final long timeout, TimeUnit unit) {
-    this(TimeUnit.MILLISECONDS.convert(timeout, unit));
-  }
+  private final Timeout timeout;
 
-  public TimeoutWatcher(final long timeoutMs) {
-    new Thread(new Runnable() {
+  public TimeoutWatcher(final ConditionWatcher watcher,
+                        long time,
+                        TimeUnit unit) {
+    timeout = new Timeout(time, unit) {
       @Override
-      public void run() {
-        try {
-          Thread.sleep(timeoutMs);
-        } catch (InterruptedException e) {
-          throw new RuntimeException(e);
-        }
-        onTimeout();
+      public void onTimeout() {
+        watcher.onChange();
       }
-    }).start();
+    };
   }
 
-  public abstract void onTimeout();
+  public void start() {
+    timeout.start();
+  }
 }

@@ -18,21 +18,31 @@ package com.liveramp.megadesk.condition;
 
 import java.util.concurrent.TimeUnit;
 
-public abstract class BaseCondition implements Condition {
+public abstract class Timeout {
 
-  private final long time;
-  private final TimeUnit unit;
+  private final Thread thread;
 
-  public BaseCondition(long time, TimeUnit unit) {
-    this.time = time;
-    this.unit = unit;
+  public Timeout(final long timeout, TimeUnit unit) {
+    this(TimeUnit.MILLISECONDS.convert(timeout, unit));
   }
 
-  @Override
-  public boolean check(final ConditionWatcher watcher) throws Exception {
-    new TimeoutWatcher(watcher, time, unit).start();
-    return check();
+  public Timeout(final long timeoutMs) {
+    thread = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          Thread.sleep(timeoutMs);
+        } catch (InterruptedException e) {
+          throw new RuntimeException(e);
+        }
+        onTimeout();
+      }
+    });
   }
 
-  public abstract boolean check() throws Exception;
+  public void start() {
+    thread.start();
+  }
+
+  public abstract void onTimeout();
 }
