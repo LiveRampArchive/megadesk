@@ -96,13 +96,9 @@ public class IntegrationTest extends BaseTestCase {
 
     Condition finished = new BaseCondition(1, TimeUnit.SECONDS) {
       @Override
-      public boolean check() {
-        try {
+      public boolean check() throws Exception {
           return resourceF.read() != null
               && resourceF.read() == 3;
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        }
       }
     };
 

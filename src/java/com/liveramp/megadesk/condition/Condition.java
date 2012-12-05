@@ -18,5 +18,5 @@ package com.liveramp.megadesk.condition;
 
 public interface Condition {
 
-  public boolean check(ConditionWatcher watcher);
+  public boolean check(ConditionWatcher watcher) throws Exception;
 }

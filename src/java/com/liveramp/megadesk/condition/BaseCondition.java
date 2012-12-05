@@ -29,7 +29,7 @@ public abstract class BaseCondition implements Condition {
   }
 
   @Override
-  public boolean check(final ConditionWatcher watcher) {
+  public boolean check(final ConditionWatcher watcher) throws Exception {
     new TimeoutWatcher(time, unit) {
       @Override
       public void onTimeout() {
@@ -39,5 +39,5 @@ public abstract class BaseCondition implements Condition {
     return check();
   }
 
-  public abstract boolean check();
+  public abstract boolean check() throws Exception;
 }
