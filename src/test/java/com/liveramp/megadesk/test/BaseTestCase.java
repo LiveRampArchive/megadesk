@@ -22,7 +22,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.TTCCLayout;
 
-public class BaseTestCase extends TestCase {
+public abstract class BaseTestCase extends TestCase {
 
   static {
     Logger.getRootLogger().setLevel(Level.INFO);
