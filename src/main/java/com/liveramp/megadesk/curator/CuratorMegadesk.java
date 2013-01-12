@@ -23,6 +23,7 @@ import com.liveramp.megadesk.driver.StepDriver;
 import com.netflix.curator.RetryPolicy;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.CuratorFrameworkFactory;
+import com.netflix.curator.framework.imps.CuratorFrameworkState;
 import com.netflix.curator.retry.RetryNTimes;
 
 public class CuratorMegadesk implements Megadesk {
@@ -45,7 +46,7 @@ public class CuratorMegadesk implements Megadesk {
   }
 
   public CuratorMegadesk(CuratorFramework curator) {
-    if (!curator.isStarted()) {
+    if (curator.getState() != CuratorFrameworkState.STARTED) {
       curator.start();
     }
     this.curator = curator;

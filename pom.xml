@@ -40,12 +40,6 @@
     </dependency>
 
     <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.17</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.yaml</groupId>
       <artifactId>snakeyaml</artifactId>
       <version>1.11</version>
@@ -67,6 +61,12 @@
       <groupId>com.netflix.curator</groupId>
       <artifactId>curator-test</artifactId>
       <version>1.2.6</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.6.1</version>
     </dependency>
 
   </dependencies>

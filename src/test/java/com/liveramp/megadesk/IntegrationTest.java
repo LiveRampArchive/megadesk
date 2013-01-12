@@ -21,13 +21,13 @@ import com.liveramp.megadesk.condition.Condition;
 import com.liveramp.megadesk.condition.Conditions;
 import com.liveramp.megadesk.curator.CuratorMegadesk;
 import com.liveramp.megadesk.dependency.Dependencies;
-import com.liveramp.megadesk.worker.Worker;
 import com.liveramp.megadesk.resource.Resources;
 import com.liveramp.megadesk.resource.lib.IntegerResource;
 import com.liveramp.megadesk.resource.lib.StringResource;
 import com.liveramp.megadesk.step.BaseStep;
 import com.liveramp.megadesk.step.Step;
 import com.liveramp.megadesk.test.BaseTestCase;
+import com.liveramp.megadesk.worker.Worker;
 import com.netflix.curator.test.TestingServer;
 
 import java.util.concurrent.Semaphore;
@@ -97,8 +97,8 @@ public class IntegrationTest extends BaseTestCase {
     Condition finished = new BaseCondition(1, TimeUnit.SECONDS) {
       @Override
       public boolean check() throws Exception {
-          return resourceF.read() != null
-              && resourceF.read() == 3;
+        return resourceF.read() != null
+            && resourceF.read() == 3;
       }
     };
 
