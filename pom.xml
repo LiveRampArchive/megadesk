@@ -7,7 +7,7 @@
   <groupId>com.liveramp.megadesk</groupId>
   <artifactId>megadesk</artifactId>
 
-  <version>0.1</version>
+  <version>0.1-SNAPSHOT</version>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -70,6 +70,14 @@
     </dependency>
 
   </dependencies>
+
+  <distributionManagement>
+    <snapshotRepository>
+       <id>repository.liveramp.com</id>
+       <name>repository.liveramp.com-snapshots</name>
+       <url>http://repository.liveramp.com/artifactory/libs-snapshot-local</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <build>
 
