@@ -1,6 +1,8 @@
 Project Megadesk
 ========
 
+Megadesk is a lightweight framework to synchronize and execute distributed workflows and manage corresponding steps and resources. It is built on top of ZooKeeper.
+
 Download
 ====
 You can either build megadesk from source as described below, or pull the latest jar from the Liveramp Maven repository:
