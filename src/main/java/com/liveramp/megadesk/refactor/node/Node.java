@@ -16,6 +16,8 @@
 
 package com.liveramp.megadesk.refactor.node;
 
+import com.liveramp.megadesk.refactor.lock.Lock;
+
 public interface Node {
 
   Path getPath();

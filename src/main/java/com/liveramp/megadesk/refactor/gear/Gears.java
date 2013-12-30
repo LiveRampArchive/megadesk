@@ -19,7 +19,7 @@ package com.liveramp.megadesk.refactor.gear;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.liveramp.megadesk.refactor.node.Lock;
+import com.liveramp.megadesk.refactor.lock.Lock;
 import com.liveramp.megadesk.refactor.node.Node;
 
 public final class Gears {

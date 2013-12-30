@@ -24,7 +24,7 @@ import org.apache.log4j.Logger;
 
 import com.liveramp.megadesk.refactor.gear.Gear;
 import com.liveramp.megadesk.refactor.gear.Gears;
-import com.liveramp.megadesk.refactor.node.Locks;
+import com.liveramp.megadesk.refactor.lock.Locks;
 
 public class BaseWorker implements Worker {
 
