@@ -18,9 +18,11 @@ package com.liveramp.megadesk.refactor.node;
 
 public interface Node {
 
-  public Path getPath();
+  Path getPath();
 
-  public Lock getReadLock() throws Exception;
+  Lock getSyncLock();
 
-  public Lock getWriteLock() throws Exception;
+  Lock getReadLock();
+
+  Lock getWriteLock();
 }

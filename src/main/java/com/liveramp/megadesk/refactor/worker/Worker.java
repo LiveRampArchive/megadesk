@@ -14,13 +14,11 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.refactor.node;
+package com.liveramp.megadesk.refactor.worker;
 
-public interface Lock {
+import com.liveramp.megadesk.refactor.gear.Gear;
 
-  void acquire();
+public interface Worker {
 
-  boolean acquireNow();
-
-  void release();
+  void run(Gear gear);
 }

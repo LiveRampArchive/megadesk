@@ -6,11 +6,11 @@ import com.liveramp.megadesk.refactor.node.Node;
 
 public interface Gear extends Node {
 
-  public List<Node> reads();
+  List<Node> reads();
 
-  public List<Node> writes();
+  List<Node> writes();
 
-  public boolean isRunnable();
+  boolean isRunnable();
 
-  public void run();
+  void run() throws Exception;
 }

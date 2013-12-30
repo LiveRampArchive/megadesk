@@ -20,7 +20,7 @@ import java.util.List;
 
 public interface Path {
 
-  public Path getParent();
+  Path getParent();
 
-  public List<Path> getChildren();
+  List<Path> getChildren();
 }

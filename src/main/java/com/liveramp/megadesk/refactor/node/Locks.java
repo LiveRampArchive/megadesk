@@ -1,5 +1,5 @@
 /**
- *  Copyright 2013 LiveRamp
+ *  Copyright 2014 LiveRamp
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,14 +13,27 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package com.liveramp.megadesk.refactor.node;
 
-public interface Lock {
+import java.util.List;
 
-  void acquire();
+public final class Locks {
 
-  boolean acquireNow();
+  private Locks() {
+  }
 
-  void release();
+  public static boolean acquireNow(List<Lock> locks) {
+    for (Lock lock : locks) {
+      if (!lock.acquireNow()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public static void release(List<Lock> locks) {
+    for (Lock lock : locks) {
+      lock.release();
+    }
+  }
 }
