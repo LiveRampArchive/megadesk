@@ -16,6 +16,11 @@
 
 package com.liveramp.megadesk;
 
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.curator.test.TestingServer;
+
 import com.liveramp.megadesk.condition.BaseCondition;
 import com.liveramp.megadesk.condition.Condition;
 import com.liveramp.megadesk.condition.Conditions;
@@ -28,10 +33,6 @@ import com.liveramp.megadesk.step.BaseStep;
 import com.liveramp.megadesk.step.Step;
 import com.liveramp.megadesk.test.BaseTestCase;
 import com.liveramp.megadesk.worker.Worker;
-import com.netflix.curator.test.TestingServer;
-
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 public class IntegrationTest extends BaseTestCase {
 

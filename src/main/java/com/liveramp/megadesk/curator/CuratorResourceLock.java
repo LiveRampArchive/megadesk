@@ -16,18 +16,19 @@
 
 package com.liveramp.megadesk.curator;
 
+import java.util.List;
+
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.locks.InterProcessMutex;
+import org.apache.curator.utils.EnsurePath;
+import org.apache.log4j.Logger;
+import org.apache.zookeeper.CreateMode;
+
 import com.liveramp.megadesk.condition.ConditionWatcher;
 import com.liveramp.megadesk.resource.ResourceLock;
 import com.liveramp.megadesk.resource.ResourceReadLock;
 import com.liveramp.megadesk.resource.ResourceWriteLock;
 import com.liveramp.megadesk.util.ZkPath;
-import com.netflix.curator.framework.CuratorFramework;
-import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
-import com.netflix.curator.utils.EnsurePath;
-import org.apache.log4j.Logger;
-import org.apache.zookeeper.CreateMode;
-
-import java.util.List;
 
 public class CuratorResourceLock implements ResourceLock {
 

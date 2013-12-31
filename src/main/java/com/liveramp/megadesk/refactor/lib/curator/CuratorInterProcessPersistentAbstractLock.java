@@ -18,9 +18,9 @@ package com.liveramp.megadesk.refactor.lib.curator;
 
 import java.util.List;
 
-import com.netflix.curator.framework.CuratorFramework;
-import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
-import com.netflix.curator.utils.EnsurePath;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.locks.InterProcessMutex;
+import org.apache.curator.utils.EnsurePath;
 import org.apache.zookeeper.CreateMode;
 
 import com.liveramp.megadesk.refactor.node.Paths;

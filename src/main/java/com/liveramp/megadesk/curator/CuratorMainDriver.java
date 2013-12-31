@@ -16,9 +16,10 @@
 
 package com.liveramp.megadesk.curator;
 
+import org.apache.curator.framework.CuratorFramework;
+
 import com.liveramp.megadesk.driver.MainDriver;
 import com.liveramp.megadesk.resource.ResourcesLock;
-import com.netflix.curator.framework.CuratorFramework;
 
 public class CuratorMainDriver implements MainDriver {
 

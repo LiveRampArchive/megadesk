@@ -16,8 +16,8 @@
 
 package com.liveramp.megadesk.refactor.lib.curator;
 
-import com.netflix.curator.framework.CuratorFramework;
-import com.netflix.curator.framework.recipes.locks.InterProcessReadWriteLock;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.locks.InterProcessReadWriteLock;
 
 import com.liveramp.megadesk.refactor.node.Paths;
 

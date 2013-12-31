@@ -16,15 +16,16 @@
 
 package com.liveramp.megadesk.curator;
 
+import org.apache.curator.RetryPolicy;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.imps.CuratorFrameworkState;
+import org.apache.curator.retry.RetryNTimes;
+
 import com.liveramp.megadesk.Megadesk;
 import com.liveramp.megadesk.driver.MainDriver;
 import com.liveramp.megadesk.driver.ResourceDriver;
 import com.liveramp.megadesk.driver.StepDriver;
-import com.netflix.curator.RetryPolicy;
-import com.netflix.curator.framework.CuratorFramework;
-import com.netflix.curator.framework.CuratorFrameworkFactory;
-import com.netflix.curator.framework.imps.CuratorFrameworkState;
-import com.netflix.curator.retry.RetryNTimes;
 
 public class CuratorMegadesk implements Megadesk {
 

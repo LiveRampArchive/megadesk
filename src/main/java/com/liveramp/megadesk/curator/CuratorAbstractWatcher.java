@@ -16,8 +16,9 @@
 
 package com.liveramp.megadesk.curator;
 
+import org.apache.curator.framework.api.CuratorWatcher;
+
 import com.liveramp.megadesk.condition.ConditionWatcher;
-import com.netflix.curator.framework.api.CuratorWatcher;
 
 public abstract class CuratorAbstractWatcher implements CuratorWatcher {
 

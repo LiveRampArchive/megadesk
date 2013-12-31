@@ -1,8 +1,9 @@
 package com.liveramp.megadesk.curator;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.locks.InterProcessMutex;
+
 import com.liveramp.megadesk.resource.ResourcesLock;
-import com.netflix.curator.framework.CuratorFramework;
-import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
 
 public class CuratorResourcesLock implements ResourcesLock {
 

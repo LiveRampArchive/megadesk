@@ -18,11 +18,11 @@ package com.liveramp.megadesk.refactor.lib.curator;
 
 import java.util.List;
 
-import com.netflix.curator.RetryPolicy;
-import com.netflix.curator.framework.CuratorFramework;
-import com.netflix.curator.framework.CuratorFrameworkFactory;
-import com.netflix.curator.framework.imps.CuratorFrameworkState;
-import com.netflix.curator.retry.RetryNTimes;
+import org.apache.curator.RetryPolicy;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.imps.CuratorFrameworkState;
+import org.apache.curator.retry.RetryNTimes;
 
 import com.liveramp.megadesk.refactor.driver.Driver;
 import com.liveramp.megadesk.refactor.lock.Lock;

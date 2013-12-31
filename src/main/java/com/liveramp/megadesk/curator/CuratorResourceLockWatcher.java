@@ -16,10 +16,11 @@
 
 package com.liveramp.megadesk.curator;
 
-import com.liveramp.megadesk.condition.ConditionWatcher;
-import com.netflix.curator.framework.api.CuratorWatcher;
+import org.apache.curator.framework.api.CuratorWatcher;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+
+import com.liveramp.megadesk.condition.ConditionWatcher;
 
 public class CuratorResourceLockWatcher
     extends CuratorAbstractWatcher

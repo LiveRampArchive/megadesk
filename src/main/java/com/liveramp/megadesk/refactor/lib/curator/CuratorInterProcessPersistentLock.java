@@ -18,8 +18,8 @@ package com.liveramp.megadesk.refactor.lib.curator;
 
 import java.util.concurrent.TimeUnit;
 
-import com.netflix.curator.framework.CuratorFramework;
-import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.locks.InterProcessMutex;
 
 public class CuratorInterProcessPersistentLock
     extends CuratorInterProcessPersistentAbstractLock

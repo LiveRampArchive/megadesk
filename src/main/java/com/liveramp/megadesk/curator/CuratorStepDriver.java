@@ -19,8 +19,8 @@ package com.liveramp.megadesk.curator;
 import com.liveramp.megadesk.driver.StepDriver;
 import com.liveramp.megadesk.step.StepLock;
 import com.liveramp.megadesk.util.ZkPath;
-import com.netflix.curator.framework.CuratorFramework;
-import com.netflix.curator.utils.EnsurePath;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.utils.EnsurePath;
 
 public class CuratorStepDriver implements StepDriver {
 

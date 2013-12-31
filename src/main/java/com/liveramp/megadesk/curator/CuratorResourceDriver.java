@@ -20,7 +20,7 @@ import com.liveramp.megadesk.condition.ConditionWatcher;
 import com.liveramp.megadesk.driver.ResourceDriver;
 import com.liveramp.megadesk.resource.ResourceLock;
 import com.liveramp.megadesk.util.ZkPath;
-import com.netflix.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFramework;
 
 public class CuratorResourceDriver implements ResourceDriver {
 
