@@ -62,6 +62,7 @@ public class BaseWorker implements Worker {
         // Acquire locks
         gear.getSyncLock().acquire();
         try {
+          // TODO: acquire locks on all hierarchy?
           locked = gear.getWriteLock().acquireNow() && Locks.acquireNow(Gears.getReadLocks(gear)) && Locks.acquireNow(Gears.getWriteLocks(gear));
         } finally {
           gear.getSyncLock().release();
