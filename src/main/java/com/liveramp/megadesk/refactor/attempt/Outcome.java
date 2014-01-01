@@ -16,7 +16,7 @@
 
 package com.liveramp.megadesk.refactor.attempt;
 
-public enum AttemptResult {
+public enum Outcome {
   SUCCESS,
   FAILURE,
   END
