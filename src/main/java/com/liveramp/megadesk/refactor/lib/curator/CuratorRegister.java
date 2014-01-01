@@ -70,6 +70,7 @@ public class CuratorRegister implements Register {
 
   @Override
   public List<Participant> participants() throws Exception {
+    // TODO: this does not work if participants have '/'s in their id
     List<Participant> result = new ArrayList<Participant>();
     for (String path : curator.getChildren().forPath(getPath())) {
       result.add(new Participant(path));
