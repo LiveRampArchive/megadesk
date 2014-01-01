@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.curator.test.TestingServer;
+import org.apache.log4j.Logger;
 
 import com.liveramp.megadesk.refactor.gear.Gear;
 import com.liveramp.megadesk.refactor.lib.curator.CuratorDriver;
@@ -32,7 +33,10 @@ import com.liveramp.megadesk.test.BaseTestCase;
 
 public class IntegrationTest extends BaseTestCase {
 
+  private static final Logger LOG = Logger.getLogger(IntegrationTest.class);
+
   public void testMain() throws Exception {
+
     TestingServer testingServer = new TestingServer(12000);
     CuratorDriver driver = new CuratorDriver(testingServer.getConnectString());
 
@@ -41,9 +45,7 @@ public class IntegrationTest extends BaseTestCase {
     final AtomicBoolean resource3 = new AtomicBoolean();
 
     Node node1 = new CuratorNode(driver, "/1");
-
     Node node2 = new CuratorNode(driver, "/2");
-
     Node node3 = new CuratorNode(driver, "/3");
 
     Gear gearA = new CuratorGear(driver, "/a") {
@@ -56,9 +58,9 @@ public class IntegrationTest extends BaseTestCase {
       @Override
       public void run() throws Exception {
         resource1.incrementAndGet();
+        LOG.info("gearA: resource1 is now " + resource1.get());
       }
     }.writes(node1);
-
 
     Gear gearB = new CuratorGear(driver, "/b") {
 
@@ -71,9 +73,10 @@ public class IntegrationTest extends BaseTestCase {
       public void run() throws Exception {
         resource1.set(0);
         resource2.incrementAndGet();
+        LOG.info("gearB: resource1 is now " + resource1.get());
+        LOG.info("gearB: resource2 is now " + resource2.get());
       }
     }.reads(node1).writes(node1, node2);
-
 
     Gear gearC = new CuratorGear(driver, "/c") {
 
@@ -85,6 +88,7 @@ public class IntegrationTest extends BaseTestCase {
       @Override
       public void run() throws Exception {
         resource3.set(true);
+        LOG.info("gearC: resource3 is now " + resource3.get());
       }
     }.reads(node2, node3).writes(node3);
 
@@ -95,5 +99,8 @@ public class IntegrationTest extends BaseTestCase {
     worker.run(gearA);
     worker.run(gearB);
     worker.run(gearC);
+
+    worker.join();
+
   }
 }

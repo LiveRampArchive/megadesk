@@ -1,5 +1,5 @@
 /**
- *  Copyright 2013 LiveRamp
+ *  Copyright 2014 LiveRamp
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,10 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.refactor.worker;
+package com.liveramp.megadesk.refactor.attempt;
 
-import com.liveramp.megadesk.refactor.gear.Gear;
-
-public interface Worker {
-
-  void run(Gear gear);
-
-  void join() throws InterruptedException;
+public enum AttemptResult {
+  SUCCESS,
+  FAILURE,
+  END
 }

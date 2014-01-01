@@ -39,9 +39,14 @@ public class NaiveWorker implements Worker {
     }
   }
 
+  @Override
+  public void join() throws InterruptedException {
+    executor.join();
+  }
+
   private class ExecutorRunnable implements Runnable {
 
-    private static final long SLEEP_PERIOD_MS = 1000;
+    private static final long SLEEP_PERIOD_MS = 100;
 
     private final GearExecutor gearExecutor = new GearExecutor();
 

@@ -27,13 +27,13 @@ public class CuratorDriver {
   private final CuratorFramework curatorFramework;
   private final CuratorLock masterLock;
 
-  public CuratorDriver(String connectString) {
+  public CuratorDriver(String connectString) throws Exception {
     this(connectString, 1000, new RetryNTimes(10, 500));
   }
 
   public CuratorDriver(String connectString,
                        int connectionTimeoutMs,
-                       RetryPolicy retryPolicy) {
+                       RetryPolicy retryPolicy) throws Exception {
     this(CuratorFrameworkFactory.builder()
              .connectionTimeoutMs(connectionTimeoutMs)
              .retryPolicy(retryPolicy)
@@ -41,7 +41,7 @@ public class CuratorDriver {
              .build());
   }
 
-  public CuratorDriver(CuratorFramework curatorFramework) {
+  public CuratorDriver(CuratorFramework curatorFramework) throws Exception {
     if (curatorFramework.getState() != CuratorFrameworkState.STARTED) {
       curatorFramework.start();
     }

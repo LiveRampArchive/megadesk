@@ -74,4 +74,9 @@ public class BaseWorker implements Worker {
   public void run(Gear gear) {
     executor.execute(new ExecutorTask(gear));
   }
+
+  @Override
+  public void join() throws InterruptedException {
+    // TODO
+  }
 }

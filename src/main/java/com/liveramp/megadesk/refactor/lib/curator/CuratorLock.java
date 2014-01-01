@@ -18,6 +18,7 @@ package com.liveramp.megadesk.refactor.lib.curator;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.locks.InterProcessMutex;
+import org.apache.curator.utils.EnsurePath;
 
 import com.liveramp.megadesk.refactor.lock.Lock;
 
@@ -25,8 +26,8 @@ public class CuratorLock implements Lock {
 
   private final InterProcessMutex lock;
 
-  public CuratorLock(CuratorFramework curator, String path) {
-    // new EnsurePath(path).ensure(curator.getZookeeperClient());
+  public CuratorLock(CuratorFramework curator, String path) throws Exception {
+    new EnsurePath(path).ensure(curator.getZookeeperClient());
     this.lock = new InterProcessMutex(curator, path);
   }
 

@@ -59,5 +59,8 @@ public class GearExecutor {
         // TODO
       }
     }
+
+    // Unregister
+    unregister(gear, participant);
   }
 }

@@ -20,11 +20,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.utils.EnsurePath;
 import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
 
 import com.liveramp.megadesk.refactor.node.Paths;
 import com.liveramp.megadesk.refactor.register.Participant;
 import com.liveramp.megadesk.refactor.register.Register;
+import com.liveramp.megadesk.refactor.register.Registers;
 
 public class CuratorRegister implements Register {
 
@@ -35,7 +38,7 @@ public class CuratorRegister implements Register {
     this.curator = curator;
     this.path = path;
     // Ensure paths
-    // new EnsurePath(path).ensure(curator.getZookeeperClient());
+    new EnsurePath(path).ensure(curator.getZookeeperClient());
   }
 
   private String getPath() {
@@ -49,14 +52,20 @@ public class CuratorRegister implements Register {
   }
 
   private void register(Participant participant, boolean persistent) throws Exception {
-    curator.create()
-        .withMode(persistent ? CreateMode.PERSISTENT : CreateMode.EPHEMERAL)
-        .forPath(Paths.append(getPath(), participant.getId()));
+    try {
+      curator.create()
+          .withMode(persistent ? CreateMode.PERSISTENT : CreateMode.EPHEMERAL)
+          .forPath(Paths.append(getPath(), participant.getId()));
+    } catch (KeeperException.NodeExistsException e) {
+      // Already registered
+    }
   }
 
   @Override
   public void unregister(Participant participant) throws Exception {
-    curator.delete().forPath(Paths.append(getPath(), participant.getId()));
+    if (Registers.isRegistered(this, participant)) {
+      curator.delete().forPath(Paths.append(getPath(), participant.getId()));
+    }
   }
 
   @Override
