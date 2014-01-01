@@ -18,9 +18,7 @@ package com.liveramp.megadesk.refactor.lock;
 
 public interface Lock {
 
-  void acquire();
+  void acquire() throws Exception;
 
-  boolean acquireNow();
-
-  void release();
+  void release() throws Exception;
 }

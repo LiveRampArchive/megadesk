@@ -13,27 +13,41 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.liveramp.megadesk.refactor.lock;
 
-import java.util.List;
+package com.liveramp.megadesk.refactor.register;
 
-public final class Locks {
+public final class Participant {
 
-  private Locks() {
+  private final String id;
+
+  public Participant(String id) {
+    this.id = id;
   }
 
-  public static boolean acquireNow(List<Lock> locks) {
-    for (Lock lock : locks) {
-      if (!lock.acquireNow()) {
-        return false;
-      }
+  public String getId() {
+    return id;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    Participant that = (Participant)o;
+
+    if (id != null ? !id.equals(that.id) : that.id != null) {
+      return false;
+    }
+
     return true;
   }
 
-  public static void release(List<Lock> locks) {
-    for (Lock lock : locks) {
-      lock.release();
-    }
+  @Override
+  public int hashCode() {
+    return id != null ? id.hashCode() : 0;
   }
 }

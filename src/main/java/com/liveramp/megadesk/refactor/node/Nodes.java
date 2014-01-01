@@ -16,19 +16,8 @@
 
 package com.liveramp.megadesk.refactor.node;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public final class Nodes {
 
   private Nodes() {
-  }
-
-  public static List<Path> getAncestry(Node node) {
-    List<Path> result = new ArrayList<Path>();
-    while (node.getPath().getParent() != null) {
-      result.add(node.getPath().getParent());
-    }
-    return result;
   }
 }

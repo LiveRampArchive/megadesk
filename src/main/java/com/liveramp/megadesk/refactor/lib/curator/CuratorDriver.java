@@ -16,23 +16,16 @@
 
 package com.liveramp.megadesk.refactor.lib.curator;
 
-import java.util.List;
-
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.imps.CuratorFrameworkState;
 import org.apache.curator.retry.RetryNTimes;
 
-import com.liveramp.megadesk.refactor.driver.Driver;
-import com.liveramp.megadesk.refactor.lock.Lock;
-import com.liveramp.megadesk.refactor.node.Node;
-import com.liveramp.megadesk.refactor.node.Path;
+public class CuratorDriver {
 
-public class CuratorDriver implements Driver {
-
-  private final CuratorFramework curator;
-  private final Lock syncLock;
+  private final CuratorFramework curatorFramework;
+  private final CuratorLock masterLock;
 
   public CuratorDriver(String connectString) {
     this(connectString, 1000, new RetryNTimes(10, 500));
@@ -42,32 +35,25 @@ public class CuratorDriver implements Driver {
                        int connectionTimeoutMs,
                        RetryPolicy retryPolicy) {
     this(CuratorFrameworkFactory.builder()
-        .connectionTimeoutMs(connectionTimeoutMs)
-        .retryPolicy(retryPolicy)
-        .connectString(connectString)
-        .build());
+             .connectionTimeoutMs(connectionTimeoutMs)
+             .retryPolicy(retryPolicy)
+             .connectString(connectString)
+             .build());
   }
 
-  public CuratorDriver(CuratorFramework curator) {
-    if (curator.getState() != CuratorFrameworkState.STARTED) {
-      curator.start();
+  public CuratorDriver(CuratorFramework curatorFramework) {
+    if (curatorFramework.getState() != CuratorFrameworkState.STARTED) {
+      curatorFramework.start();
     }
-    this.curator = curator;
-    this.syncLock = new CuratorLock("/_sync_lock");
+    this.curatorFramework = curatorFramework;
+    this.masterLock = new CuratorLock(curatorFramework, "/__masterlock");
   }
 
-  @Override
-  public Node getNode(Path path) {
-    return new CuratorNode(path, syncLock);
+  public CuratorFramework getCuratorFramework() {
+    return curatorFramework;
   }
 
-  @Override
-  public List<Path> getChildren(Path path) {
-    return null;  // TODO
-  }
-
-  @Override
-  public Path getParent(Path path) {
-    return null;  // TODO
+  public CuratorLock getMasterLock() {
+    return masterLock;
   }
 }

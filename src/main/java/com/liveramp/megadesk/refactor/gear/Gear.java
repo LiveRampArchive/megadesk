@@ -4,7 +4,9 @@ import java.util.List;
 
 import com.liveramp.megadesk.refactor.node.Node;
 
-public interface Gear extends Node {
+public interface Gear {
+
+  Node getNode();
 
   List<Node> reads();
 

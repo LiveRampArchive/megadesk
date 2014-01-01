@@ -19,26 +19,39 @@ package com.liveramp.megadesk.refactor.gear;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.liveramp.megadesk.refactor.lock.Lock;
 import com.liveramp.megadesk.refactor.node.Node;
+import com.liveramp.megadesk.refactor.register.Register;
 
 public final class Gears {
 
   private Gears() {
   }
 
-  public static List<Lock> getReadLocks(Gear gear) {
-    List<Lock> result = new ArrayList<Lock>();
+  public static List<Register> getReadRegisters(Gear gear) {
+    List<Register> result = new ArrayList<Register>();
     for (Node node : gear.reads()) {
-      result.add(node.getReadLock());
+      result.add(node.getReadRegister());
     }
     return result;
   }
 
-  public static List<Lock> getWriteLocks(Gear gear) {
-    List<Lock> result = new ArrayList<Lock>();
+  public static List<Register> getWriteRegisters(Gear gear) {
+    List<Register> result = new ArrayList<Register>();
     for (Node node : gear.writes()) {
-      result.add(node.getWriteLock());
+      result.add(node.getWriteRegister());
+    }
+    return result;
+  }
+
+  public static List<Register> getHierarchyRegisters(Gear gear) {
+    List<Register> result = new ArrayList<Register>();
+    // Read on itself
+    result.add(gear.getNode().getReadRegister());
+    // Read on hierarchy
+    Node parent = gear.getNode().getParent();
+    while (parent != null) {
+      result.add(parent.getReadRegister());
+      parent = parent.getParent();
     }
     return result;
   }

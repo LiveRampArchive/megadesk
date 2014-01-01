@@ -16,26 +16,27 @@
 
 package com.liveramp.megadesk.refactor.lib.curator;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.locks.InterProcessMutex;
+
 import com.liveramp.megadesk.refactor.lock.Lock;
 
 public class CuratorLock implements Lock {
 
-  public CuratorLock(String path) {
+  private final InterProcessMutex lock;
 
+  public CuratorLock(CuratorFramework curator, String path) {
+    // new EnsurePath(path).ensure(curator.getZookeeperClient());
+    this.lock = new InterProcessMutex(curator, path);
   }
 
   @Override
-  public void acquire() {
-    // TODO
+  public void acquire() throws Exception {
+    lock.acquire();
   }
 
   @Override
-  public boolean acquireNow() {
-    return false;  // TODO
-  }
-
-  @Override
-  public void release() {
-    // TODO
+  public void release() throws Exception {
+    lock.release();
   }
 }

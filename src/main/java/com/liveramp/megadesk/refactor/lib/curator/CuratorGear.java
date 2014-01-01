@@ -14,18 +14,29 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.refactor.driver;
+package com.liveramp.megadesk.refactor.lib.curator;
 
-import java.util.List;
-
+import com.liveramp.megadesk.refactor.gear.BaseGear;
+import com.liveramp.megadesk.refactor.gear.Gear;
 import com.liveramp.megadesk.refactor.node.Node;
 import com.liveramp.megadesk.refactor.node.Path;
 
-public interface Driver {
+public abstract class CuratorGear extends BaseGear implements Gear {
 
-  Node getNode(Path path);
+  private Node node;
 
-  List<Path> getChildren(Path path);
+  public CuratorGear(CuratorDriver driver,
+                     String path) throws Exception {
+    this(driver, new Path(path));
+  }
 
-  Path getParent(Path path);
+  public CuratorGear(CuratorDriver driver,
+                     Path path) throws Exception {
+    this.node = new CuratorNode(driver.getCuratorFramework(), path, driver.getMasterLock());
+  }
+
+  @Override
+  public Node getNode() {
+    return node;
+  }
 }

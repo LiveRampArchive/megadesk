@@ -16,41 +16,28 @@
 
 package com.liveramp.megadesk.refactor.lib.curator;
 
+import org.apache.curator.framework.CuratorFramework;
+
 import com.liveramp.megadesk.refactor.lock.Lock;
+import com.liveramp.megadesk.refactor.node.BaseNode;
 import com.liveramp.megadesk.refactor.node.Node;
 import com.liveramp.megadesk.refactor.node.Path;
+import com.liveramp.megadesk.refactor.node.Paths;
 
-public class CuratorNode implements Node {
+public class CuratorNode extends BaseNode implements Node {
 
-  private final Path path;
-  private final Lock syncLock;
-  private final Lock readLock;
-  private final Lock writeLock;
+  private static final String READ_REGISTER_PATH = "__read";
+  private static final String WRITE_REGISTER_PATH = "__write";
 
-  public CuratorNode(Path path, Lock syncLock) {
-    this.path = path;
-    this.syncLock = syncLock;
-    this.readLock = null;
-    this.writeLock = null;
+  public CuratorNode(CuratorDriver driver, String path) throws Exception {
+    this(driver.getCuratorFramework(), new Path(path), driver.getMasterLock());
   }
 
-  @Override
-  public Path getPath() {
-    return path;
-  }
-
-  @Override
-  public Lock getSyncLock() {
-    return syncLock;
-  }
-
-  @Override
-  public Lock getReadLock() {
-    return readLock;
-  }
-
-  @Override
-  public Lock getWriteLock() {
-    return writeLock;
+  public CuratorNode(CuratorFramework curator, Path path, Lock masterLock) throws Exception {
+    super(path,
+             masterLock,
+             new CuratorRegister(curator, Paths.append(path.get(), READ_REGISTER_PATH)),
+             new CuratorRegister(curator, Paths.append(path.get(), WRITE_REGISTER_PATH)),
+             Paths.sanitize(path.get()).equals("/") ? null : new CuratorNode(curator, Paths.parent(path), masterLock));
   }
 }

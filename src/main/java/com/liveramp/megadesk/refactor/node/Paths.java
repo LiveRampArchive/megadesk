@@ -16,7 +16,13 @@
 
 package com.liveramp.megadesk.refactor.node;
 
+import java.util.Arrays;
+
+import org.apache.commons.lang.StringUtils;
+
 public final class Paths {
+
+  private static final String SEPARATOR = "/";
 
   private Paths() {
   }
@@ -24,12 +30,30 @@ public final class Paths {
   public static String append(String... parts) {
     StringBuilder builder = new StringBuilder();
     for (int i = 0; i < parts.length; ++i) {
-      if (i != 0) {
-        builder.append("/");
-      }
+      builder.append(SEPARATOR);
       builder.append(parts[i]);
     }
-    return builder.toString();
+    return sanitize(builder.toString());
   }
 
+  public static String[] split(String path) {
+    return StringUtils.split(sanitize(path), SEPARATOR);
+  }
+
+  public static Path parent(Path path) {
+    return new Path(parent(path.get()));
+  }
+
+  public static String parent(String path) {
+    String[] splits = split(path);
+    if (splits.length <= 1) {
+      return SEPARATOR;
+    }
+    return append(Arrays.copyOfRange(splits, 0, splits.length - 1));
+  }
+
+  public static String sanitize(String path) {
+    // Replace multiple separators with one separator
+    return path.replaceAll(SEPARATOR + "+", SEPARATOR);
+  }
 }

@@ -34,7 +34,7 @@ import com.liveramp.megadesk.step.Step;
 import com.liveramp.megadesk.test.BaseTestCase;
 import com.liveramp.megadesk.worker.Worker;
 
-public class IntegrationTest extends BaseTestCase {
+public class OldIntegrationTest extends BaseTestCase {
 
   public void testWorkflow() throws Exception {
 

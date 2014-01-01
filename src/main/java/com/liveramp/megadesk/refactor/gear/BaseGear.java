@@ -14,27 +14,41 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.refactor.lib.curator;
+package com.liveramp.megadesk.refactor.gear;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import com.liveramp.megadesk.refactor.node.Path;
+import com.liveramp.megadesk.refactor.node.Node;
 
-public class CuratorPath implements Path {
+public abstract class BaseGear implements Gear {
 
-  private final String path;
+  private List<Node> reads;
+  private List<Node> writes;
 
-  public CuratorPath(String path) {
-    this.path = path;
+  public BaseGear() {
+    this.reads = Collections.emptyList();
+    this.writes = Collections.emptyList();
   }
 
   @Override
-  public Path getParent() {
-    return null;  // TODO
+  public List<Node> reads() {
+    return reads;
   }
 
   @Override
-  public List<Path> getChildren() {
-    return null;  // TODO
+  public List<Node> writes() {
+    return writes;
+  }
+
+  public BaseGear reads(Node... nodes) {
+    this.reads = Arrays.asList(nodes);
+    return this;
+  }
+
+  public BaseGear writes(Node... nodes) {
+    this.writes = Arrays.asList(nodes);
+    return this;
   }
 }

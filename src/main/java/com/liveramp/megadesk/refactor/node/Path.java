@@ -16,11 +16,18 @@
 
 package com.liveramp.megadesk.refactor.node;
 
-import java.util.List;
+public class Path {
 
-public interface Path {
+  private final String path;
 
-  Path getParent();
+  public Path(String path) {
+    if (!path.startsWith("/")) {
+      throw new IllegalArgumentException("Path must start with '/': " + path);
+    }
+    this.path = path;
+  }
 
-  List<Path> getChildren();
+  public String get() {
+    return path;
+  }
 }

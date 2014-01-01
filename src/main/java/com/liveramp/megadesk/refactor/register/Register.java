@@ -14,18 +14,15 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.refactor.lib.curator;
+package com.liveramp.megadesk.refactor.register;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-public interface InterProcessPersistentLock {
+public interface Register {
 
-  void acquire(String owner) throws Exception;
+  boolean register(Participant participant) throws Exception;
 
-  boolean acquire(String owner, long time, TimeUnit unit) throws Exception;
+  void unregister(Participant participant) throws Exception;
 
-  void release(String owner) throws Exception;
-
-  List<String> getOwners() throws Exception;
+  List<Participant> participants() throws Exception;
 }

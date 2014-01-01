@@ -17,14 +17,17 @@
 package com.liveramp.megadesk.refactor.node;
 
 import com.liveramp.megadesk.refactor.lock.Lock;
+import com.liveramp.megadesk.refactor.register.Register;
 
 public interface Node {
 
   Path getPath();
 
-  Lock getSyncLock();
+  Lock getMasterLock();
 
-  Lock getReadLock();
+  Register getReadRegister();
 
-  Lock getWriteLock();
+  Register getWriteRegister();
+
+  Node getParent();
 }

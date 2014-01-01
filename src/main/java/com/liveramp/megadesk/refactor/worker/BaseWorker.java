@@ -23,8 +23,6 @@ import java.util.concurrent.ThreadFactory;
 import org.apache.log4j.Logger;
 
 import com.liveramp.megadesk.refactor.gear.Gear;
-import com.liveramp.megadesk.refactor.gear.Gears;
-import com.liveramp.megadesk.refactor.lock.Locks;
 
 public class BaseWorker implements Worker {
 
@@ -58,27 +56,8 @@ public class BaseWorker implements Worker {
     public void run() {
 
       while (true) {
-        boolean locked = false;
-        // Acquire locks
-        gear.getSyncLock().acquire();
-        try {
-          // TODO: acquire locks on all hierarchy?
-          locked = gear.getWriteLock().acquireNow() && Locks.acquireNow(Gears.getReadLocks(gear)) && Locks.acquireNow(Gears.getWriteLocks(gear));
-        } finally {
-          gear.getSyncLock().release();
-        }
 
-        // Run
-        try {
-          if (locked && gear.isRunnable()) {
-            gear.run();
-          }
-        } catch (Throwable e) {
-          // TODO
-        } finally {
-          Locks.release(Gears.getReadLocks(gear));
-          Locks.release(Gears.getWriteLocks(gear));
-        }
+        // TODO
 
         try {
           LOG.info("Gear " + gear + " sleeping...");
