@@ -19,6 +19,7 @@ package com.liveramp.megadesk.refactor.worker;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.liveramp.megadesk.refactor.attempt.Outcome;
 import com.liveramp.megadesk.refactor.gear.Gear;
 
 public class NaiveWorker implements Worker {
@@ -39,6 +40,12 @@ public class NaiveWorker implements Worker {
     }
   }
 
+  private void stop(Gear gear) {
+    synchronized (gears) {
+      gears.remove(gear);
+    }
+  }
+
   @Override
   public void join() throws InterruptedException {
     executor.join();
@@ -56,7 +63,11 @@ public class NaiveWorker implements Worker {
         synchronized (gears) {
           for (Gear gear : gears) {
             try {
-              gearExecutor.execute(gear);
+              Outcome outcome = gearExecutor.execute(gear);
+              if (outcome == Outcome.END) {
+                // TODO: is removing safe?
+                stop(gear);
+              }
             } catch (Exception e) {
               throw new RuntimeException(e); // TODO
             }

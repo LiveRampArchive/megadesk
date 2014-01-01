@@ -19,5 +19,6 @@ package com.liveramp.megadesk.refactor.attempt;
 public enum Outcome {
   SUCCESS,
   FAILURE,
+  WAIT,
   END
 }

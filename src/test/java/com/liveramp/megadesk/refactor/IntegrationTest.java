@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.curator.test.TestingServer;
 import org.apache.log4j.Logger;
 
+import com.liveramp.megadesk.refactor.attempt.Outcome;
 import com.liveramp.megadesk.refactor.gear.Gear;
 import com.liveramp.megadesk.refactor.lib.curator.CuratorDriver;
 import com.liveramp.megadesk.refactor.lib.curator.CuratorGear;
@@ -56,9 +57,10 @@ public class IntegrationTest extends BaseTestCase {
       }
 
       @Override
-      public void run() throws Exception {
+      public Outcome run() throws Exception {
         resource1.incrementAndGet();
         LOG.info("gearA: resource1 is now " + resource1.get());
+        return Outcome.SUCCESS;
       }
     }.writes(node1);
 
@@ -70,11 +72,12 @@ public class IntegrationTest extends BaseTestCase {
       }
 
       @Override
-      public void run() throws Exception {
+      public Outcome run() throws Exception {
         resource1.set(0);
         resource2.incrementAndGet();
         LOG.info("gearB: resource1 is now " + resource1.get());
         LOG.info("gearB: resource2 is now " + resource2.get());
+        return Outcome.SUCCESS;
       }
     }.reads(node1).writes(node1, node2);
 
@@ -86,9 +89,10 @@ public class IntegrationTest extends BaseTestCase {
       }
 
       @Override
-      public void run() throws Exception {
+      public Outcome run() throws Exception {
         resource3.set(true);
         LOG.info("gearC: resource3 is now " + resource3.get());
+        return Outcome.SUCCESS;
       }
     }.reads(node2, node3).writes(node3);
 

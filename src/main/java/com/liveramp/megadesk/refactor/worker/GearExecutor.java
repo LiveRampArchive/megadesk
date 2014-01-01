@@ -16,6 +16,7 @@
 
 package com.liveramp.megadesk.refactor.worker;
 
+import com.liveramp.megadesk.refactor.attempt.Outcome;
 import com.liveramp.megadesk.refactor.gear.Gear;
 import com.liveramp.megadesk.refactor.gear.Gears;
 import com.liveramp.megadesk.refactor.register.Participant;
@@ -35,7 +36,7 @@ public class GearExecutor {
     Registers.unregister(Gears.getWriteRegisters(gear), participant);
   }
 
-  public void execute(Gear gear) throws Exception {
+  public Outcome execute(Gear gear) throws Exception {
 
     Participant participant = new Participant(gear.getNode().getPath().get());
 
@@ -54,13 +55,16 @@ public class GearExecutor {
     // Run gear
     if (shouldRun) {
       try {
-        gear.run();
+        return gear.run();
       } catch (Throwable t) {
         // TODO
+        return Outcome.FAILURE;
+      } finally {
+        // Unregister
+        unregister(gear, participant);
       }
+    } else {
+      return Outcome.WAIT;
     }
-
-    // Unregister
-    unregister(gear, participant);
   }
 }
