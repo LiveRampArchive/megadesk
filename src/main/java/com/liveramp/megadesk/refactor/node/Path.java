@@ -22,7 +22,7 @@ public class Path {
 
   public Path(String path) {
     if (!path.startsWith("/")) {
-      throw new IllegalArgumentException("Path must start with '/': " + path);
+      throw new IllegalArgumentException(Path.class.getSimpleName() + " must start with '/': " + path);
     }
     this.path = path;
   }

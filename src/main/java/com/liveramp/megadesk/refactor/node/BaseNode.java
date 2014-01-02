@@ -40,7 +40,31 @@ public abstract class BaseNode implements Node {
   }
 
   @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof BaseNode)) {
+      return false;
+    }
+
+    BaseNode baseNode = (BaseNode)o;
+
+    if (path != null ? !path.equals(baseNode.path) : baseNode.path != null) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return path != null ? path.hashCode() : 0;
+  }
+
+  @Override
   public String toString() {
     return "[" + BaseNode.class.getSimpleName() + " " + getPath().get() + "]";
+
   }
 }
