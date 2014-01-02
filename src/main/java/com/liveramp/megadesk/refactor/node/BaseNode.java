@@ -17,26 +17,16 @@
 package com.liveramp.megadesk.refactor.node;
 
 import com.liveramp.megadesk.refactor.lock.Lock;
-import com.liveramp.megadesk.refactor.register.Register;
 
 public abstract class BaseNode implements Node {
 
   private final Path path;
   private final Lock masterLock;
-  private final Register readRegister;
-  private final Register writeRegister;
-  private final Node parent;
 
   public BaseNode(Path path,
-                  Lock masterLock,
-                  Register readRegister,
-                  Register writeRegister,
-                  Node parent) {
+                  Lock masterLock) {
     this.path = path;
     this.masterLock = masterLock;
-    this.readRegister = readRegister;
-    this.writeRegister = writeRegister;
-    this.parent = parent;
   }
 
   @Override
@@ -50,17 +40,7 @@ public abstract class BaseNode implements Node {
   }
 
   @Override
-  public Register getReadRegister() {
-    return readRegister;
-  }
-
-  @Override
-  public Register getWriteRegister() {
-    return writeRegister;
-  }
-
-  @Override
-  public Node getParent() {
-    return parent;
+  public String toString() {
+    return "[" + BaseNode.class.getSimpleName() + " " + getPath().get() + "]";
   }
 }

@@ -50,4 +50,9 @@ public final class Participant {
   public int hashCode() {
     return id != null ? id.hashCode() : 0;
   }
+
+  @Override
+  public String toString() {
+    return "[" + Participant.class.getSimpleName() + " " + getId() + "]";
+  }
 }

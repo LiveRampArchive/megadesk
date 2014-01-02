@@ -42,4 +42,9 @@ public final class Registers {
       register.unregister(participant);
     }
   }
+
+  public static boolean isEmptyOrRegistered(Register register, Participant participant) throws Exception {
+    List<Participant> participants = register.participants();
+    return participants.size() == 0 || participants.contains(participant);
+  }
 }

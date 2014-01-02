@@ -56,4 +56,13 @@ public final class Paths {
     // Replace multiple separators with one separator
     return path.replaceAll(SEPARATOR + "+", SEPARATOR);
   }
+
+  // Return the path's filename, i.e. the latest token in the given path.
+  public static String filename(String path) {
+    if (path == null) {
+      return null;
+    }
+    String[] tokens = split(path);
+    return tokens[tokens.length - 1];
+  }
 }

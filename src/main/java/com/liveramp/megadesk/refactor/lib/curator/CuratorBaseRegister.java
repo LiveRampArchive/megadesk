@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.cache.ChildData;
+import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.utils.EnsurePath;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -29,35 +31,22 @@ import com.liveramp.megadesk.refactor.register.Participant;
 import com.liveramp.megadesk.refactor.register.Register;
 import com.liveramp.megadesk.refactor.register.Registers;
 
-public class CuratorRegister implements Register {
+public abstract class CuratorBaseRegister implements Register {
 
   private static final String PATH_SEPARATOR = "/";
-  private static final String ENTRY_SEPARATOR = "|";
+  private static final String ENTRY_SEPARATOR = "\\|";
 
   private final CuratorFramework curator;
   private final String path;
+  private final PathChildrenCache pathChildrenCache;
 
-  public CuratorRegister(CuratorFramework curator, String path) throws Exception {
+  public CuratorBaseRegister(CuratorFramework curator, String path) throws Exception {
     this.curator = curator;
     this.path = path;
     // Ensure paths
     new EnsurePath(path).ensure(curator.getZookeeperClient());
-  }
-
-  @Override
-  public boolean register(Participant participant) throws Exception {
-    register(participant, true);
-    return true; // TODO
-  }
-
-  private void register(Participant participant, boolean persistent) throws Exception {
-    try {
-      curator.create()
-          .withMode(persistent ? CreateMode.PERSISTENT : CreateMode.EPHEMERAL)
-          .forPath(Paths.append(path, toEntry(participant)));
-    } catch (KeeperException.NodeExistsException e) {
-      // Already registered
-    }
+    this.pathChildrenCache = new PathChildrenCache(curator, path, false);
+    this.pathChildrenCache.start(PathChildrenCache.StartMode.BUILD_INITIAL_CACHE);
   }
 
   @Override
@@ -69,23 +58,42 @@ public class CuratorRegister implements Register {
 
   @Override
   public List<Participant> participants() throws Exception {
-    // TODO: use a children cache for performance
+    // TODO: is there a chance that the cache does not reflect the latest updates to this register?
     List<Participant> result = new ArrayList<Participant>();
-    for (String child : curator.getChildren().forPath(path)) {
-      result.add(fromEntry(child));
+    for (ChildData child : pathChildrenCache.getCurrentData()) {
+      result.add(fromEntry(Paths.filename(child.getPath())));
     }
     return result;
   }
 
+  protected void register(Participant participant, boolean persistent) throws Exception {
+    try {
+      curator.create()
+          .withMode(persistent ? CreateMode.PERSISTENT : CreateMode.EPHEMERAL)
+          .forPath(Paths.append(path, toEntry(participant)));
+    } catch (KeeperException.NodeExistsException e) {
+      // Already registered, do nothing
+    }
+  }
+
   // Child nodes may not contain '/' or they will become subdirectories
-  private String toEntry(Participant participant) {
+  protected String toEntry(Participant participant) {
     if (participant.getId().contains(ENTRY_SEPARATOR)) {
-      throw new IllegalArgumentException(CuratorRegister.class.getSimpleName() + " entry may not contain " + ENTRY_SEPARATOR);
+      throw new IllegalArgumentException(CuratorBaseRegister.class.getSimpleName() + " entry may not contain " + ENTRY_SEPARATOR);
     }
     return participant.getId().replaceAll(PATH_SEPARATOR, ENTRY_SEPARATOR);
   }
 
   private Participant fromEntry(String entry) {
     return new Participant(entry.replaceAll(ENTRY_SEPARATOR, PATH_SEPARATOR));
+  }
+
+  @Override
+  public String toString() {
+    try {
+      return "[" + CuratorBaseRegister.class.getSimpleName() + " " + path + ", " + participants() + "]";
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 }

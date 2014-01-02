@@ -51,4 +51,9 @@ public abstract class BaseGear implements Gear {
     this.writes = Arrays.asList(nodes);
     return this;
   }
+
+  @Override
+  public String toString() {
+    return "[" + BaseGear.class.getSimpleName() + " " + getNode().getPath().get() + "]";
+  }
 }

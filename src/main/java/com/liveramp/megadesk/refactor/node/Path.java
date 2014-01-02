@@ -30,4 +30,9 @@ public class Path {
   public String get() {
     return path;
   }
+
+  @Override
+  public String toString() {
+    return "[" + Path.class.getSimpleName() + " " + get() + "]";
+  }
 }
