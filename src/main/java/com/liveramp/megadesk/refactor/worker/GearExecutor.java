@@ -43,14 +43,17 @@ public class GearExecutor {
     // Acquire master lock
     gear.getNode().getMasterLock().acquire();
 
-    boolean shouldRun = register(gear, participant) && gear.isRunnable();
-
-    if (!shouldRun) {
-      unregister(gear, participant);
+    // Determine if gear should run
+    boolean shouldRun = false;
+    try {
+      shouldRun = register(gear, participant) && gear.isRunnable();
+      if (!shouldRun) {
+        unregister(gear, participant);
+      }
+    } finally {
+      // Release master lock
+      gear.getNode().getMasterLock().release();
     }
-
-    // Release master lock
-    gear.getNode().getMasterLock().release();
 
     // Run gear
     if (shouldRun) {
