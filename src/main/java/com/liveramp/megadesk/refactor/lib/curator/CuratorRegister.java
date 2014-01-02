@@ -31,6 +31,9 @@ import com.liveramp.megadesk.refactor.register.Registers;
 
 public class CuratorRegister implements Register {
 
+  private static final String PATH_SEPARATOR = "/";
+  private static final String ENTRY_SEPARATOR = "|";
+
   private final CuratorFramework curator;
   private final String path;
 
@@ -39,10 +42,6 @@ public class CuratorRegister implements Register {
     this.path = path;
     // Ensure paths
     new EnsurePath(path).ensure(curator.getZookeeperClient());
-  }
-
-  private String getPath() {
-    return path;
   }
 
   @Override
@@ -55,7 +54,7 @@ public class CuratorRegister implements Register {
     try {
       curator.create()
           .withMode(persistent ? CreateMode.PERSISTENT : CreateMode.EPHEMERAL)
-          .forPath(Paths.append(getPath(), participant.getId()));
+          .forPath(Paths.append(path, toEntry(participant)));
     } catch (KeeperException.NodeExistsException e) {
       // Already registered
     }
@@ -64,17 +63,29 @@ public class CuratorRegister implements Register {
   @Override
   public void unregister(Participant participant) throws Exception {
     if (Registers.isRegistered(this, participant)) {
-      curator.delete().forPath(Paths.append(getPath(), participant.getId()));
+      curator.delete().forPath(Paths.append(path, toEntry(participant)));
     }
   }
 
   @Override
   public List<Participant> participants() throws Exception {
-    // TODO: this does not work if participants have '/'s in their id
+    // TODO: use a children cache for performance
     List<Participant> result = new ArrayList<Participant>();
-    for (String path : curator.getChildren().forPath(getPath())) {
-      result.add(new Participant(path));
+    for (String child : curator.getChildren().forPath(path)) {
+      result.add(fromEntry(child));
     }
     return result;
+  }
+
+  // Child nodes may not contain '/' or they will become subdirectories
+  private String toEntry(Participant participant) {
+    if (participant.getId().contains(ENTRY_SEPARATOR)) {
+      throw new IllegalArgumentException(CuratorRegister.class.getSimpleName() + " entry may not contain " + ENTRY_SEPARATOR);
+    }
+    return participant.getId().replaceAll(PATH_SEPARATOR, ENTRY_SEPARATOR);
+  }
+
+  private Participant fromEntry(String entry) {
+    return new Participant(entry.replaceAll(ENTRY_SEPARATOR, PATH_SEPARATOR));
   }
 }

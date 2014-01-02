@@ -22,7 +22,7 @@ import org.apache.commons.lang.StringUtils;
 
 public final class Paths {
 
-  private static final String SEPARATOR = "/";
+  public static final String SEPARATOR = "/";
 
   private Paths() {
   }
