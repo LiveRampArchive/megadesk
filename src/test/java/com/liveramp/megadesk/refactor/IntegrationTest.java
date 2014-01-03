@@ -16,7 +16,6 @@
 
 package com.liveramp.megadesk.refactor;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.curator.test.TestingServer;
@@ -36,65 +35,54 @@ public class IntegrationTest extends BaseTestCase {
 
   private static final Logger LOG = Logger.getLogger(IntegrationTest.class);
 
+  private static class TransferGear extends CuratorGear implements Gear {
+
+    private final AtomicInteger resource1;
+    private final AtomicInteger resource2;
+
+    public TransferGear(CuratorDriver driver,
+                        String path,
+                        Node node1,
+                        AtomicInteger resource1,
+                        Node node2,
+                        AtomicInteger resource2) throws Exception {
+      super(driver, path);
+      this.resource1 = resource1;
+      this.resource2 = resource2;
+      writes(node1, node2);
+    }
+
+    @Override
+    public boolean isRunnable() {
+      return resource1.get() > 0;
+    }
+
+    @Override
+    public Outcome run() throws Exception {
+      resource1.decrementAndGet();
+      resource2.incrementAndGet();
+      return Outcome.SUCCESS;
+    }
+  }
+
   public void testMain() throws Exception {
 
     TestingServer testingServer = new TestingServer(12000);
     CuratorDriver driver = new CuratorDriver(testingServer.getConnectString());
 
-    final AtomicInteger resource1 = new AtomicInteger();
+    final AtomicInteger resource1 = new AtomicInteger(1);
     final AtomicInteger resource2 = new AtomicInteger();
-    final AtomicBoolean resource3 = new AtomicBoolean();
+    final AtomicInteger resource3 = new AtomicInteger();
+    final AtomicInteger resource4 = new AtomicInteger();
 
     Node node1 = new CuratorNode(driver, "/1");
     Node node2 = new CuratorNode(driver, "/2");
     Node node3 = new CuratorNode(driver, "/3");
+    Node node4 = new CuratorNode(driver, "/4");
 
-    Gear gearA = new CuratorGear(driver, "/a") {
-
-      @Override
-      public boolean isRunnable() {
-        return resource1.get() < 5;
-      }
-
-      @Override
-      public Outcome run() throws Exception {
-        resource1.incrementAndGet();
-        LOG.info("gearA: resource1 is now " + resource1.get());
-        return Outcome.SUCCESS;
-      }
-    }.writes(node1);
-
-    Gear gearB = new CuratorGear(driver, "/b") {
-
-      @Override
-      public boolean isRunnable() {
-        return resource1.get() == 5;
-      }
-
-      @Override
-      public Outcome run() throws Exception {
-        resource1.set(0);
-        resource2.incrementAndGet();
-        LOG.info("gearB: resource1 is now " + resource1.get());
-        LOG.info("gearB: resource2 is now " + resource2.get());
-        return Outcome.SUCCESS;
-      }
-    }.reads(node1).writes(node1, node2);
-
-    Gear gearC = new CuratorGear(driver, "/c") {
-
-      @Override
-      public boolean isRunnable() {
-        return !resource3.get() && resource2.get() == 2;
-      }
-
-      @Override
-      public Outcome run() throws Exception {
-        resource3.set(true);
-        LOG.info("gearC: resource3 is now " + resource3.get());
-        return Outcome.SUCCESS;
-      }
-    }.reads(node2, node3).writes(node3);
+    Gear gearA = new TransferGear(driver, "/a", node1, resource1, node2, resource2);
+    Gear gearB = new TransferGear(driver, "/b", node2, resource2, node3, resource3);
+    Gear gearC = new TransferGear(driver, "/c", node3, resource3, node4, resource4);
 
     // Run
 
@@ -105,6 +93,5 @@ public class IntegrationTest extends BaseTestCase {
     worker.run(gearC);
 
     worker.join();
-
   }
 }
