@@ -49,12 +49,20 @@ public abstract class BaseGear implements Gear {
   }
 
   public BaseGear reads(Node... nodes) {
-    this.reads = Arrays.asList(nodes);
+    return reads(Arrays.asList(nodes));
+  }
+
+  public BaseGear reads(List<Node> nodes) {
+    this.reads = nodes;
     return this;
   }
 
   public BaseGear writes(Node... nodes) {
-    this.writes = Arrays.asList(nodes);
+    return writes(Arrays.asList(nodes));
+  }
+
+  public BaseGear writes(List<Node> nodes) {
+    this.writes = nodes;
     return this;
   }
 

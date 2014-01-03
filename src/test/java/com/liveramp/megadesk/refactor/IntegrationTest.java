@@ -16,6 +16,7 @@
 
 package com.liveramp.megadesk.refactor;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.curator.test.TestingServer;
@@ -23,6 +24,7 @@ import org.apache.log4j.Logger;
 
 import com.liveramp.megadesk.refactor.attempt.Outcome;
 import com.liveramp.megadesk.refactor.gear.Gear;
+import com.liveramp.megadesk.refactor.gear.Gears;
 import com.liveramp.megadesk.refactor.lib.curator.CuratorDriver;
 import com.liveramp.megadesk.refactor.lib.curator.CuratorGear;
 import com.liveramp.megadesk.refactor.lib.curator.CuratorNode;
@@ -65,15 +67,55 @@ public class IntegrationTest extends BaseTestCase {
     }
   }
 
-  public void testMain() throws Exception {
+  public static abstract class StepGear extends CuratorGear implements Gear {
 
+    public StepGear(CuratorDriver driver,
+                    String path,
+                    Gear... dependencies) throws Exception {
+      super(driver, path);
+      reads(Gears.getNodes(dependencies));
+    }
+
+    public abstract void doRun();
+
+    @Override
+    public boolean isRunnable() {
+      return false;  // TODO
+    }
+
+    @Override
+    public Outcome run() throws Exception {
+      doRun();
+      return Outcome.END;
+    }
+  }
+
+  public static class TransferStepGear extends StepGear implements Gear {
+
+    private final AtomicBoolean resource;
+
+    public TransferStepGear(CuratorDriver driver,
+                            String path,
+                            AtomicBoolean resource,
+                            Gear... dependencies) throws Exception {
+      super(driver, path, dependencies);
+      this.resource = resource;
+    }
+
+    @Override
+    public void doRun() {
+      resource.set(true);
+    }
+  }
+
+  public void testMain() throws Exception {
     TestingServer testingServer = new TestingServer(12000);
     CuratorDriver driver = new CuratorDriver(testingServer.getConnectString());
 
-    final AtomicInteger resource1 = new AtomicInteger(1);
-    final AtomicInteger resource2 = new AtomicInteger();
-    final AtomicInteger resource3 = new AtomicInteger();
-    final AtomicInteger resource4 = new AtomicInteger();
+    AtomicInteger resource1 = new AtomicInteger(1);
+    AtomicInteger resource2 = new AtomicInteger();
+    AtomicInteger resource3 = new AtomicInteger();
+    AtomicInteger resource4 = new AtomicInteger();
 
     Node node1 = new CuratorNode(driver, "/1");
     Node node2 = new CuratorNode(driver, "/2");
@@ -85,13 +127,34 @@ public class IntegrationTest extends BaseTestCase {
     Gear gearC = new TransferGear(driver, "/c", node3, resource3, node4, resource4);
 
     // Run
-
     Worker worker = new NaiveWorker();
-
     worker.run(gearA);
     worker.run(gearB);
     worker.run(gearC);
-
     worker.join();
   }
+
+  public void testSteps() throws Exception {
+    TestingServer testingServer = new TestingServer(12000);
+    CuratorDriver driver = new CuratorDriver(testingServer.getConnectString());
+
+    AtomicBoolean resourceA = new AtomicBoolean(false);
+    AtomicBoolean resourceB = new AtomicBoolean(false);
+    AtomicBoolean resourceC = new AtomicBoolean(false);
+    AtomicBoolean resourceD = new AtomicBoolean(false);
+
+    Gear stepA = new TransferStepGear(driver, "/a", resourceA);
+    Gear stepB = new TransferStepGear(driver, "/b", resourceB, stepA);
+    Gear stepC = new TransferStepGear(driver, "/c", resourceC, stepA);
+    Gear stepD = new TransferStepGear(driver, "/d", resourceD, stepB, stepC);
+
+    // Run
+    Worker worker = new NaiveWorker();
+    worker.run(stepA);
+    worker.run(stepB);
+    worker.run(stepC);
+    worker.run(stepD);
+    worker.join();
+  }
+
 }
