@@ -47,28 +47,25 @@ public class GearExecutor {
     Registers.unregister(Gears.getWriteRegisters(gear), participant);
   }
 
-  public Outcome execute(Gear gear) throws Exception {
-
-    Participant participant = new Participant(gear.getNode().getPath().get());
-
+  private boolean shouldRun(Gear gear, Participant participant) throws Exception {
     // Acquire master lock
     LOG.info("Acquiring master lock");
     gear.getNode().getMasterLock().acquire();
-
     // Determine if gear should run
     boolean shouldRun = false;
     try {
-
+      // Determine if it can be registered
       boolean isRegistered = register(gear, participant);
       LOG.info("Attempting to register " + participant + " for " + gear + ": " + isRegistered);
+      // Determine if it is runnable
       boolean isRunnable = false;
       if (isRegistered) {
         isRunnable = gear.isRunnable();
         LOG.info("Determining if " + gear + " is runnable: " + isRunnable);
       }
-
+      // Determine if it should run
       shouldRun = isRegistered && isRunnable;
-
+      // Unregister if it should not run
       if (!shouldRun) {
         LOG.info("Unregistering " + participant + " for " + gear);
         unregister(gear, participant);
@@ -78,31 +75,39 @@ public class GearExecutor {
       LOG.info("Releasing master lock");
       gear.getNode().getMasterLock().release();
     }
+    return shouldRun;
+  }
 
-    // Run gear
-    if (shouldRun) {
-      LOG.info("Running " + gear);
+  private Outcome run(Gear gear, Participant participant) throws Exception {
+    LOG.info("Running " + gear);
+    try {
+      Outcome outcome = gear.run();
+      LOG.info("Ran " + gear + ", outcome: " + outcome);
+      return outcome;
+    } catch (Throwable t) {
+      LOG.info("Gear " + gear + " failed");
+      return Outcome.FAILURE;
+    } finally {
+      // TODO: is locking necessary here since we are only unregistering?
+      // Acquire master lock
+      LOG.info("Acquiring master lock");
+      gear.getNode().getMasterLock().acquire();
       try {
-        Outcome outcome = gear.run();
-        LOG.info("Ran " + gear + ", outcome: " + outcome);
-        return outcome;
-      } catch (Throwable t) {
-        LOG.info("Gear " + gear + " failed");
-        return Outcome.FAILURE;
+        LOG.info("Unregistering " + participant + " for " + gear);
+        unregister(gear, participant);
       } finally {
-        // TODO: is locking necessary here since we are only unregistering?
-        // Acquire master lock
-        LOG.info("Acquiring master lock");
-        gear.getNode().getMasterLock().acquire();
-        try {
-          LOG.info("Unregistering " + participant + " for " + gear);
-          unregister(gear, participant);
-        } finally {
-          // Release master lock
-          LOG.info("Releasing master lock");
-          gear.getNode().getMasterLock().release();
-        }
+        // Release master lock
+        LOG.info("Releasing master lock");
+        gear.getNode().getMasterLock().release();
       }
+    }
+  }
+
+  public Outcome execute(Gear gear) throws Exception {
+    Participant participant = new Participant(gear.getNode().getPath().get());
+    // Run gear
+    if (shouldRun(gear, participant)) {
+      return run(gear, participant);
     } else {
       LOG.info("Gear " + gear + " is waiting");
       return Outcome.WAIT;
