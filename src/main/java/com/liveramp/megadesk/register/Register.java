@@ -1,5 +1,5 @@
 /**
- *  Copyright 2013 LiveRamp
+ *  Copyright 2014 LiveRamp
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,15 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.worker;
+package com.liveramp.megadesk.register;
 
-import com.liveramp.megadesk.gear.Gear;
+import java.util.List;
 
-public interface Worker {
+public interface Register {
 
-  void run(Gear gear);
+  boolean register(Participant participant) throws Exception;
 
-  void join() throws InterruptedException;
+  void unregister(Participant participant) throws Exception;
+
+  List<Participant> participants() throws Exception;
 }

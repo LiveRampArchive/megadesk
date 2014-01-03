@@ -1,5 +1,5 @@
 /**
- *  Copyright 2013 LiveRamp
+ *  Copyright 2014 LiveRamp
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.worker;
+package com.liveramp.megadesk.persistence;
 
+import java.util.List;
+
+import com.liveramp.megadesk.attempt.Attempt;
 import com.liveramp.megadesk.gear.Gear;
 
-public interface Worker {
+public interface Persistence {
 
-  void run(Gear gear);
-
-  void join() throws InterruptedException;
+  List<Attempt> getAttempts(Gear gear);
 }

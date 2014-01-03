@@ -14,13 +14,20 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.worker;
+package com.liveramp.megadesk.node;
 
-import com.liveramp.megadesk.gear.Gear;
+import com.liveramp.megadesk.lock.Lock;
+import com.liveramp.megadesk.register.Register;
 
-public interface Worker {
+public interface Node {
 
-  void run(Gear gear);
+  Path getPath();
 
-  void join() throws InterruptedException;
+  Lock getMasterLock();
+
+  Register getReadRegister();
+
+  Register getWriteRegister();
+
+  Node getParent();
 }

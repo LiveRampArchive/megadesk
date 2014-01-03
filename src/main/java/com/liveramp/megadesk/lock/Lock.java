@@ -14,13 +14,11 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.worker;
+package com.liveramp.megadesk.lock;
 
-import com.liveramp.megadesk.gear.Gear;
+public interface Lock {
 
-public interface Worker {
+  void acquire() throws Exception;
 
-  void run(Gear gear);
-
-  void join() throws InterruptedException;
+  void release() throws Exception;
 }

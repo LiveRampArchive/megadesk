@@ -1,5 +1,5 @@
 /**
- *  Copyright 2013 LiveRamp
+ *  Copyright 2014 LiveRamp
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,9 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.worker;
+package com.liveramp.megadesk.attempt;
 
-import com.liveramp.megadesk.gear.Gear;
+public interface Attempt {
 
-public interface Worker {
-
-  void run(Gear gear);
-
-  void join() throws InterruptedException;
+  Outcome getOutcome();
 }

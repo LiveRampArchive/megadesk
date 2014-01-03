@@ -14,13 +14,25 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.worker;
+package com.liveramp.megadesk.node;
 
-import com.liveramp.megadesk.gear.Gear;
+public class Path {
 
-public interface Worker {
+  private final String path;
 
-  void run(Gear gear);
+  public Path(String path) {
+    if (!path.startsWith("/")) {
+      throw new IllegalArgumentException(Path.class.getSimpleName() + " must start with '/': " + path);
+    }
+    this.path = path;
+  }
 
-  void join() throws InterruptedException;
+  public String get() {
+    return path;
+  }
+
+  @Override
+  public String toString() {
+    return "[" + Path.class.getSimpleName() + " " + get() + "]";
+  }
 }
