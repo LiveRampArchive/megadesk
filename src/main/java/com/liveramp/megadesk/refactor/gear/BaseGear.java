@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.liveramp.megadesk.refactor.node.Node;
+import com.liveramp.megadesk.refactor.persistence.Persistence;
 
 public abstract class BaseGear implements Gear {
 
@@ -30,6 +31,11 @@ public abstract class BaseGear implements Gear {
   public BaseGear() {
     this.reads = Collections.emptyList();
     this.writes = Collections.emptyList();
+  }
+
+  @Override
+  public Persistence getPersistence() {
+    return null;
   }
 
   @Override

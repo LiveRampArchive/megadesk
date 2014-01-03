@@ -16,5 +16,7 @@
 
 package com.liveramp.megadesk.refactor.attempt;
 
-public class Attempt {
+public interface Attempt {
+
+  Outcome getOutcome();
 }
