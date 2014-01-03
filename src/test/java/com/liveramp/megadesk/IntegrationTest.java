@@ -16,7 +16,8 @@
 
 package com.liveramp.megadesk;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.curator.test.TestingServer;
@@ -29,9 +30,9 @@ import com.liveramp.megadesk.lib.curator.CuratorDriver;
 import com.liveramp.megadesk.lib.curator.CuratorGear;
 import com.liveramp.megadesk.lib.curator.CuratorNode;
 import com.liveramp.megadesk.node.Node;
+import com.liveramp.megadesk.test.BaseTestCase;
 import com.liveramp.megadesk.worker.NaiveWorker;
 import com.liveramp.megadesk.worker.Worker;
-import com.liveramp.megadesk.test.BaseTestCase;
 
 public class IntegrationTest extends BaseTestCase {
 
@@ -69,42 +70,57 @@ public class IntegrationTest extends BaseTestCase {
 
   public static abstract class StepGear extends CuratorGear implements Gear {
 
+    private boolean isCompleted;
+    private List<StepGear> dependencies;
+
     public StepGear(CuratorDriver driver,
                     String path,
-                    Gear... dependencies) throws Exception {
+                    StepGear... dependencies) throws Exception {
       super(driver, path);
+      this.isCompleted = false;
+      this.dependencies = Arrays.asList(dependencies);
       reads(Gears.getNodes(dependencies));
+    }
+
+    public boolean isCompleted() {
+      return isCompleted;
+    }
+
+    private void setCompleted(boolean isCompleted) {
+      this.isCompleted = isCompleted;
     }
 
     public abstract void doRun();
 
     @Override
     public boolean isRunnable() {
-      return false;  // TODO
+      for (StepGear dependency : dependencies) {
+        if (!dependency.isCompleted()) {
+          return false;
+        }
+      }
+      return true;
     }
 
     @Override
     public Outcome run() throws Exception {
       doRun();
+      setCompleted(true);
       return Outcome.END;
     }
   }
 
-  public static class TransferStepGear extends StepGear implements Gear {
+  public static class MockStepGear extends StepGear implements Gear {
 
-    private final AtomicBoolean resource;
-
-    public TransferStepGear(CuratorDriver driver,
-                            String path,
-                            AtomicBoolean resource,
-                            Gear... dependencies) throws Exception {
+    public MockStepGear(CuratorDriver driver,
+                        String path,
+                        StepGear... dependencies) throws Exception {
       super(driver, path, dependencies);
-      this.resource = resource;
     }
 
     @Override
     public void doRun() {
-      resource.set(true);
+      // no op
     }
   }
 
@@ -138,15 +154,10 @@ public class IntegrationTest extends BaseTestCase {
     TestingServer testingServer = new TestingServer(12000);
     CuratorDriver driver = new CuratorDriver(testingServer.getConnectString());
 
-    AtomicBoolean resourceA = new AtomicBoolean(false);
-    AtomicBoolean resourceB = new AtomicBoolean(false);
-    AtomicBoolean resourceC = new AtomicBoolean(false);
-    AtomicBoolean resourceD = new AtomicBoolean(false);
-
-    Gear stepA = new TransferStepGear(driver, "/a", resourceA);
-    Gear stepB = new TransferStepGear(driver, "/b", resourceB, stepA);
-    Gear stepC = new TransferStepGear(driver, "/c", resourceC, stepA);
-    Gear stepD = new TransferStepGear(driver, "/d", resourceD, stepB, stepC);
+    StepGear stepA = new MockStepGear(driver, "/a");
+    StepGear stepB = new MockStepGear(driver, "/b", stepA);
+    StepGear stepC = new MockStepGear(driver, "/c", stepA);
+    StepGear stepD = new MockStepGear(driver, "/d", stepB, stepC);
 
     // Run
     Worker worker = new NaiveWorker();
@@ -156,5 +167,4 @@ public class IntegrationTest extends BaseTestCase {
     worker.run(stepD);
     worker.join();
   }
-
 }
