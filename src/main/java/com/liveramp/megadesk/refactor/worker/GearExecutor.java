@@ -90,6 +90,7 @@ public class GearExecutor {
         LOG.info("Gear " + gear + " failed");
         return Outcome.FAILURE;
       } finally {
+        // TODO: is locking necessary here since we are only unregistering?
         // Acquire master lock
         LOG.info("Acquiring master lock");
         gear.getNode().getMasterLock().acquire();

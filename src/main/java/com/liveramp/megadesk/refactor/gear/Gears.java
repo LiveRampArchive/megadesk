@@ -45,8 +45,8 @@ public final class Gears {
 
   public static List<Register> getHierarchyRegisters(Gear gear) {
     List<Register> result = new ArrayList<Register>();
-    // Read on itself
-    result.add(gear.getNode().getReadRegister());
+    // Write on itself
+    result.add(gear.getNode().getWriteRegister());
     // Read on hierarchy
     Node parent = gear.getNode().getParent();
     while (parent != null) {
