@@ -18,10 +18,15 @@ package com.liveramp.megadesk.node;
 
 import java.util.Arrays;
 
+import org.junit.Test;
+
 import com.liveramp.megadesk.test.BaseTestCase;
+
+import static org.junit.Assert.assertEquals;
 
 public class TestPaths extends BaseTestCase {
 
+  @Test
   public void testMain() {
     assertEquals("/a/b/c", Paths.append("a", "b", "c"));
     assertEquals("/a/b/c", Paths.append("/a", "/b", "/c"));

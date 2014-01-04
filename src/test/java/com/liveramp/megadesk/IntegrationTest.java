@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.curator.test.TestingServer;
 import org.apache.log4j.Logger;
+import org.junit.Test;
 
 import com.liveramp.megadesk.attempt.Outcome;
 import com.liveramp.megadesk.dependency.Dependency;
@@ -141,6 +142,7 @@ public class IntegrationTest extends BaseTestCase {
     }
   }
 
+  @Test
   public void testMain() throws Exception {
     TestingServer testingServer = new TestingServer(12000);
     CuratorDriver driver = new CuratorDriver(testingServer.getConnectString());
@@ -167,6 +169,7 @@ public class IntegrationTest extends BaseTestCase {
     worker.join();
   }
 
+  @Test
   public void testSteps() throws Exception {
     TestingServer testingServer = new TestingServer(12000);
     CuratorDriver driver = new CuratorDriver(testingServer.getConnectString());

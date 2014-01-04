@@ -16,22 +16,21 @@
 
 package com.liveramp.megadesk.test;
 
-import junit.framework.TestCase;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.TTCCLayout;
+import org.junit.Before;
 
-public abstract class BaseTestCase extends TestCase {
+public abstract class BaseTestCase {
 
   static {
     Logger.getRootLogger().setLevel(Level.INFO);
     Logger.getRootLogger().addAppender(new ConsoleAppender(new TTCCLayout(), ConsoleAppender.SYSTEM_ERR));
   }
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void printTestStart() throws Exception {
     System.err.println("------ test start ------");
     System.out.println("------ test start ------");
   }
