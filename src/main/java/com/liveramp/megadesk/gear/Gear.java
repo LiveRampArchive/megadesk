@@ -13,6 +13,7 @@ public interface Gear {
 
   Persistence getPersistence();
 
+  // TODO: could this return only one Dependency (and use MultiDependency when needed)
   List<Dependency> dependencies();
 
   Outcome run() throws Exception;
