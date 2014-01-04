@@ -16,6 +16,7 @@
 
 package com.liveramp.megadesk;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +24,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.curator.test.TestingServer;
 import org.apache.log4j.Logger;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.liveramp.megadesk.attempt.Outcome;
@@ -41,6 +44,20 @@ import com.liveramp.megadesk.worker.Worker;
 public class IntegrationTest extends BaseTestCase {
 
   private static final Logger LOG = Logger.getLogger(IntegrationTest.class);
+
+  private TestingServer testingServer;
+  private CuratorDriver driver;
+
+  @Before
+  public void setUpDriver() throws Exception {
+    this.testingServer = new TestingServer(12000);
+    this.driver = new CuratorDriver(testingServer.getConnectString());
+  }
+
+  @After
+  public void tearDownDriver() throws IOException {
+    this.testingServer.close();
+  }
 
   private static class TransferGear extends CuratorGear implements Gear {
 
@@ -144,8 +161,6 @@ public class IntegrationTest extends BaseTestCase {
 
   @Test
   public void testMain() throws Exception {
-    TestingServer testingServer = new TestingServer(12000);
-    CuratorDriver driver = new CuratorDriver(testingServer.getConnectString());
 
     AtomicInteger resource1 = new AtomicInteger(1);
     AtomicInteger resource2 = new AtomicInteger();
