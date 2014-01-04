@@ -17,6 +17,7 @@
 package com.liveramp.megadesk.worker;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.liveramp.megadesk.attempt.Outcome;
@@ -61,12 +62,16 @@ public class NaiveWorker implements Worker {
     public void run() {
       while (true) {
         synchronized (gears) {
-          for (Gear gear : gears) {
+          if (gears.isEmpty()) {
+            return;
+          }
+          Iterator<Gear> it = gears.iterator();
+          while (it.hasNext()) {
+            Gear gear = it.next();
             try {
               Outcome outcome = gearExecutor.execute(gear);
               if (outcome == Outcome.END) {
-                // TODO: is removing safe?
-                stop(gear);
+                it.remove();
               }
             } catch (Exception e) {
               throw new RuntimeException(e); // TODO
