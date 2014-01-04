@@ -92,6 +92,11 @@ public class CuratorNode extends BaseNode implements Node {
   }
 
   @Override
+  public Node getParent() {
+    return parent;
+  }
+
+  @Override
   public Register getReadRegister() {
     return readRegister;
   }
@@ -99,10 +104,5 @@ public class CuratorNode extends BaseNode implements Node {
   @Override
   public Register getWriteRegister() {
     return writeRegister;
-  }
-
-  @Override
-  public Node getParent() {
-    return parent;
   }
 }

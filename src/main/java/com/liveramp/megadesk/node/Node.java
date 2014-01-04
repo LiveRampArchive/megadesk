@@ -16,16 +16,15 @@
 
 package com.liveramp.megadesk.node;
 
-import com.liveramp.megadesk.lock.Lock;
 import com.liveramp.megadesk.register.Register;
 
 public interface Node {
 
   Path getPath();
 
+  Node getParent();
+
   Register getReadRegister();
 
   Register getWriteRegister();
-
-  Node getParent();
 }
