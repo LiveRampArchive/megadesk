@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.liveramp.megadesk.attempt.Outcome;
+import com.liveramp.megadesk.dependency.Dependencies;
 import com.liveramp.megadesk.gear.Gear;
 import com.liveramp.megadesk.gear.Gears;
 import com.liveramp.megadesk.register.Participant;
@@ -35,16 +36,13 @@ public class GearExecutor {
   private boolean register(Gear gear, Participant participant) throws Exception {
     List<Register> registers = new ArrayList<Register>();
     registers.addAll(Gears.getHierarchyRegisters(gear));
-    registers.addAll(Gears.getReadRegisters(gear));
-    registers.addAll(Gears.getWriteRegisters(gear));
     LOG.info("Attempting to register: " + participant + " in " + registers);
     return Registers.register(registers, participant);
   }
 
   private void unregister(Gear gear, Participant participant) throws Exception {
     Registers.unregister(Gears.getHierarchyRegisters(gear), participant);
-    Registers.unregister(Gears.getReadRegisters(gear), participant);
-    Registers.unregister(Gears.getWriteRegisters(gear), participant);
+    Dependencies.release(gear.dependencies(), participant);
   }
 
   private boolean shouldRun(Gear gear, Participant participant) throws Exception {
@@ -60,7 +58,7 @@ public class GearExecutor {
       // Determine if it is runnable
       boolean isRunnable = false;
       if (isRegistered) {
-        isRunnable = gear.isRunnable();
+        isRunnable = Dependencies.acquire(gear.dependencies(), participant);
         LOG.info("Determining if " + gear + " is runnable: " + isRunnable);
       }
       // Determine if it should run

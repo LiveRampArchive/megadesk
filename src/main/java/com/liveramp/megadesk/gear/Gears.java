@@ -27,26 +27,10 @@ public final class Gears {
   private Gears() {
   }
 
-  public static List<Node> getNodes(Gear... gears) {
+  public static <T extends Gear> List<Node> getNodes(List<T> gears) {
     List<Node> result = new ArrayList<Node>();
     for (Gear gear : gears) {
       result.add(gear.getNode());
-    }
-    return result;
-  }
-
-  public static List<Register> getReadRegisters(Gear gear) {
-    List<Register> result = new ArrayList<Register>();
-    for (Node node : gear.reads()) {
-      result.add(node.getReadRegister());
-    }
-    return result;
-  }
-
-  public static List<Register> getWriteRegisters(Gear gear) {
-    List<Register> result = new ArrayList<Register>();
-    for (Node node : gear.writes()) {
-      result.add(node.getWriteRegister());
     }
     return result;
   }

@@ -20,17 +20,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import com.liveramp.megadesk.dependency.Dependency;
 import com.liveramp.megadesk.node.Node;
 import com.liveramp.megadesk.persistence.Persistence;
 
 public abstract class BaseGear implements Gear {
 
-  private List<Node> reads;
-  private List<Node> writes;
+  private List<Dependency> dependencies;
 
   public BaseGear() {
-    this.reads = Collections.emptyList();
-    this.writes = Collections.emptyList();
+    this.dependencies = Collections.emptyList();
   }
 
   @Override
@@ -39,30 +38,16 @@ public abstract class BaseGear implements Gear {
   }
 
   @Override
-  public List<Node> reads() {
-    return reads;
+  public List<Dependency> dependencies() {
+    return dependencies;
   }
 
-  @Override
-  public List<Node> writes() {
-    return writes;
+  public BaseGear depends(Dependency... dependencies) {
+    return depends(Arrays.asList(dependencies));
   }
 
-  public BaseGear reads(Node... nodes) {
-    return reads(Arrays.asList(nodes));
-  }
-
-  public BaseGear reads(List<Node> nodes) {
-    this.reads = nodes;
-    return this;
-  }
-
-  public BaseGear writes(Node... nodes) {
-    return writes(Arrays.asList(nodes));
-  }
-
-  public BaseGear writes(List<Node> nodes) {
-    this.writes = nodes;
+  public BaseGear depends(List<Dependency> dependencies) {
+    this.dependencies = dependencies;
     return this;
   }
 

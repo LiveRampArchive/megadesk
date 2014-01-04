@@ -17,6 +17,7 @@
 package com.liveramp.megadesk;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -24,6 +25,8 @@ import org.apache.curator.test.TestingServer;
 import org.apache.log4j.Logger;
 
 import com.liveramp.megadesk.attempt.Outcome;
+import com.liveramp.megadesk.dependency.Dependency;
+import com.liveramp.megadesk.dependency.NodeDependency;
 import com.liveramp.megadesk.gear.Gear;
 import com.liveramp.megadesk.gear.Gears;
 import com.liveramp.megadesk.lib.curator.CuratorDriver;
@@ -52,12 +55,19 @@ public class IntegrationTest extends BaseTestCase {
       super(driver, path);
       this.resource1 = resource1;
       this.resource2 = resource2;
-      writes(node1, node2);
+      depends(new TransferDependency(node1, node2));
     }
 
-    @Override
-    public boolean isRunnable() {
-      return resource1.get() > 0;
+    private class TransferDependency extends NodeDependency implements Dependency {
+
+      protected TransferDependency(Node node1, Node node2) {
+        super(Collections.<Node>emptyList(), Arrays.asList(node1, node2));
+      }
+
+      @Override
+      public boolean check() {
+        return resource1.get() > 0;
+      }
     }
 
     @Override
@@ -79,7 +89,33 @@ public class IntegrationTest extends BaseTestCase {
       super(driver, path);
       this.isCompleted = false;
       this.dependencies = Arrays.asList(dependencies);
-      reads(Gears.getNodes(dependencies));
+      depends(new StepGearDependency());
+    }
+
+    private class StepGearDependency extends NodeDependency implements Dependency {
+
+      protected StepGearDependency() {
+        super(Gears.getNodes(dependencies), Collections.<Node>emptyList());
+      }
+
+      @Override
+      public boolean check() {
+        for (StepGear dependency : dependencies) {
+          if (!dependency.isCompleted()) {
+            return false;
+          }
+        }
+        return true;
+      }
+    }
+
+    public abstract void doRun();
+
+    @Override
+    public Outcome run() throws Exception {
+      doRun();
+      setCompleted(true);
+      return Outcome.END;
     }
 
     public boolean isCompleted() {
@@ -88,25 +124,6 @@ public class IntegrationTest extends BaseTestCase {
 
     private void setCompleted(boolean isCompleted) {
       this.isCompleted = isCompleted;
-    }
-
-    public abstract void doRun();
-
-    @Override
-    public boolean isRunnable() {
-      for (StepGear dependency : dependencies) {
-        if (!dependency.isCompleted()) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    @Override
-    public Outcome run() throws Exception {
-      doRun();
-      setCompleted(true);
-      return Outcome.END;
     }
   }
 

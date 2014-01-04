@@ -14,31 +14,30 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.node;
+package com.liveramp.megadesk.dependency;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.liveramp.megadesk.register.Register;
+import com.liveramp.megadesk.register.Participant;
 
-public final class Nodes {
+public final class Dependencies {
 
-  private Nodes() {
+  private Dependencies() {
   }
 
-  public static List<Register> getReadRegisters(List<Node> nodes) {
-    List<Register> result = new ArrayList<Register>();
-    for (Node node : nodes) {
-      result.add(node.getReadRegister());
+  public static boolean acquire(List<Dependency> dependencies, Participant participant) throws Exception {
+    for (Dependency dependency : dependencies) {
+      if (!dependency.acquire(participant)) {
+        return false;
+      }
     }
-    return result;
+    return true;
   }
 
-  public static List<Register> getWriteRegisters(List<Node> nodes) {
-    List<Register> result = new ArrayList<Register>();
-    for (Node node : nodes) {
-      result.add(node.getWriteRegister());
+  public static boolean release(List<Dependency> dependencies, Participant participant) throws Exception {
+    for (Dependency dependency : dependencies) {
+      dependency.release(participant);
     }
-    return result;
+    return true;
   }
 }
