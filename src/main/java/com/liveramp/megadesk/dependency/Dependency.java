@@ -20,7 +20,7 @@ import com.liveramp.megadesk.register.Participant;
 
 public interface Dependency {
 
-  boolean acquire(Participant participant) throws Exception;
+  DependencyCheck acquire(Participant participant) throws Exception;
 
   void release(Participant participant) throws Exception;
 }

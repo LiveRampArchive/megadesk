@@ -30,7 +30,8 @@ import org.junit.Test;
 
 import com.liveramp.megadesk.attempt.Outcome;
 import com.liveramp.megadesk.dependency.Dependency;
-import com.liveramp.megadesk.dependency.NodeDependency;
+import com.liveramp.megadesk.dependency.NodeHierarchyDependency;
+import com.liveramp.megadesk.dependency.ReadWriteDependency;
 import com.liveramp.megadesk.gear.Gear;
 import com.liveramp.megadesk.gear.Gears;
 import com.liveramp.megadesk.lib.curator.CuratorDriver;
@@ -75,10 +76,10 @@ public class IntegrationTest extends BaseTestCase {
       super(driver, path);
       this.resource1 = resource1;
       this.resource2 = resource2;
-      depends(new TransferDependency(node1, node2));
+      depends(new NodeHierarchyDependency(this.getNode()), new TransferDependency(node1, node2));
     }
 
-    private class TransferDependency extends NodeDependency implements Dependency {
+    private class TransferDependency extends ReadWriteDependency implements Dependency {
 
       protected TransferDependency(Node node1, Node node2) {
         super(Collections.<Node>emptyList(), Arrays.asList(node1, node2));
@@ -94,7 +95,7 @@ public class IntegrationTest extends BaseTestCase {
     public Outcome run() throws Exception {
       resource1.decrementAndGet();
       resource2.incrementAndGet();
-      return Outcome.END;
+      return Outcome.ABANDON;
     }
   }
 
@@ -109,10 +110,10 @@ public class IntegrationTest extends BaseTestCase {
       super(driver, path);
       this.isCompleted = false;
       this.dependencies = Arrays.asList(dependencies);
-      depends(new StepGearDependency());
+      depends(new NodeHierarchyDependency(this.getNode()), new StepGearDependency());
     }
 
-    private class StepGearDependency extends NodeDependency implements Dependency {
+    private class StepGearDependency extends ReadWriteDependency implements Dependency {
 
       protected StepGearDependency() {
         super(Gears.getNodes(dependencies), Collections.<Node>emptyList());
@@ -135,7 +136,7 @@ public class IntegrationTest extends BaseTestCase {
     public Outcome run() throws Exception {
       doRun();
       setCompleted(true);
-      return Outcome.END;
+      return Outcome.ABANDON;
     }
 
     public boolean isCompleted() {

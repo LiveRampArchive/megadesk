@@ -70,7 +70,7 @@ public class NaiveWorker implements Worker {
             Gear gear = it.next();
             try {
               Outcome outcome = gearExecutor.execute(gear);
-              if (outcome == Outcome.END) {
+              if (outcome == Outcome.ABANDON) {
                 it.remove();
               }
             } catch (Exception e) {

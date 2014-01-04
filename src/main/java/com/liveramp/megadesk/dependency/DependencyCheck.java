@@ -16,8 +16,8 @@
 
 package com.liveramp.megadesk.dependency;
 
-public final class Dependencies {
-
-  private Dependencies() {
-  }
+public enum DependencyCheck {
+  ACQUIRED,
+  STANDBY,
+  ABANDON
 }

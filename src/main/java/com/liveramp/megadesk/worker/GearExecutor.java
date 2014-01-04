@@ -16,99 +16,64 @@
 
 package com.liveramp.megadesk.worker;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 
 import com.liveramp.megadesk.attempt.Outcome;
-import com.liveramp.megadesk.dependency.Dependencies;
+import com.liveramp.megadesk.dependency.DependencyCheck;
 import com.liveramp.megadesk.gear.Gear;
-import com.liveramp.megadesk.gear.Gears;
 import com.liveramp.megadesk.register.Participant;
-import com.liveramp.megadesk.register.Register;
-import com.liveramp.megadesk.register.Registers;
 
 public class GearExecutor {
 
   private static final Logger LOG = Logger.getLogger(GearExecutor.class);
 
-  private boolean register(Gear gear, Participant participant) throws Exception {
-    List<Register> registers = new ArrayList<Register>();
-    registers.addAll(Gears.getHierarchyRegisters(gear));
-    LOG.info("Attempting to register: " + participant + " in " + registers);
-    return Registers.register(registers, participant);
-  }
-
-  private void unregister(Gear gear, Participant participant) throws Exception {
-    Registers.unregister(Gears.getHierarchyRegisters(gear), participant);
-    Dependencies.release(gear.dependencies(), participant);
-  }
-
-  private boolean shouldRun(Gear gear, Participant participant) throws Exception {
-    // Acquire master lock
-    LOG.info("Acquiring master lock");
-    gear.getMasterLock().acquire();
-    // Determine if gear should run
-    boolean shouldRun = false;
-    try {
-      // Determine if it can be registered
-      boolean isRegistered = register(gear, participant);
-      LOG.info("Attempting to register " + participant + " for " + gear + ": " + isRegistered);
-      // Determine if it is runnable
-      boolean isRunnable = false;
-      if (isRegistered) {
-        isRunnable = Dependencies.acquire(gear.dependencies(), participant);
-        LOG.info("Determining if " + gear + " is runnable: " + isRunnable);
-      }
-      // Determine if it should run
-      shouldRun = isRegistered && isRunnable;
-      // Unregister if it should not run
-      if (!shouldRun) {
-        LOG.info("Unregistering " + participant + " for " + gear);
-        unregister(gear, participant);
-      }
-    } finally {
-      // Release master lock
-      LOG.info("Releasing master lock");
-      gear.getMasterLock().release();
-    }
-    return shouldRun;
-  }
-
-  private Outcome run(Gear gear, Participant participant) throws Exception {
-    LOG.info("Running " + gear);
-    try {
-      Outcome outcome = gear.run();
-      LOG.info("Ran " + gear + ", outcome: " + outcome);
-      return outcome;
-    } catch (Throwable t) {
-      LOG.info("Gear " + gear + " failed");
-      return Outcome.FAILURE;
-    } finally {
-      // TODO: is locking necessary here since we are only unregistering?
-      // Acquire master lock
-      LOG.info("Acquiring master lock");
-      gear.getMasterLock().acquire();
-      try {
-        LOG.info("Unregistering " + participant + " for " + gear);
-        unregister(gear, participant);
-      } finally {
-        // Release master lock
-        LOG.info("Releasing master lock");
-        gear.getMasterLock().release();
-      }
-    }
-  }
-
   public Outcome execute(Gear gear) throws Exception {
     Participant participant = new Participant(gear.getNode().getPath().get());
-    // Run gear
-    if (shouldRun(gear, participant)) {
-      return run(gear, participant);
+
+    DependencyCheck dependency = acquireDependency(gear, participant);
+
+    Outcome outcome;
+
+    if (dependency == DependencyCheck.ACQUIRED) {
+      LOG.info("Running " + gear);
+      outcome = run(gear);
+      releaseDependency(gear, participant);
+    } else if (dependency == DependencyCheck.ABANDON) {
+      return Outcome.ABANDON;
+    } else if (dependency == DependencyCheck.STANDBY) {
+      return Outcome.STANDBY;
     } else {
-      LOG.info("Gear " + gear + " is waiting");
-      return Outcome.WAIT;
+      throw new RuntimeException("Unknown: " + dependency);
+    }
+
+    LOG.info("Executed " + gear + ", outcome: " + outcome);
+
+    return outcome;
+  }
+
+  private DependencyCheck acquireDependency(Gear gear, Participant participant) throws Exception {
+    gear.getMasterLock().acquire();
+    try {
+      return gear.getDependency().acquire(participant);
+    } finally {
+      gear.getMasterLock().release();
+    }
+  }
+
+  private void releaseDependency(Gear gear, Participant participant) throws Exception {
+    gear.getMasterLock().acquire();
+    try {
+      gear.getDependency().release(participant);
+    } finally {
+      gear.getMasterLock().release();
+    }
+  }
+
+  private Outcome run(Gear gear) throws Exception {
+    try {
+      return gear.run();
+    } catch (Throwable t) {
+      return Outcome.FAILURE;
     }
   }
 }

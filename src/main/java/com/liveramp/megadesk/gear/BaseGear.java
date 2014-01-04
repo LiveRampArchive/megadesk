@@ -17,20 +17,20 @@
 package com.liveramp.megadesk.gear;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import com.liveramp.megadesk.dependency.Dependency;
+import com.liveramp.megadesk.dependency.MultiDependency;
 import com.liveramp.megadesk.lock.Lock;
 import com.liveramp.megadesk.persistence.Persistence;
 
 public abstract class BaseGear implements Gear {
 
-  private List<Dependency> dependencies;
+  private Dependency dependency;
   private final Lock masterLock;
 
   public BaseGear(Lock masterLock) {
-    this.dependencies = Collections.emptyList();
+    this.dependency = null;
     this.masterLock = masterLock;
   }
 
@@ -45,8 +45,13 @@ public abstract class BaseGear implements Gear {
   }
 
   @Override
-  public List<Dependency> dependencies() {
-    return dependencies;
+  public Dependency getDependency() {
+    return dependency;
+  }
+
+  public BaseGear depends(Dependency dependency) {
+    this.dependency = dependency;
+    return this;
   }
 
   public BaseGear depends(Dependency... dependencies) {
@@ -54,7 +59,7 @@ public abstract class BaseGear implements Gear {
   }
 
   public BaseGear depends(List<Dependency> dependencies) {
-    this.dependencies = dependencies;
+    this.dependency = new MultiDependency(dependencies);
     return this;
   }
 

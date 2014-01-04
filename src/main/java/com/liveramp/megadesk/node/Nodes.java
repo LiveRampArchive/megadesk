@@ -41,4 +41,17 @@ public final class Nodes {
     }
     return result;
   }
+
+  public static List<Register> getHierarchyRegisters(Node node) {
+    List<Register> result = new ArrayList<Register>();
+    // Write on itself
+    result.add(node.getWriteRegister());
+    // Read on hierarchy
+    Node parent = node.getParent();
+    while (parent != null) {
+      result.add(parent.getReadRegister());
+      parent = parent.getParent();
+    }
+    return result;
+  }
 }

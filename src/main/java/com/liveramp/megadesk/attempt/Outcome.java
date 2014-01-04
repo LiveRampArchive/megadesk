@@ -19,6 +19,6 @@ package com.liveramp.megadesk.attempt;
 public enum Outcome {
   SUCCESS,
   FAILURE,
-  WAIT,
-  END
+  STANDBY,
+  ABANDON
 }

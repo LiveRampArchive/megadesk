@@ -25,31 +25,29 @@ import com.liveramp.megadesk.register.Participant;
 import com.liveramp.megadesk.register.Register;
 import com.liveramp.megadesk.register.Registers;
 
-public abstract class NodeDependency implements Dependency {
+public class NodeHierarchyDependency implements Dependency {
 
-  private final List<Register> registers;
+  private final Node node;
 
-  protected NodeDependency(List<Node> reads,
-                           List<Node> writes) {
-    this.registers = new ArrayList<Register>();
-    this.registers.addAll(Nodes.getReadRegisters(reads));
-    this.registers.addAll(Nodes.getWriteRegisters(writes));
+  public NodeHierarchyDependency(Node node) {
+    this.node = node;
   }
 
   @Override
-  public boolean acquire(Participant participant) throws Exception {
-    if (Registers.register(registers, participant) && check()) {
-      return true;
+  public DependencyCheck acquire(Participant participant) throws Exception {
+    List<Register> registers = new ArrayList<Register>();
+    registers.addAll(Nodes.getHierarchyRegisters(node));
+    boolean result = Registers.register(registers, participant);
+    if (result) {
+      return DependencyCheck.ACQUIRED;
     } else {
       Registers.unregister(registers, participant);
-      return false;
+      return DependencyCheck.STANDBY;
     }
   }
 
   @Override
   public void release(Participant participant) throws Exception {
-    Registers.unregister(registers, participant);
+    Registers.unregister(Nodes.getHierarchyRegisters(node), participant);
   }
-
-  public abstract boolean check();
 }
