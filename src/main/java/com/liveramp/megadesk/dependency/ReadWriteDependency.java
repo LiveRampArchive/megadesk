@@ -24,6 +24,7 @@ import com.liveramp.megadesk.node.Nodes;
 import com.liveramp.megadesk.register.Participant;
 import com.liveramp.megadesk.register.Register;
 import com.liveramp.megadesk.register.Registers;
+import com.liveramp.megadesk.utils.FormatUtils;
 
 public abstract class ReadWriteDependency implements Dependency {
 
@@ -52,4 +53,9 @@ public abstract class ReadWriteDependency implements Dependency {
   }
 
   public abstract boolean check();
+
+  @Override
+  public String toString() {
+    return FormatUtils.formatToString(this, registers.toString());
+  }
 }

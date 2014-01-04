@@ -16,6 +16,8 @@
 
 package com.liveramp.megadesk.register;
 
+import com.liveramp.megadesk.utils.FormatUtils;
+
 public final class Participant {
 
   private final String id;
@@ -53,6 +55,6 @@ public final class Participant {
 
   @Override
   public String toString() {
-    return "[" + Participant.class.getSimpleName() + " " + getId() + "]";
+    return FormatUtils.formatToString(this, getId());
   }
 }

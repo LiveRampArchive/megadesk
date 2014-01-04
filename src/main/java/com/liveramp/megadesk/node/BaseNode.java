@@ -16,6 +16,8 @@
 
 package com.liveramp.megadesk.node;
 
+import com.liveramp.megadesk.utils.FormatUtils;
+
 public abstract class BaseNode implements Node {
 
   private final Path path;
@@ -54,7 +56,6 @@ public abstract class BaseNode implements Node {
 
   @Override
   public String toString() {
-    return "[" + BaseNode.class.getSimpleName() + " " + getPath().get() + "]";
-
+    return FormatUtils.formatToString(this, getPath().get());
   }
 }

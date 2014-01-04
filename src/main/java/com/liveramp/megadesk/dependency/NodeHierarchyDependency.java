@@ -24,6 +24,7 @@ import com.liveramp.megadesk.node.Nodes;
 import com.liveramp.megadesk.register.Participant;
 import com.liveramp.megadesk.register.Register;
 import com.liveramp.megadesk.register.Registers;
+import com.liveramp.megadesk.utils.FormatUtils;
 
 public class NodeHierarchyDependency implements Dependency {
 
@@ -49,5 +50,10 @@ public class NodeHierarchyDependency implements Dependency {
   @Override
   public void release(Participant participant) throws Exception {
     Registers.unregister(Nodes.getHierarchyRegisters(node), participant);
+  }
+
+  @Override
+  public String toString() {
+    return FormatUtils.formatToString(this, node.getPath().get());
   }
 }

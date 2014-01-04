@@ -31,6 +31,7 @@ public class GearExecutor {
     Participant participant = new Participant(gear.getNode().getPath().get());
 
     DependencyCheck dependency = acquireDependency(gear, participant);
+    LOG.info("Acquiring: " + gear.getDependency() + ", result: " + dependency);
 
     Outcome outcome;
 
@@ -46,7 +47,7 @@ public class GearExecutor {
       throw new RuntimeException("Unknown: " + dependency);
     }
 
-    LOG.info("Executed " + gear + ", outcome: " + outcome);
+    LOG.info("Executed " + gear + ", result: " + outcome);
 
     return outcome;
   }

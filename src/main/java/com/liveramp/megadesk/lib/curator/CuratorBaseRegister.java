@@ -30,6 +30,7 @@ import com.liveramp.megadesk.node.Paths;
 import com.liveramp.megadesk.register.Participant;
 import com.liveramp.megadesk.register.Register;
 import com.liveramp.megadesk.register.Registers;
+import com.liveramp.megadesk.utils.FormatUtils;
 
 public abstract class CuratorBaseRegister implements Register {
 
@@ -91,7 +92,7 @@ public abstract class CuratorBaseRegister implements Register {
   @Override
   public String toString() {
     try {
-      return "[" + CuratorBaseRegister.class.getSimpleName() + " " + path + ", " + participants() + "]";
+      return FormatUtils.formatToString(this, path + ", " + participants());
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

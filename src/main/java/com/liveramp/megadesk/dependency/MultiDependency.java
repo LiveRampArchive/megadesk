@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.liveramp.megadesk.register.Participant;
+import com.liveramp.megadesk.utils.FormatUtils;
 
 public class MultiDependency implements Dependency {
 
@@ -57,5 +58,10 @@ public class MultiDependency implements Dependency {
     for (Dependency dependency : dependencies) {
       dependency.release(participant);
     }
+  }
+
+  @Override
+  public String toString() {
+    return FormatUtils.formatToString(this, dependencies.toString());
   }
 }

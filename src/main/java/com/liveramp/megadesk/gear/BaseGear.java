@@ -23,6 +23,7 @@ import com.liveramp.megadesk.dependency.Dependency;
 import com.liveramp.megadesk.dependency.MultiDependency;
 import com.liveramp.megadesk.lock.Lock;
 import com.liveramp.megadesk.persistence.Persistence;
+import com.liveramp.megadesk.utils.FormatUtils;
 
 public abstract class BaseGear implements Gear {
 
@@ -65,6 +66,6 @@ public abstract class BaseGear implements Gear {
 
   @Override
   public String toString() {
-    return "[" + BaseGear.class.getSimpleName() + " " + getNode().getPath().get() + "]";
+    return FormatUtils.formatToString(this, getNode().getPath().get());
   }
 }

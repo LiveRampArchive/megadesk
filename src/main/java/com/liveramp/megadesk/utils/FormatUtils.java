@@ -1,5 +1,5 @@
 /**
- *  Copyright 2013 LiveRamp
+ *  Copyright 2014 LiveRamp
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,27 +14,14 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.node;
+package com.liveramp.megadesk.utils;
 
-import com.liveramp.megadesk.utils.FormatUtils;
+public final class FormatUtils {
 
-public class Path {
-
-  private final String path;
-
-  public Path(String path) {
-    if (!path.startsWith("/")) {
-      throw new IllegalArgumentException(Path.class.getSimpleName() + " must start with '/': " + path);
-    }
-    this.path = path;
+  private FormatUtils() {
   }
 
-  public String get() {
-    return path;
-  }
-
-  @Override
-  public String toString() {
-    return FormatUtils.formatToString(this, path);
+  public static String formatToString(Object o, String toString) {
+    return "[" + o.getClass().getSimpleName() + " " + toString + "]";
   }
 }
