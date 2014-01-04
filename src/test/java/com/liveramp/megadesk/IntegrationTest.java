@@ -74,7 +74,7 @@ public class IntegrationTest extends BaseTestCase {
     public Outcome run() throws Exception {
       resource1.decrementAndGet();
       resource2.incrementAndGet();
-      return Outcome.SUCCESS;
+      return Outcome.END;
     }
   }
 
