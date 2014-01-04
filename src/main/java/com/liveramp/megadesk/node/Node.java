@@ -23,8 +23,6 @@ public interface Node {
 
   Path getPath();
 
-  Lock getMasterLock();
-
   Register getReadRegister();
 
   Register getWriteRegister();

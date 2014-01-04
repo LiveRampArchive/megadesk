@@ -48,7 +48,7 @@ public class GearExecutor {
   private boolean shouldRun(Gear gear, Participant participant) throws Exception {
     // Acquire master lock
     LOG.info("Acquiring master lock");
-    gear.getNode().getMasterLock().acquire();
+    gear.getMasterLock().acquire();
     // Determine if gear should run
     boolean shouldRun = false;
     try {
@@ -71,7 +71,7 @@ public class GearExecutor {
     } finally {
       // Release master lock
       LOG.info("Releasing master lock");
-      gear.getNode().getMasterLock().release();
+      gear.getMasterLock().release();
     }
     return shouldRun;
   }
@@ -89,14 +89,14 @@ public class GearExecutor {
       // TODO: is locking necessary here since we are only unregistering?
       // Acquire master lock
       LOG.info("Acquiring master lock");
-      gear.getNode().getMasterLock().acquire();
+      gear.getMasterLock().acquire();
       try {
         LOG.info("Unregistering " + participant + " for " + gear);
         unregister(gear, participant);
       } finally {
         // Release master lock
         LOG.info("Releasing master lock");
-        gear.getNode().getMasterLock().release();
+        gear.getMasterLock().release();
       }
     }
   }

@@ -16,27 +16,17 @@
 
 package com.liveramp.megadesk.node;
 
-import com.liveramp.megadesk.lock.Lock;
-
 public abstract class BaseNode implements Node {
 
   private final Path path;
-  private final Lock masterLock;
 
-  public BaseNode(Path path,
-                  Lock masterLock) {
+  public BaseNode(Path path) {
     this.path = path;
-    this.masterLock = masterLock;
   }
 
   @Override
   public Path getPath() {
     return path;
-  }
-
-  @Override
-  public Lock getMasterLock() {
-    return masterLock;
   }
 
   @Override

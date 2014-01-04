@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.apache.curator.framework.CuratorFramework;
 
-import com.liveramp.megadesk.lock.Lock;
 import com.liveramp.megadesk.node.BaseNode;
 import com.liveramp.megadesk.node.Node;
 import com.liveramp.megadesk.node.Path;
@@ -39,14 +38,14 @@ public class CuratorNode extends BaseNode implements Node {
   private final Node parent;
 
   public CuratorNode(CuratorDriver driver, String path) throws Exception {
-    this(driver.getCuratorFramework(), new Path(path), driver.getMasterLock());
+    this(driver.getCuratorFramework(), new Path(path));
   }
 
-  public CuratorNode(CuratorFramework curator, Path path, Lock masterLock) throws Exception {
-    super(path, masterLock);
+  public CuratorNode(CuratorFramework curator, Path path) throws Exception {
+    super(path);
     this.readRegister = new CuratorReadRegister(curator, Paths.append(path.get(), READ_REGISTER_PATH));
     this.writeRegister = new CuratorWriteRegister(curator, Paths.append(path.get(), WRITE_REGISTER_PATH));
-    this.parent = Paths.sanitize(path.get()).equals("/") ? null : new CuratorNode(curator, Paths.parent(path), masterLock);
+    this.parent = Paths.sanitize(path.get()).equals("/") ? null : new CuratorNode(curator, Paths.parent(path));
   }
 
   private class CuratorReadRegister extends CuratorBaseRegister implements Register {

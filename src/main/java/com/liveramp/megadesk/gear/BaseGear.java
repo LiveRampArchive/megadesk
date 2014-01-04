@@ -21,15 +21,22 @@ import java.util.Collections;
 import java.util.List;
 
 import com.liveramp.megadesk.dependency.Dependency;
-import com.liveramp.megadesk.node.Node;
+import com.liveramp.megadesk.lock.Lock;
 import com.liveramp.megadesk.persistence.Persistence;
 
 public abstract class BaseGear implements Gear {
 
   private List<Dependency> dependencies;
+  private final Lock masterLock;
 
-  public BaseGear() {
+  public BaseGear(Lock masterLock) {
     this.dependencies = Collections.emptyList();
+    this.masterLock = masterLock;
+  }
+
+  @Override
+  public Lock getMasterLock() {
+    return masterLock;
   }
 
   @Override

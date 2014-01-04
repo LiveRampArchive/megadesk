@@ -32,7 +32,8 @@ public abstract class CuratorGear extends BaseGear implements Gear {
 
   public CuratorGear(CuratorDriver driver,
                      Path path) throws Exception {
-    this.node = new CuratorNode(driver.getCuratorFramework(), path, driver.getMasterLock());
+    super(driver.getMasterLock());
+    this.node = new CuratorNode(driver.getCuratorFramework(), path);
   }
 
   @Override
