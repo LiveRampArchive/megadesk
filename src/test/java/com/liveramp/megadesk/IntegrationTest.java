@@ -41,6 +41,8 @@ import com.liveramp.megadesk.test.BaseTestCase;
 import com.liveramp.megadesk.worker.NaiveWorker;
 import com.liveramp.megadesk.worker.Worker;
 
+import static org.junit.Assert.assertEquals;
+
 public class IntegrationTest extends BaseTestCase {
 
   private static final Logger LOG = Logger.getLogger(IntegrationTest.class);
@@ -182,6 +184,11 @@ public class IntegrationTest extends BaseTestCase {
     worker.run(gearB);
     worker.run(gearC);
     worker.join();
+
+    assertEquals(0, resource1.get());
+    assertEquals(0, resource2.get());
+    assertEquals(0, resource3.get());
+    assertEquals(1, resource4.get());
   }
 
   @Test
@@ -201,5 +208,10 @@ public class IntegrationTest extends BaseTestCase {
     worker.run(stepC);
     worker.run(stepD);
     worker.join();
+
+    assertEquals(true, stepA.isCompleted);
+    assertEquals(true, stepB.isCompleted);
+    assertEquals(true, stepC.isCompleted);
+    assertEquals(true, stepD.isCompleted);
   }
 }
