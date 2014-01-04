@@ -193,8 +193,6 @@ public class IntegrationTest extends BaseTestCase {
 
   @Test
   public void testSteps() throws Exception {
-    TestingServer testingServer = new TestingServer(12000);
-    CuratorDriver driver = new CuratorDriver(testingServer.getConnectString());
 
     StepGear stepA = new MockStepGear(driver, "/a");
     StepGear stepB = new MockStepGear(driver, "/b", stepA);
