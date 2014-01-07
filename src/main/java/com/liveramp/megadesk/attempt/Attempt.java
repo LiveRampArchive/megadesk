@@ -16,7 +16,13 @@
 
 package com.liveramp.megadesk.attempt;
 
+import java.util.Date;
+
 public interface Attempt {
 
   Outcome getOutcome();
+
+  Date getStartDate();
+
+  Date getEndDate();
 }
