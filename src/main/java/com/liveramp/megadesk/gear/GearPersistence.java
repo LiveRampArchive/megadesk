@@ -14,12 +14,19 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.persistence;
+package com.liveramp.megadesk.gear;
 
-import com.liveramp.megadesk.gear.Gear;
-import com.liveramp.megadesk.gear.GearPersistence;
+import java.util.List;
 
-public interface Persistence {
+import com.liveramp.megadesk.attempt.Attempt;
 
-  GearPersistence getGearPersistence(Gear gear);
+public interface GearPersistence {
+
+  State getState();
+
+  void setState(State state);
+
+  List<Attempt> getAttempts();
+
+  Attempt createAttempt();
 }

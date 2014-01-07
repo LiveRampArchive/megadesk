@@ -14,12 +14,7 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.persistence;
+package com.liveramp.megadesk.gear;
 
-import com.liveramp.megadesk.gear.Gear;
-import com.liveramp.megadesk.gear.GearPersistence;
-
-public interface Persistence {
-
-  GearPersistence getGearPersistence(Gear gear);
+public interface State {
 }

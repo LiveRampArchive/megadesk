@@ -30,8 +30,8 @@ import org.junit.Test;
 
 import com.liveramp.megadesk.attempt.Outcome;
 import com.liveramp.megadesk.dependency.Dependency;
-import com.liveramp.megadesk.dependency.NodeHierarchyDependency;
-import com.liveramp.megadesk.dependency.ReadWriteDependency;
+import com.liveramp.megadesk.dependency.lib.NodeHierarchyDependency;
+import com.liveramp.megadesk.dependency.lib.ReadWriteDependency;
 import com.liveramp.megadesk.gear.Gear;
 import com.liveramp.megadesk.gear.Gears;
 import com.liveramp.megadesk.lib.curator.CuratorDriver;

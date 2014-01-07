@@ -20,9 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.liveramp.megadesk.dependency.Dependency;
-import com.liveramp.megadesk.dependency.MultiDependency;
+import com.liveramp.megadesk.dependency.lib.MultiDependency;
 import com.liveramp.megadesk.lock.Lock;
-import com.liveramp.megadesk.persistence.Persistence;
 import com.liveramp.megadesk.utils.FormatUtils;
 
 public abstract class BaseGear implements Gear {
@@ -41,7 +40,7 @@ public abstract class BaseGear implements Gear {
   }
 
   @Override
-  public Persistence getPersistence() {
+  public GearPersistence getPersistence() {
     return null;
   }
 

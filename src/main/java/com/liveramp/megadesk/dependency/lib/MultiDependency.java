@@ -14,11 +14,13 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.dependency;
+package com.liveramp.megadesk.dependency.lib;
 
 import java.util.Arrays;
 import java.util.List;
 
+import com.liveramp.megadesk.dependency.Dependency;
+import com.liveramp.megadesk.dependency.DependencyCheck;
 import com.liveramp.megadesk.register.Participant;
 import com.liveramp.megadesk.utils.FormatUtils;
 

@@ -14,11 +14,13 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.dependency;
+package com.liveramp.megadesk.dependency.lib;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.liveramp.megadesk.dependency.Dependency;
+import com.liveramp.megadesk.dependency.DependencyCheck;
 import com.liveramp.megadesk.node.Node;
 import com.liveramp.megadesk.node.Nodes;
 import com.liveramp.megadesk.register.Participant;
@@ -26,20 +28,20 @@ import com.liveramp.megadesk.register.Register;
 import com.liveramp.megadesk.register.Registers;
 import com.liveramp.megadesk.utils.FormatUtils;
 
-public class NodeHierarchyDependency implements Dependency {
+public abstract class ReadWriteDependency implements Dependency {
 
-  private final Node node;
+  private final List<Register> registers;
 
-  public NodeHierarchyDependency(Node node) {
-    this.node = node;
+  protected ReadWriteDependency(List<Node> reads,
+                                List<Node> writes) {
+    this.registers = new ArrayList<Register>();
+    this.registers.addAll(Nodes.getReadRegisters(reads));
+    this.registers.addAll(Nodes.getWriteRegisters(writes));
   }
 
   @Override
   public DependencyCheck acquire(Participant participant) throws Exception {
-    List<Register> registers = new ArrayList<Register>();
-    registers.addAll(Nodes.getHierarchyRegisters(node));
-    boolean result = Registers.register(registers, participant);
-    if (result) {
+    if (Registers.register(registers, participant) && check()) {
       return DependencyCheck.ACQUIRED;
     } else {
       Registers.unregister(registers, participant);
@@ -49,11 +51,13 @@ public class NodeHierarchyDependency implements Dependency {
 
   @Override
   public void release(Participant participant) throws Exception {
-    Registers.unregister(Nodes.getHierarchyRegisters(node), participant);
+    Registers.unregister(registers, participant);
   }
+
+  public abstract boolean check();
 
   @Override
   public String toString() {
-    return FormatUtils.formatToString(this, node.getPath().get());
+    return FormatUtils.formatToString(this, registers.toString());
   }
 }
