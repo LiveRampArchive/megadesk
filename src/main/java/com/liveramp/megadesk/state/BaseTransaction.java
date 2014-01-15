@@ -28,7 +28,8 @@ public class BaseTransaction implements Transaction {
   public enum State {
     STANDBY,
     RUNNING,
-    COMMITTED
+    COMMITTED,
+    ABORTED
   }
 
   private State state = State.STANDBY;
@@ -119,6 +120,13 @@ public class BaseTransaction implements Transaction {
     // Release locks
     unlock();
     state = State.COMMITTED;
+  }
+
+  @Override
+  public void abort() {
+    ensureState(State.RUNNING);
+    unlock();
+    state = State.ABORTED;
   }
 
   private boolean tryLock() {

@@ -22,9 +22,11 @@ public interface Transaction {
 
   boolean tryBegin();
 
+  void commit();
+
+  void abort();
+
   <VALUE> Value<VALUE> read(Reference<VALUE> reference);
 
   <VALUE> void write(Reference<VALUE> reference, Value<VALUE> value);
-
-  void commit();
 }
