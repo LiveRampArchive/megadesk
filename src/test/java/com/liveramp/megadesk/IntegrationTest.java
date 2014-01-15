@@ -26,6 +26,7 @@ import org.apache.curator.test.TestingServer;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.liveramp.megadesk.attempt.Outcome;
@@ -38,6 +39,12 @@ import com.liveramp.megadesk.lib.curator.CuratorDriver;
 import com.liveramp.megadesk.lib.curator.CuratorGear;
 import com.liveramp.megadesk.lib.curator.CuratorNode;
 import com.liveramp.megadesk.node.Node;
+import com.liveramp.megadesk.state.BaseTransaction;
+import com.liveramp.megadesk.state.InMemoryReference;
+import com.liveramp.megadesk.state.InMemoryValue;
+import com.liveramp.megadesk.state.Reference;
+import com.liveramp.megadesk.state.Transaction;
+import com.liveramp.megadesk.state.Value;
 import com.liveramp.megadesk.test.BaseTestCase;
 import com.liveramp.megadesk.worker.NaiveWorker;
 import com.liveramp.megadesk.worker.Worker;
@@ -163,6 +170,26 @@ public class IntegrationTest extends BaseTestCase {
   }
 
   @Test
+  public void testState() {
+
+    Value<Integer> v0 = new InMemoryValue<Integer>(0);
+    Value<Integer> v1 = new InMemoryValue<Integer>(1);
+
+    Reference<Integer> v = new InMemoryReference<Integer>();
+
+    Transaction t = new BaseTransaction().reads(v).writes(v);
+
+    t.begin();
+    assertEquals(null, t.read(v));
+    t.write(v, v0);
+    assertEquals(v0.get(), t.read(v).get());
+    t.write(v, v1);
+    assertEquals(v1.get(), t.read(v).get());
+    t.commit();
+  }
+
+  @Ignore
+  @Test
   public void testMain() throws Exception {
 
     AtomicInteger resource1 = new AtomicInteger(1);
@@ -192,6 +219,7 @@ public class IntegrationTest extends BaseTestCase {
     assertEquals(1, resource4.get());
   }
 
+  @Ignore
   @Test
   public void testSteps() throws Exception {
 
