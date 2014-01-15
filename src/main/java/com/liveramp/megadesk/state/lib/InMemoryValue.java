@@ -14,9 +14,11 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.state;
+package com.liveramp.megadesk.state.lib;
 
 import java.util.UUID;
+
+import com.liveramp.megadesk.state.Value;
 
 public class InMemoryValue<VALUE> implements Value<VALUE> {
 

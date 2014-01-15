@@ -16,9 +16,13 @@
 
 package com.liveramp.megadesk.state;
 
-public interface Transaction {
+public interface TransactionExecution {
 
-  TransactionExecution execution();
+  void begin();
 
-  TransactionData data();
+  boolean tryBegin();
+
+  void commit();
+
+  void abort();
 }

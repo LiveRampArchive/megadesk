@@ -16,9 +16,9 @@
 
 package com.liveramp.megadesk.state;
 
-public interface Transaction {
+public interface TransactionData {
 
-  TransactionExecution execution();
+  <VALUE> Value<VALUE> read(Reference<VALUE> reference);
 
-  TransactionData data();
+  <VALUE> void write(Reference<VALUE> reference, Value<VALUE> value);
 }

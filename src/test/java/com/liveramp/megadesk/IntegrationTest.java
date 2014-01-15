@@ -40,11 +40,11 @@ import com.liveramp.megadesk.lib.curator.CuratorGear;
 import com.liveramp.megadesk.lib.curator.CuratorNode;
 import com.liveramp.megadesk.node.Node;
 import com.liveramp.megadesk.state.BaseTransaction;
-import com.liveramp.megadesk.state.InMemoryReference;
-import com.liveramp.megadesk.state.InMemoryValue;
 import com.liveramp.megadesk.state.Reference;
 import com.liveramp.megadesk.state.Transaction;
 import com.liveramp.megadesk.state.Value;
+import com.liveramp.megadesk.state.lib.InMemoryReference;
+import com.liveramp.megadesk.state.lib.InMemoryValue;
 import com.liveramp.megadesk.test.BaseTestCase;
 import com.liveramp.megadesk.worker.NaiveWorker;
 import com.liveramp.megadesk.worker.Worker;
@@ -179,13 +179,13 @@ public class IntegrationTest extends BaseTestCase {
 
     Transaction t = new BaseTransaction().reads(v).writes(v);
 
-    t.begin();
-    assertEquals(null, t.read(v));
-    t.write(v, v0);
-    assertEquals(v0.get(), t.read(v).get());
-    t.write(v, v1);
-    assertEquals(v1.get(), t.read(v).get());
-    t.commit();
+    t.execution().begin();
+    assertEquals(null, t.data().read(v));
+    t.data().write(v, v0);
+    assertEquals(v0.get(), t.data().read(v).get());
+    t.data().write(v, v1);
+    assertEquals(v1.get(), t.data().read(v).get());
+    t.execution().commit();
   }
 
   @Ignore

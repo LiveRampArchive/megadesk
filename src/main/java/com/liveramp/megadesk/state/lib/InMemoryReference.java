@@ -14,10 +14,13 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.state;
+package com.liveramp.megadesk.state.lib;
 
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import com.liveramp.megadesk.state.Reference;
+import com.liveramp.megadesk.state.Value;
 
 public class InMemoryReference<VALUE> implements Reference<VALUE> {
 

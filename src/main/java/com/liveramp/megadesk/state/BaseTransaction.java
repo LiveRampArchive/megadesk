@@ -23,7 +23,7 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
-public class BaseTransaction implements Transaction {
+public class BaseTransaction implements Transaction, TransactionExecution, TransactionData {
 
   public enum State {
     STANDBY,
@@ -48,6 +48,16 @@ public class BaseTransaction implements Transaction {
     this.reads = reads;
     this.writes = writes;
     updates = Maps.newHashMap();
+  }
+
+  @Override
+  public TransactionExecution execution() {
+    return this;
+  }
+
+  @Override
+  public TransactionData data() {
+    return this;
   }
 
   public BaseTransaction reads(Reference... references) {
