@@ -16,11 +16,30 @@
 
 package com.liveramp.megadesk.state;
 
-public interface Transaction {
+import java.util.List;
 
-  TransactionDependency dependency();
+public abstract class BaseGear implements Gear {
 
-  TransactionExecution execution();
+  private final BaseTransactionDependency dependency;
 
-  TransactionData data();
+  public BaseGear() {
+    this.dependency = new BaseTransactionDependency();
+  }
+
+  public BaseGear(BaseTransactionDependency dependency) {
+    this.dependency = dependency;
+  }
+
+  @Override
+  public BaseTransactionDependency dependency() {
+    return dependency;
+  }
+
+  public void reads(List<Reference> references) {
+    this.dependency.reads(references);
+  }
+
+  public void writes(List<Reference> references) {
+    this.dependency.writes(references);
+  }
 }

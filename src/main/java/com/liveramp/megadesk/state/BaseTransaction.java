@@ -16,14 +16,12 @@
 
 package com.liveramp.megadesk.state;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
 
-public class BaseTransaction implements Transaction, TransactionExecution, TransactionData {
+public class BaseTransaction
+    implements Transaction, TransactionExecution, TransactionData {
 
   public enum State {
     STANDBY,
@@ -33,21 +31,23 @@ public class BaseTransaction implements Transaction, TransactionExecution, Trans
   }
 
   private State state = State.STANDBY;
-  private List<Reference> reads;
-  private List<Reference> writes;
+  private TransactionDependency dependency;
   private final Map<Reference, Object> updates;
 
   public BaseTransaction() {
-    this.reads = Collections.emptyList();
-    this.writes = Collections.emptyList();
     updates = Maps.newHashMap();
+    dependency = new BaseTransactionDependency();
   }
 
-  public BaseTransaction(List<Reference> reads,
-                         List<Reference> writes) {
-    this.reads = reads;
-    this.writes = writes;
-    updates = Maps.newHashMap();
+  @Override
+  public TransactionDependency dependency() {
+    return dependency;
+  }
+
+  public BaseTransaction depends(TransactionDependency dependency) {
+    ensureState(State.STANDBY);
+    this.dependency = dependency;
+    return this;
   }
 
   @Override
@@ -57,26 +57,6 @@ public class BaseTransaction implements Transaction, TransactionExecution, Trans
 
   @Override
   public TransactionData data() {
-    return this;
-  }
-
-  public BaseTransaction reads(Reference... references) {
-    return reads(Arrays.asList(references));
-  }
-
-  public BaseTransaction reads(List<Reference> references) {
-    ensureState(State.STANDBY);
-    this.reads = references;
-    return this;
-  }
-
-  public BaseTransaction writes(Reference... references) {
-    return writes(Arrays.asList(references));
-  }
-
-  public BaseTransaction writes(List<Reference> references) {
-    ensureState(State.STANDBY);
-    this.writes = references;
     return this;
   }
 
@@ -100,7 +80,7 @@ public class BaseTransaction implements Transaction, TransactionExecution, Trans
   @Override
   public <VALUE> Value<VALUE> read(Reference<VALUE> reference) {
     ensureState(State.RUNNING);
-    if (!reads.contains(reference)) {
+    if (!dependency.reads().contains(reference)) {
       throw new IllegalArgumentException(); // TODO message
     }
     if (updates.containsKey(reference)) {
@@ -113,7 +93,7 @@ public class BaseTransaction implements Transaction, TransactionExecution, Trans
   @Override
   public <VALUE> void write(Reference<VALUE> reference, Value<VALUE> value) {
     ensureState(State.RUNNING);
-    if (!writes.contains(reference)) {
+    if (!dependency.writes().contains(reference)) {
       throw new IllegalArgumentException(); // TODO message
     }
     updates.put(reference, value);
@@ -140,10 +120,10 @@ public class BaseTransaction implements Transaction, TransactionExecution, Trans
   }
 
   private boolean tryLock() {
-    for (Reference read : reads) {
+    for (Reference read : dependency.reads()) {
       // TODO is this necessary?
       // Skip to avoid deadlocks
-      if (writes.contains(read)) {
+      if (dependency.writes().contains(read)) {
         continue;
       }
       if (!read.lock().readLock().tryLock()) {
@@ -151,7 +131,7 @@ public class BaseTransaction implements Transaction, TransactionExecution, Trans
         return false;
       }
     }
-    for (Reference write : writes) {
+    for (Reference write : dependency.writes()) {
       if (!write.lock().writeLock().tryLock()) {
         unlock();
         return false;
@@ -161,29 +141,29 @@ public class BaseTransaction implements Transaction, TransactionExecution, Trans
   }
 
   private void lock() {
-    for (Reference read : reads) {
+    for (Reference read : dependency.reads()) {
       // TODO is this necessary?
       // Skip to avoid deadlocks
-      if (writes.contains(read)) {
+      if (dependency.writes().contains(read)) {
         continue;
       }
       read.lock().readLock().lock();
     }
-    for (Reference write : writes) {
+    for (Reference write : dependency.writes()) {
       write.lock().writeLock().lock();
     }
   }
 
   private void unlock() {
-    for (Reference read : reads) {
+    for (Reference read : dependency.reads()) {
       // TODO is this necessary?
       // Skip to avoid deadlocks
-      if (writes.contains(read)) {
+      if (dependency.writes().contains(read)) {
         continue;
       }
       read.lock().readLock().unlock();
     }
-    for (Reference write : writes) {
+    for (Reference write : dependency.writes()) {
       write.lock().writeLock().unlock();
     }
   }

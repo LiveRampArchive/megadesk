@@ -33,21 +33,27 @@ import com.liveramp.megadesk.attempt.Outcome;
 import com.liveramp.megadesk.dependency.Dependency;
 import com.liveramp.megadesk.dependency.lib.NodeHierarchyDependency;
 import com.liveramp.megadesk.dependency.lib.ReadWriteDependency;
-import com.liveramp.megadesk.gear.Gear;
 import com.liveramp.megadesk.gear.Gears;
+import com.liveramp.megadesk.gear.OldGear;
 import com.liveramp.megadesk.lib.curator.CuratorDriver;
-import com.liveramp.megadesk.lib.curator.CuratorGear;
 import com.liveramp.megadesk.lib.curator.CuratorNode;
+import com.liveramp.megadesk.lib.curator.CuratorOldGear;
 import com.liveramp.megadesk.node.Node;
+import com.liveramp.megadesk.state.BaseGear;
 import com.liveramp.megadesk.state.BaseTransaction;
+import com.liveramp.megadesk.state.BaseTransactionDependency;
+import com.liveramp.megadesk.state.Gear;
+import com.liveramp.megadesk.state.NaiveWorker;
 import com.liveramp.megadesk.state.Reference;
 import com.liveramp.megadesk.state.Transaction;
+import com.liveramp.megadesk.state.TransactionData;
 import com.liveramp.megadesk.state.Value;
+import com.liveramp.megadesk.state.Worker;
 import com.liveramp.megadesk.state.lib.InMemoryReference;
 import com.liveramp.megadesk.state.lib.InMemoryValue;
 import com.liveramp.megadesk.test.BaseTestCase;
-import com.liveramp.megadesk.worker.NaiveWorker;
-import com.liveramp.megadesk.worker.Worker;
+import com.liveramp.megadesk.worker.NaiveOldWorker;
+import com.liveramp.megadesk.worker.OldWorker;
 
 import static org.junit.Assert.assertEquals;
 
@@ -69,17 +75,17 @@ public class IntegrationTest extends BaseTestCase {
     this.testingServer.close();
   }
 
-  private static class TransferGear extends CuratorGear implements Gear {
+  private static class TransferOldGear extends CuratorOldGear implements OldGear {
 
     private final AtomicInteger resource1;
     private final AtomicInteger resource2;
 
-    public TransferGear(CuratorDriver driver,
-                        String path,
-                        Node node1,
-                        AtomicInteger resource1,
-                        Node node2,
-                        AtomicInteger resource2) throws Exception {
+    public TransferOldGear(CuratorDriver driver,
+                           String path,
+                           Node node1,
+                           AtomicInteger resource1,
+                           Node node2,
+                           AtomicInteger resource2) throws Exception {
       super(driver, path);
       this.resource1 = resource1;
       this.resource2 = resource2;
@@ -106,14 +112,14 @@ public class IntegrationTest extends BaseTestCase {
     }
   }
 
-  public static abstract class StepGear extends CuratorGear implements Gear {
+  public static abstract class StepOldGear extends CuratorOldGear implements OldGear {
 
     private boolean isCompleted;
-    private List<StepGear> dependencies;
+    private List<StepOldGear> dependencies;
 
-    public StepGear(CuratorDriver driver,
-                    String path,
-                    StepGear... dependencies) throws Exception {
+    public StepOldGear(CuratorDriver driver,
+                       String path,
+                       StepOldGear... dependencies) throws Exception {
       super(driver, path);
       this.isCompleted = false;
       this.dependencies = Arrays.asList(dependencies);
@@ -128,7 +134,7 @@ public class IntegrationTest extends BaseTestCase {
 
       @Override
       public boolean check() {
-        for (StepGear dependency : dependencies) {
+        for (StepOldGear dependency : dependencies) {
           if (!dependency.isCompleted()) {
             return false;
           }
@@ -155,11 +161,11 @@ public class IntegrationTest extends BaseTestCase {
     }
   }
 
-  public static class MockStepGear extends StepGear implements Gear {
+  public static class MockStepOldGear extends StepOldGear implements OldGear {
 
-    public MockStepGear(CuratorDriver driver,
-                        String path,
-                        StepGear... dependencies) throws Exception {
+    public MockStepOldGear(CuratorDriver driver,
+                           String path,
+                           StepOldGear... dependencies) throws Exception {
       super(driver, path, dependencies);
     }
 
@@ -170,22 +176,37 @@ public class IntegrationTest extends BaseTestCase {
   }
 
   @Test
-  public void testState() {
+  public void testState() throws InterruptedException {
 
     Value<Integer> v0 = new InMemoryValue<Integer>(0);
     Value<Integer> v1 = new InMemoryValue<Integer>(1);
 
-    Reference<Integer> v = new InMemoryReference<Integer>();
+    Reference<Integer> a = new InMemoryReference<Integer>();
+    Reference<Integer> b = new InMemoryReference<Integer>();
+    Reference<Integer> c = new InMemoryReference<Integer>();
 
-    Transaction t = new BaseTransaction().reads(v).writes(v);
+    Transaction t = new BaseTransaction().depends(new BaseTransactionDependency().reads(a).writes(a));
 
     t.execution().begin();
-    assertEquals(null, t.data().read(v));
-    t.data().write(v, v0);
-    assertEquals(v0.get(), t.data().read(v).get());
-    t.data().write(v, v1);
-    assertEquals(v1.get(), t.data().read(v).get());
+    assertEquals(null, t.data().read(a));
+    t.data().write(a, v0);
+    assertEquals(v0.get(), t.data().read(a).get());
+    t.data().write(a, v1);
+    assertEquals(v1.get(), t.data().read(a).get());
     t.execution().commit();
+
+    Worker worker = new NaiveWorker();
+
+    Gear gearA = new BaseGear() {
+      @Override
+      public Outcome run(TransactionData transactionData) throws Exception {
+        return Outcome.ABANDON;
+      }
+    };
+
+    worker.run(gearA);
+    worker.stop();
+    worker.join();
   }
 
   @Ignore
@@ -202,12 +223,12 @@ public class IntegrationTest extends BaseTestCase {
     Node node3 = new CuratorNode(driver, "/3");
     Node node4 = new CuratorNode(driver, "/4");
 
-    Gear gearA = new TransferGear(driver, "/a", node1, resource1, node2, resource2);
-    Gear gearB = new TransferGear(driver, "/b", node2, resource2, node3, resource3);
-    Gear gearC = new TransferGear(driver, "/c", node3, resource3, node4, resource4);
+    OldGear gearA = new TransferOldGear(driver, "/a", node1, resource1, node2, resource2);
+    OldGear gearB = new TransferOldGear(driver, "/b", node2, resource2, node3, resource3);
+    OldGear gearC = new TransferOldGear(driver, "/c", node3, resource3, node4, resource4);
 
     // Run
-    Worker worker = new NaiveWorker();
+    OldWorker worker = new NaiveOldWorker();
     worker.run(gearA);
     worker.run(gearB);
     worker.run(gearC);
@@ -223,13 +244,13 @@ public class IntegrationTest extends BaseTestCase {
   @Test
   public void testSteps() throws Exception {
 
-    StepGear stepA = new MockStepGear(driver, "/a");
-    StepGear stepB = new MockStepGear(driver, "/b", stepA);
-    StepGear stepC = new MockStepGear(driver, "/c", stepA);
-    StepGear stepD = new MockStepGear(driver, "/d", stepB, stepC);
+    StepOldGear stepA = new MockStepOldGear(driver, "/a");
+    StepOldGear stepB = new MockStepOldGear(driver, "/b", stepA);
+    StepOldGear stepC = new MockStepOldGear(driver, "/c", stepA);
+    StepOldGear stepD = new MockStepOldGear(driver, "/d", stepB, stepC);
 
     // Run
-    Worker worker = new NaiveWorker();
+    OldWorker worker = new NaiveOldWorker();
     worker.run(stepA);
     worker.run(stepB);
     worker.run(stepC);

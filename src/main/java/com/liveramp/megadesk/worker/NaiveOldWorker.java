@@ -21,27 +21,27 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.liveramp.megadesk.attempt.Outcome;
-import com.liveramp.megadesk.gear.Gear;
+import com.liveramp.megadesk.gear.OldGear;
 
-public class NaiveWorker implements Worker {
+public class NaiveOldWorker implements OldWorker {
 
-  private final List<Gear> gears;
+  private final List<OldGear> gears;
   private final Thread executor;
 
-  public NaiveWorker() {
-    gears = new ArrayList<Gear>();
+  public NaiveOldWorker() {
+    gears = new ArrayList<OldGear>();
     executor = new Thread(new ExecutorRunnable(), this + " executor");
     executor.start();
   }
 
   @Override
-  public void run(Gear gear) {
+  public void run(OldGear gear) {
     synchronized (gears) {
       gears.add(gear);
     }
   }
 
-  private void stop(Gear gear) {
+  private void stop(OldGear gear) {
     synchronized (gears) {
       gears.remove(gear);
     }
@@ -65,9 +65,9 @@ public class NaiveWorker implements Worker {
           if (gears.isEmpty()) {
             return;
           }
-          Iterator<Gear> it = gears.iterator();
+          Iterator<OldGear> it = gears.iterator();
           while (it.hasNext()) {
-            Gear gear = it.next();
+            OldGear gear = it.next();
             try {
               Outcome outcome = gearExecutor.execute(gear);
               if (outcome == Outcome.ABANDON) {

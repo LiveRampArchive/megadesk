@@ -16,11 +16,26 @@
 
 package com.liveramp.megadesk.state;
 
-public interface Transaction {
+import com.liveramp.megadesk.attempt.Outcome;
 
-  TransactionDependency dependency();
+public class GearExecutor {
 
-  TransactionExecution execution();
-
-  TransactionData data();
+  public Outcome execute(Gear gear, Transaction transaction) {
+    if (transaction.execution().tryBegin()) {
+      try {
+        Outcome outcome = gear.run(transaction.data());
+        if (outcome == Outcome.SUCCESS) {
+          transaction.execution().commit();
+        } else {
+          transaction.execution().abort();
+        }
+        return outcome;
+      } catch (Exception e) {
+        transaction.execution().abort();
+        return Outcome.FAILURE;
+      }
+    } else {
+      return Outcome.STANDBY;
+    }
+  }
 }

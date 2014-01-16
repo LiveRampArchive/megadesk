@@ -16,22 +16,22 @@
 
 package com.liveramp.megadesk.lib.curator;
 
-import com.liveramp.megadesk.gear.BaseGear;
-import com.liveramp.megadesk.gear.Gear;
+import com.liveramp.megadesk.gear.BaseOldGear;
+import com.liveramp.megadesk.gear.OldGear;
 import com.liveramp.megadesk.node.Node;
 import com.liveramp.megadesk.node.Path;
 
-public abstract class CuratorGear extends BaseGear implements Gear {
+public abstract class CuratorOldGear extends BaseOldGear implements OldGear {
 
   private Node node;
 
-  public CuratorGear(CuratorDriver driver,
-                     String path) throws Exception {
+  public CuratorOldGear(CuratorDriver driver,
+                        String path) throws Exception {
     this(driver, new Path(path));
   }
 
-  public CuratorGear(CuratorDriver driver,
-                     Path path) throws Exception {
+  public CuratorOldGear(CuratorDriver driver,
+                        Path path) throws Exception {
     super(driver.getMasterLock());
     this.node = new CuratorNode(driver.getCuratorFramework(), path);
   }

@@ -16,10 +16,10 @@
 
 package com.liveramp.megadesk.persistence;
 
-import com.liveramp.megadesk.gear.Gear;
+import com.liveramp.megadesk.gear.OldGear;
 import com.liveramp.megadesk.gear.GearPersistence;
 
 public interface Persistence {
 
-  GearPersistence getGearPersistence(Gear gear);
+  GearPersistence getGearPersistence(OldGear gear);
 }

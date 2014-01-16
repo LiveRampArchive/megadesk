@@ -16,11 +16,11 @@
 
 package com.liveramp.megadesk.state;
 
-public interface Transaction {
+import com.liveramp.megadesk.attempt.Outcome;
+
+public interface Gear {
 
   TransactionDependency dependency();
 
-  TransactionExecution execution();
-
-  TransactionData data();
+  Outcome run(TransactionData transactionData) throws Exception;
 }

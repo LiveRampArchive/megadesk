@@ -20,14 +20,14 @@ import org.apache.log4j.Logger;
 
 import com.liveramp.megadesk.attempt.Outcome;
 import com.liveramp.megadesk.dependency.DependencyCheck;
-import com.liveramp.megadesk.gear.Gear;
+import com.liveramp.megadesk.gear.OldGear;
 import com.liveramp.megadesk.register.Participant;
 
 public class GearExecutor {
 
   private static final Logger LOG = Logger.getLogger(GearExecutor.class);
 
-  public Outcome execute(Gear gear) throws Exception {
+  public Outcome execute(OldGear gear) throws Exception {
     Participant participant = new Participant(gear.getNode().getPath().get());
 
     DependencyCheck dependency = acquireDependency(gear, participant);
@@ -52,7 +52,7 @@ public class GearExecutor {
     return outcome;
   }
 
-  private DependencyCheck acquireDependency(Gear gear, Participant participant) throws Exception {
+  private DependencyCheck acquireDependency(OldGear gear, Participant participant) throws Exception {
     gear.getMasterLock().acquire();
     try {
       return gear.getDependency().acquire(participant);
@@ -61,7 +61,7 @@ public class GearExecutor {
     }
   }
 
-  private void releaseDependency(Gear gear, Participant participant) throws Exception {
+  private void releaseDependency(OldGear gear, Participant participant) throws Exception {
     gear.getMasterLock().acquire();
     try {
       gear.getDependency().release(participant);
@@ -70,7 +70,7 @@ public class GearExecutor {
     }
   }
 
-  private Outcome run(Gear gear) throws Exception {
+  private Outcome run(OldGear gear) throws Exception {
     try {
       return gear.run();
     } catch (Throwable t) {

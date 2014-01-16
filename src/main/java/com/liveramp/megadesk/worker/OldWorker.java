@@ -1,5 +1,5 @@
 /**
- *  Copyright 2014 LiveRamp
+ *  Copyright 2013 LiveRamp
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.state;
+package com.liveramp.megadesk.worker;
 
-public interface Transaction {
+import com.liveramp.megadesk.gear.OldGear;
 
-  TransactionDependency dependency();
+public interface OldWorker {
 
-  TransactionExecution execution();
+  void run(OldGear gear);
 
-  TransactionData data();
+  void join() throws InterruptedException;
 }

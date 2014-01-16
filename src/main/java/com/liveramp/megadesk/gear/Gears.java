@@ -20,16 +20,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.liveramp.megadesk.node.Node;
-import com.liveramp.megadesk.register.Register;
 
 public final class Gears {
 
   private Gears() {
   }
 
-  public static <T extends Gear> List<Node> getNodes(List<T> gears) {
+  public static <T extends OldGear> List<Node> getNodes(List<T> gears) {
     List<Node> result = new ArrayList<Node>();
-    for (Gear gear : gears) {
+    for (OldGear gear : gears) {
       result.add(gear.getNode());
     }
     return result;

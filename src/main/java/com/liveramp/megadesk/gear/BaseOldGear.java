@@ -24,12 +24,12 @@ import com.liveramp.megadesk.dependency.lib.MultiDependency;
 import com.liveramp.megadesk.lock.Lock;
 import com.liveramp.megadesk.utils.FormatUtils;
 
-public abstract class BaseGear implements Gear {
+public abstract class BaseOldGear implements OldGear {
 
   private Dependency dependency;
   private final Lock masterLock;
 
-  public BaseGear(Lock masterLock) {
+  public BaseOldGear(Lock masterLock) {
     this.dependency = null;
     this.masterLock = masterLock;
   }
@@ -49,16 +49,16 @@ public abstract class BaseGear implements Gear {
     return dependency;
   }
 
-  public BaseGear depends(Dependency dependency) {
+  public BaseOldGear depends(Dependency dependency) {
     this.dependency = dependency;
     return this;
   }
 
-  public BaseGear depends(Dependency... dependencies) {
+  public BaseOldGear depends(Dependency... dependencies) {
     return depends(Arrays.asList(dependencies));
   }
 
-  public BaseGear depends(List<Dependency> dependencies) {
+  public BaseOldGear depends(List<Dependency> dependencies) {
     this.dependency = new MultiDependency(dependencies);
     return this;
   }

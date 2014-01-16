@@ -5,7 +5,7 @@ import com.liveramp.megadesk.dependency.Dependency;
 import com.liveramp.megadesk.lock.Lock;
 import com.liveramp.megadesk.node.Node;
 
-public interface Gear {
+public interface OldGear {
 
   Node getNode();
 
