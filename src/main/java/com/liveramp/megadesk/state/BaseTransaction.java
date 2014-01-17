@@ -20,9 +20,9 @@ import java.util.List;
 
 public class BaseTransaction implements Transaction {
 
-  private TransactionDependency dependency;
-  private TransactionData data;
-  private TransactionExecution execution;
+  private BaseTransactionDependency dependency;
+  private BaseTransactionData data;
+  private BaseTransactionExecution execution;
 
   public BaseTransaction(List<Reference> reads, List<Reference> writes) {
     dependency = new BaseTransactionDependency(reads, writes);

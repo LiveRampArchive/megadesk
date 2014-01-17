@@ -32,11 +32,11 @@ public class BaseTransactionExecution implements TransactionExecution {
   }
 
   private final TransactionDependency dependency;
-  private final TransactionData data;
+  private final BaseTransactionData data;
   private State state = State.STANDBY;
   private final Set<Lock> locked;
 
-  public BaseTransactionExecution(TransactionDependency dependency, TransactionData data) {
+  public BaseTransactionExecution(TransactionDependency dependency, BaseTransactionData data) {
     this.dependency = dependency;
     this.data = data;
     locked = Sets.newHashSet();

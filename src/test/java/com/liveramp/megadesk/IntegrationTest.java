@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.curator.test.TestingServer;
 import org.apache.log4j.Logger;
@@ -36,7 +35,6 @@ import com.liveramp.megadesk.dependency.lib.ReadWriteDependency;
 import com.liveramp.megadesk.gear.Gears;
 import com.liveramp.megadesk.gear.OldGear;
 import com.liveramp.megadesk.lib.curator.CuratorDriver;
-import com.liveramp.megadesk.lib.curator.CuratorNode;
 import com.liveramp.megadesk.lib.curator.CuratorOldGear;
 import com.liveramp.megadesk.node.Node;
 import com.liveramp.megadesk.state.BaseTransactionDependency;
@@ -72,43 +70,6 @@ public class IntegrationTest extends BaseTestCase {
   @After
   public void tearDownDriver() throws IOException {
     this.testingServer.close();
-  }
-
-  private static class TransferOldGear extends CuratorOldGear implements OldGear {
-
-    private final AtomicInteger resource1;
-    private final AtomicInteger resource2;
-
-    public TransferOldGear(CuratorDriver driver,
-                           String path,
-                           Node node1,
-                           AtomicInteger resource1,
-                           Node node2,
-                           AtomicInteger resource2) throws Exception {
-      super(driver, path);
-      this.resource1 = resource1;
-      this.resource2 = resource2;
-      depends(new NodeHierarchyDependency(this.getNode()), new TransferDependency(node1, node2));
-    }
-
-    private class TransferDependency extends ReadWriteDependency implements Dependency {
-
-      protected TransferDependency(Node node1, Node node2) {
-        super(Collections.<Node>emptyList(), Arrays.asList(node1, node2));
-      }
-
-      @Override
-      public boolean check() {
-        return resource1.get() > 0;
-      }
-    }
-
-    @Override
-    public Outcome run() throws Exception {
-      resource1.decrementAndGet();
-      resource2.incrementAndGet();
-      return Outcome.ABANDON;
-    }
   }
 
   public static abstract class StepOldGear extends CuratorOldGear implements OldGear {
@@ -187,7 +148,7 @@ public class IntegrationTest extends BaseTestCase {
 
     @Override
     public Outcome check(TransactionData transactionData) {
-      if (transactionData.read(src).get() > 0) {
+      if (transactionData.get(src) > 0) {
         return Outcome.SUCCESS;
       } else {
         return Outcome.STANDBY;
@@ -204,16 +165,7 @@ public class IntegrationTest extends BaseTestCase {
   }
 
   @Test
-  public void testState() throws InterruptedException {
-
-    Value<Integer> v0 = new InMemoryValue<Integer>(0);
-    Value<Integer> v1 = new InMemoryValue<Integer>(1);
-
-    Reference<Integer> a = new InMemoryReference<Integer>(v1);
-    Reference<Integer> b = new InMemoryReference<Integer>(v0);
-    Reference<Integer> c = new InMemoryReference<Integer>(v0);
-    Reference<Integer> d = new InMemoryReference<Integer>(v0);
-
+  public void testTransaction() {
     //    Transaction t = new BaseTransaction((List)Arrays.asList(a), (List)Arrays.asList(a));
     //
     //    t.execution().begin();
@@ -223,6 +175,18 @@ public class IntegrationTest extends BaseTestCase {
     //    t.data().write(a, v1);
     //    assertEquals(v1.get(), t.data().read(a).get());
     //    t.execution().commit();
+  }
+
+  @Test
+  public void testState() throws InterruptedException {
+
+    Value<Integer> v0 = new InMemoryValue<Integer>(0);
+    Value<Integer> v1 = new InMemoryValue<Integer>(1);
+
+    Reference<Integer> a = new InMemoryReference<Integer>(v1);
+    Reference<Integer> b = new InMemoryReference<Integer>(v0);
+    Reference<Integer> c = new InMemoryReference<Integer>(v0);
+    Reference<Integer> d = new InMemoryReference<Integer>(v0);
 
     Worker worker = new NaiveWorker();
 
@@ -240,37 +204,6 @@ public class IntegrationTest extends BaseTestCase {
     assertEquals(Integer.valueOf(0), b.read().get());
     assertEquals(Integer.valueOf(0), c.read().get());
     assertEquals(Integer.valueOf(1), d.read().get());
-  }
-
-  @Ignore
-  @Test
-  public void testMain() throws Exception {
-
-    AtomicInteger resource1 = new AtomicInteger(1);
-    AtomicInteger resource2 = new AtomicInteger();
-    AtomicInteger resource3 = new AtomicInteger();
-    AtomicInteger resource4 = new AtomicInteger();
-
-    Node node1 = new CuratorNode(driver, "/1");
-    Node node2 = new CuratorNode(driver, "/2");
-    Node node3 = new CuratorNode(driver, "/3");
-    Node node4 = new CuratorNode(driver, "/4");
-
-    OldGear gearA = new TransferOldGear(driver, "/a", node1, resource1, node2, resource2);
-    OldGear gearB = new TransferOldGear(driver, "/b", node2, resource2, node3, resource3);
-    OldGear gearC = new TransferOldGear(driver, "/c", node3, resource3, node4, resource4);
-
-    // Run
-    OldWorker worker = new NaiveOldWorker();
-    worker.run(gearA);
-    worker.run(gearB);
-    worker.run(gearC);
-    worker.join();
-
-    assertEquals(0, resource1.get());
-    assertEquals(0, resource2.get());
-    assertEquals(0, resource3.get());
-    assertEquals(1, resource4.get());
   }
 
   @Ignore

@@ -43,6 +43,16 @@ public class BaseTransactionData implements TransactionData {
   }
 
   @Override
+  public <VALUE> VALUE get(Reference<VALUE> reference) {
+    Value<VALUE> value = read(reference);
+    if (value == null) {
+      return null;
+    } else {
+      return value.get();
+    }
+  }
+
+  @Override
   public <VALUE> void write(Reference<VALUE> reference, Value<VALUE> value) {
     if (!dependency.writes().contains(reference)) {
       throw new IllegalArgumentException(reference + " is not a write dependency");
@@ -50,8 +60,6 @@ public class BaseTransactionData implements TransactionData {
     updates.put(reference, value);
   }
 
-  // TODO this should not be visible
-  @Override
   public Map<Reference, Value> updates() {
     return updates;
   }
