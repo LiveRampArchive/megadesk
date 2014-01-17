@@ -46,21 +46,35 @@ public class BaseTransactionDependency implements TransactionDependency {
     return writes;
   }
 
-  public BaseTransactionDependency reads(Reference... references) {
-    return reads(Arrays.asList(references));
+  private static class Builder {
+
+    private List<Reference> reads;
+    private List<Reference> writes;
+
+    public Builder reads(Reference... references) {
+      return reads(Arrays.asList(references));
+    }
+
+    public Builder reads(List<Reference> references) {
+      this.reads = Collections.unmodifiableList(references);
+      return this;
+    }
+
+    public Builder writes(Reference... references) {
+      return writes(Arrays.asList(references));
+    }
+
+    public Builder writes(List<Reference> references) {
+      this.writes = Collections.unmodifiableList(references);
+      return this;
+    }
+
+    public BaseTransactionDependency build() {
+      return new BaseTransactionDependency(reads, writes);
+    }
   }
 
-  public BaseTransactionDependency reads(List<Reference> references) {
-    this.reads = Collections.unmodifiableList(references);
-    return this;
-  }
-
-  public BaseTransactionDependency writes(Reference... references) {
-    return writes(Arrays.asList(references));
-  }
-
-  public BaseTransactionDependency writes(List<Reference> references) {
-    this.writes = Collections.unmodifiableList(references);
-    return this;
+  public static Builder builder() {
+    return new Builder();
   }
 }

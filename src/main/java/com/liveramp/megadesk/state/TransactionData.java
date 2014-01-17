@@ -16,9 +16,13 @@
 
 package com.liveramp.megadesk.state;
 
+import java.util.Map;
+
 public interface TransactionData {
 
   <VALUE> Value<VALUE> read(Reference<VALUE> reference);
 
   <VALUE> void write(Reference<VALUE> reference, Value<VALUE> value);
+
+  Map<Reference, Value> updates();
 }

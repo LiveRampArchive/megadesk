@@ -16,8 +16,6 @@
 
 package com.liveramp.megadesk.state;
 
-import java.util.List;
-
 public abstract class BaseGear implements Gear {
 
   private final BaseTransactionDependency dependency;
@@ -33,13 +31,5 @@ public abstract class BaseGear implements Gear {
   @Override
   public BaseTransactionDependency dependency() {
     return dependency;
-  }
-
-  public void reads(List<Reference> references) {
-    this.dependency.reads(references);
-  }
-
-  public void writes(List<Reference> references) {
-    this.dependency.writes(references);
   }
 }

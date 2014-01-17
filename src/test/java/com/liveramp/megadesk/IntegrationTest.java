@@ -41,7 +41,6 @@ import com.liveramp.megadesk.lib.curator.CuratorOldGear;
 import com.liveramp.megadesk.node.Node;
 import com.liveramp.megadesk.state.BaseGear;
 import com.liveramp.megadesk.state.BaseTransaction;
-import com.liveramp.megadesk.state.BaseTransactionDependency;
 import com.liveramp.megadesk.state.Gear;
 import com.liveramp.megadesk.state.NaiveWorker;
 import com.liveramp.megadesk.state.Reference;
@@ -185,7 +184,7 @@ public class IntegrationTest extends BaseTestCase {
     Reference<Integer> b = new InMemoryReference<Integer>();
     Reference<Integer> c = new InMemoryReference<Integer>();
 
-    Transaction t = new BaseTransaction().depends(new BaseTransactionDependency().reads(a).writes(a));
+    Transaction t = new BaseTransaction((List)Arrays.asList(a), (List)Arrays.asList(a));
 
     t.execution().begin();
     assertEquals(null, t.data().read(a));
