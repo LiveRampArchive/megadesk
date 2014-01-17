@@ -46,7 +46,7 @@ public class BaseTransactionDependency implements TransactionDependency {
     return writes;
   }
 
-  private static class Builder {
+  public static class Builder {
 
     private List<Reference> reads;
     private List<Reference> writes;

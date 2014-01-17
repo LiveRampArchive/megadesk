@@ -24,7 +24,7 @@ public class GearExecutor {
     if (transaction.execution().tryBegin()) {
       try {
         Outcome outcome = gear.run(transaction.data());
-        if (outcome == Outcome.SUCCESS) {
+        if (outcome != Outcome.FAILURE) {
           transaction.execution().commit();
         } else {
           transaction.execution().abort();

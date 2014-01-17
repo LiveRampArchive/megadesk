@@ -43,7 +43,7 @@ public class NaiveWorker implements Worker {
 
   @Override
   public void stop() {
-    stopping = true;
+      stopping = true;
   }
 
   //  private void stop(OldGear gear) {

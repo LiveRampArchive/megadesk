@@ -24,11 +24,15 @@ import com.liveramp.megadesk.state.Value;
 
 public class InMemoryReference<VALUE> implements Reference<VALUE> {
 
-  private final ReadWriteLock lock;
+  private final ReadWriteLock lock = new ReentrantReadWriteLock();
   private Value<VALUE> value;
 
   public InMemoryReference() {
-    lock = new ReentrantReadWriteLock();
+    this.value = null;
+  }
+
+  public InMemoryReference(Value<VALUE> value) {
+    this.value = value;
   }
 
   @Override

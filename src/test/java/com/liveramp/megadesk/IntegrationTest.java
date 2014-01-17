@@ -39,18 +39,18 @@ import com.liveramp.megadesk.lib.curator.CuratorDriver;
 import com.liveramp.megadesk.lib.curator.CuratorNode;
 import com.liveramp.megadesk.lib.curator.CuratorOldGear;
 import com.liveramp.megadesk.node.Node;
-import com.liveramp.megadesk.state.BaseGear;
-import com.liveramp.megadesk.state.BaseTransaction;
+import com.liveramp.megadesk.state.BaseTransactionDependency;
+import com.liveramp.megadesk.state.ConditionalGear;
 import com.liveramp.megadesk.state.Gear;
 import com.liveramp.megadesk.state.NaiveWorker;
 import com.liveramp.megadesk.state.Reference;
-import com.liveramp.megadesk.state.Transaction;
 import com.liveramp.megadesk.state.TransactionData;
 import com.liveramp.megadesk.state.Value;
 import com.liveramp.megadesk.state.Worker;
 import com.liveramp.megadesk.state.lib.InMemoryReference;
 import com.liveramp.megadesk.state.lib.InMemoryValue;
 import com.liveramp.megadesk.test.BaseTestCase;
+import com.liveramp.megadesk.utils.FormatUtils;
 import com.liveramp.megadesk.worker.NaiveOldWorker;
 import com.liveramp.megadesk.worker.OldWorker;
 
@@ -174,38 +174,72 @@ public class IntegrationTest extends BaseTestCase {
     }
   }
 
+  private static class TransferGear extends ConditionalGear implements Gear {
+
+    private final Reference<Integer> src;
+    private final Reference<Integer> dst;
+
+    private TransferGear(Reference<Integer> src, Reference<Integer> dst) {
+      super(BaseTransactionDependency.builder().reads(src).writes(src, dst).build());
+      this.src = src;
+      this.dst = dst;
+    }
+
+    @Override
+    public Outcome check(TransactionData transactionData) {
+      if (transactionData.read(src).get() > 0) {
+        return Outcome.SUCCESS;
+      } else {
+        return Outcome.STANDBY;
+      }
+    }
+
+    @Override
+    public Outcome execute(TransactionData transactionData) {
+      LOG.info("Executing " + FormatUtils.formatToString(this, ""));
+      transactionData.write(dst, transactionData.read(src));
+      transactionData.write(src, new InMemoryValue<Integer>(0));
+      return Outcome.ABANDON;
+    }
+  }
+
   @Test
   public void testState() throws InterruptedException {
 
     Value<Integer> v0 = new InMemoryValue<Integer>(0);
     Value<Integer> v1 = new InMemoryValue<Integer>(1);
 
-    Reference<Integer> a = new InMemoryReference<Integer>();
-    Reference<Integer> b = new InMemoryReference<Integer>();
-    Reference<Integer> c = new InMemoryReference<Integer>();
+    Reference<Integer> a = new InMemoryReference<Integer>(v1);
+    Reference<Integer> b = new InMemoryReference<Integer>(v0);
+    Reference<Integer> c = new InMemoryReference<Integer>(v0);
+    Reference<Integer> d = new InMemoryReference<Integer>(v0);
 
-    Transaction t = new BaseTransaction((List)Arrays.asList(a), (List)Arrays.asList(a));
-
-    t.execution().begin();
-    assertEquals(null, t.data().read(a));
-    t.data().write(a, v0);
-    assertEquals(v0.get(), t.data().read(a).get());
-    t.data().write(a, v1);
-    assertEquals(v1.get(), t.data().read(a).get());
-    t.execution().commit();
+    //    Transaction t = new BaseTransaction((List)Arrays.asList(a), (List)Arrays.asList(a));
+    //
+    //    t.execution().begin();
+    //    assertEquals(null, t.data().read(a));
+    //    t.data().write(a, v0);
+    //    assertEquals(v0.get(), t.data().read(a).get());
+    //    t.data().write(a, v1);
+    //    assertEquals(v1.get(), t.data().read(a).get());
+    //    t.execution().commit();
 
     Worker worker = new NaiveWorker();
 
-    Gear gearA = new BaseGear() {
-      @Override
-      public Outcome run(TransactionData transactionData) throws Exception {
-        return Outcome.ABANDON;
-      }
-    };
+    Gear gearA = new TransferGear(a, b);
+    Gear gearB = new TransferGear(b, c);
+    Gear gearC = new TransferGear(c, d);
 
     worker.run(gearA);
+    worker.run(gearB);
+    worker.run(gearC);
     worker.stop();
     worker.join();
+
+    assertEquals(Integer.valueOf(0), a.read().get());
+    assertEquals(Integer.valueOf(0), b.read().get());
+    assertEquals(Integer.valueOf(0), c.read().get());
+    assertEquals(Integer.valueOf(1), d.read().get());
   }
 
   @Ignore

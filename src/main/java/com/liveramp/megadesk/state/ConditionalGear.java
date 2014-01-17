@@ -16,16 +16,25 @@
 
 package com.liveramp.megadesk.state;
 
-public abstract class BaseGear implements Gear {
+import com.liveramp.megadesk.attempt.Outcome;
 
-  private final BaseTransactionDependency dependency;
+public abstract class ConditionalGear extends BaseGear implements Gear {
 
-  public BaseGear(BaseTransactionDependency dependency) {
-    this.dependency = dependency;
+  public ConditionalGear(BaseTransactionDependency dependency) {
+    super(dependency);
   }
 
+  public abstract Outcome check(TransactionData transactionData);
+
+  public abstract Outcome execute(TransactionData transactionData);
+
   @Override
-  public BaseTransactionDependency dependency() {
-    return dependency;
+  public final Outcome run(TransactionData transactionData) throws Exception {
+    Outcome check = check(transactionData);
+    if (check == Outcome.SUCCESS) {
+      return execute(transactionData);
+    } else {
+      return check;
+    }
   }
 }

@@ -50,6 +50,7 @@ public class BaseTransactionData implements TransactionData {
     updates.put(reference, value);
   }
 
+  // TODO this should not be visible
   @Override
   public Map<Reference, Value> updates() {
     return updates;
