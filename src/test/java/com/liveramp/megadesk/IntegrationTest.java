@@ -28,6 +28,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.liveramp.megadesk.gear.ConditionalGear;
+import com.liveramp.megadesk.gear.Gear;
 import com.liveramp.megadesk.old.attempt.Outcome;
 import com.liveramp.megadesk.old.dependency.Dependency;
 import com.liveramp.megadesk.old.dependency.lib.NodeHierarchyDependency;
@@ -37,21 +39,18 @@ import com.liveramp.megadesk.old.gear.OldGear;
 import com.liveramp.megadesk.old.lib.curator.CuratorDriver;
 import com.liveramp.megadesk.old.lib.curator.CuratorOldGear;
 import com.liveramp.megadesk.old.node.Node;
-import com.liveramp.megadesk.transaction.BaseTransactionDependency;
-import com.liveramp.megadesk.gear.ConditionalGear;
+import com.liveramp.megadesk.old.worker.NaiveOldWorker;
+import com.liveramp.megadesk.old.worker.OldWorker;
 import com.liveramp.megadesk.state.Driver;
-import com.liveramp.megadesk.gear.Gear;
-import com.liveramp.megadesk.worker.NaiveWorker;
 import com.liveramp.megadesk.state.Reference;
-import com.liveramp.megadesk.transaction.TransactionData;
 import com.liveramp.megadesk.state.Value;
-import com.liveramp.megadesk.worker.Worker;
 import com.liveramp.megadesk.state.lib.InMemoryDriver;
 import com.liveramp.megadesk.state.lib.InMemoryValue;
 import com.liveramp.megadesk.test.BaseTestCase;
-import com.liveramp.megadesk.utils.FormatUtils;
-import com.liveramp.megadesk.old.worker.NaiveOldWorker;
-import com.liveramp.megadesk.old.worker.OldWorker;
+import com.liveramp.megadesk.transaction.BaseTransactionDependency;
+import com.liveramp.megadesk.transaction.TransactionData;
+import com.liveramp.megadesk.worker.NaiveWorker;
+import com.liveramp.megadesk.worker.Worker;
 
 import static org.junit.Assert.assertEquals;
 
@@ -158,7 +157,6 @@ public class IntegrationTest extends BaseTestCase {
 
     @Override
     public Outcome execute(TransactionData transactionData) {
-      LOG.info("Executing " + FormatUtils.formatToString(this, ""));
       transactionData.write(dst, transactionData.read(src));
       transactionData.write(src, new InMemoryValue<Integer>(0));
       return Outcome.ABANDON;
