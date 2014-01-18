@@ -16,12 +16,9 @@
 
 package com.liveramp.megadesk.state;
 
-import java.util.Collection;
-import java.util.List;
+public interface Persistence<VALUE> {
 
-public interface TransactionDependency {
+  Value<VALUE> read();
 
-  Collection<Driver> reads();
-
-  Collection<Driver> writes();
+  void write(Value<VALUE> value);
 }

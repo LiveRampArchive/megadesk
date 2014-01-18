@@ -16,12 +16,13 @@
 
 package com.liveramp.megadesk.state;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.concurrent.locks.ReadWriteLock;
 
-public interface TransactionDependency {
+public interface Driver<VALUE> {
 
-  Collection<Driver> reads();
+  Reference<VALUE> reference();
 
-  Collection<Driver> writes();
+  ReadWriteLock lock();
+
+  Persistence<VALUE> persistence();
 }

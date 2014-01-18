@@ -14,14 +14,30 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.state;
+package com.liveramp.megadesk.state.lib;
 
-import java.util.Collection;
-import java.util.List;
+import com.liveramp.megadesk.state.Persistence;
+import com.liveramp.megadesk.state.Value;
 
-public interface TransactionDependency {
+public class InMemoryPersistence<VALUE> implements Persistence<VALUE> {
 
-  Collection<Driver> reads();
+  private Value<VALUE> value;
 
-  Collection<Driver> writes();
+  public InMemoryPersistence() {
+    this.value = null;
+  }
+
+  public InMemoryPersistence(Value<VALUE> value) {
+    this.value = value;
+  }
+
+  @Override
+  public Value<VALUE> read() {
+    return value;
+  }
+
+  @Override
+  public void write(Value<VALUE> value) {
+    this.value = value;
+  }
 }

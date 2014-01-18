@@ -31,12 +31,12 @@ public class BaseTransactionExecution implements TransactionExecution {
     ABORTED
   }
 
-  private final TransactionDependency dependency;
+  private final BaseTransactionDependency dependency;
   private final BaseTransactionData data;
   private State state = State.STANDBY;
   private final Set<Lock> locked;
 
-  public BaseTransactionExecution(TransactionDependency dependency, BaseTransactionData data) {
+  public BaseTransactionExecution(BaseTransactionDependency dependency, BaseTransactionData data) {
     this.dependency = dependency;
     this.data = data;
     locked = Sets.newHashSet();
@@ -66,7 +66,7 @@ public class BaseTransactionExecution implements TransactionExecution {
     for (Map.Entry<Reference, Value> entry : data.updates().entrySet()) {
       Value value = entry.getValue();
       Reference reference = entry.getKey();
-      reference.write(value);
+      dependency.writeDriver(reference).persistence().write(value);
     }
     // Release locks
     unlock();
@@ -81,7 +81,7 @@ public class BaseTransactionExecution implements TransactionExecution {
   }
 
   private boolean tryLock(TransactionDependency dependency) {
-    for (Reference read : dependency.reads()) {
+    for (Driver read : dependency.reads()) {
       // TODO is this necessary?
       // Skip to avoid deadlocks
       if (dependency.writes().contains(read)) {
@@ -92,7 +92,7 @@ public class BaseTransactionExecution implements TransactionExecution {
         return false;
       }
     }
-    for (Reference write : dependency.writes()) {
+    for (Driver write : dependency.writes()) {
       if (!write.lock().writeLock().tryLock()) {
         unlock();
         return false;
@@ -107,7 +107,7 @@ public class BaseTransactionExecution implements TransactionExecution {
   }
 
   private void lock(TransactionDependency dependency) {
-    for (Reference read : dependency.reads()) {
+    for (Driver read : dependency.reads()) {
       // TODO is this necessary?
       // Skip to avoid deadlocks
       if (dependency.writes().contains(read)) {
@@ -115,7 +115,7 @@ public class BaseTransactionExecution implements TransactionExecution {
       }
       lock(read.lock().readLock());
     }
-    for (Reference write : dependency.writes()) {
+    for (Driver write : dependency.writes()) {
       lock(write.lock().writeLock());
     }
   }

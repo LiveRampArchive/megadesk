@@ -16,37 +16,7 @@
 
 package com.liveramp.megadesk.state.lib;
 
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import com.liveramp.megadesk.state.Reference;
-import com.liveramp.megadesk.state.Value;
 
 public class InMemoryReference<VALUE> implements Reference<VALUE> {
-
-  private final ReadWriteLock lock = new ReentrantReadWriteLock();
-  private Value<VALUE> value;
-
-  public InMemoryReference() {
-    this.value = null;
-  }
-
-  public InMemoryReference(Value<VALUE> value) {
-    this.value = value;
-  }
-
-  @Override
-  public ReadWriteLock lock() {
-    return lock;
-  }
-
-  @Override
-  public Value<VALUE> read() {
-    return value;
-  }
-
-  @Override
-  public void write(Value<VALUE> value) {
-    this.value = value;
-  }
 }

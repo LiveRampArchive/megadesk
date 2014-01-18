@@ -39,13 +39,14 @@ import com.liveramp.megadesk.lib.curator.CuratorOldGear;
 import com.liveramp.megadesk.node.Node;
 import com.liveramp.megadesk.state.BaseTransactionDependency;
 import com.liveramp.megadesk.state.ConditionalGear;
+import com.liveramp.megadesk.state.Driver;
 import com.liveramp.megadesk.state.Gear;
 import com.liveramp.megadesk.state.NaiveWorker;
 import com.liveramp.megadesk.state.Reference;
 import com.liveramp.megadesk.state.TransactionData;
 import com.liveramp.megadesk.state.Value;
 import com.liveramp.megadesk.state.Worker;
-import com.liveramp.megadesk.state.lib.InMemoryReference;
+import com.liveramp.megadesk.state.lib.InMemoryDriver;
 import com.liveramp.megadesk.state.lib.InMemoryValue;
 import com.liveramp.megadesk.test.BaseTestCase;
 import com.liveramp.megadesk.utils.FormatUtils;
@@ -140,10 +141,10 @@ public class IntegrationTest extends BaseTestCase {
     private final Reference<Integer> src;
     private final Reference<Integer> dst;
 
-    private TransferGear(Reference<Integer> src, Reference<Integer> dst) {
+    private TransferGear(Driver<Integer> src, Driver<Integer> dst) {
       super(BaseTransactionDependency.builder().reads(src).writes(src, dst).build());
-      this.src = src;
-      this.dst = dst;
+      this.src = src.reference();
+      this.dst = dst.reference();
     }
 
     @Override
@@ -165,34 +166,21 @@ public class IntegrationTest extends BaseTestCase {
   }
 
   @Test
-  public void testTransaction() {
-    //    Transaction t = new BaseTransaction((List)Arrays.asList(a), (List)Arrays.asList(a));
-    //
-    //    t.execution().begin();
-    //    assertEquals(null, t.data().read(a));
-    //    t.data().write(a, v0);
-    //    assertEquals(v0.get(), t.data().read(a).get());
-    //    t.data().write(a, v1);
-    //    assertEquals(v1.get(), t.data().read(a).get());
-    //    t.execution().commit();
-  }
-
-  @Test
   public void testState() throws InterruptedException {
 
     Value<Integer> v0 = new InMemoryValue<Integer>(0);
     Value<Integer> v1 = new InMemoryValue<Integer>(1);
 
-    Reference<Integer> a = new InMemoryReference<Integer>(v1);
-    Reference<Integer> b = new InMemoryReference<Integer>(v0);
-    Reference<Integer> c = new InMemoryReference<Integer>(v0);
-    Reference<Integer> d = new InMemoryReference<Integer>(v0);
+    Driver<Integer> driverA = new InMemoryDriver<Integer>(v1);
+    Driver<Integer> driverB = new InMemoryDriver<Integer>(v0);
+    Driver<Integer> driverC = new InMemoryDriver<Integer>(v0);
+    Driver<Integer> driverD = new InMemoryDriver<Integer>(v0);
 
     Worker worker = new NaiveWorker();
 
-    Gear gearA = new TransferGear(a, b);
-    Gear gearB = new TransferGear(b, c);
-    Gear gearC = new TransferGear(c, d);
+    Gear gearA = new TransferGear(driverA, driverB);
+    Gear gearB = new TransferGear(driverB, driverC);
+    Gear gearC = new TransferGear(driverC, driverD);
 
     worker.run(gearA);
     worker.run(gearB);
@@ -200,10 +188,10 @@ public class IntegrationTest extends BaseTestCase {
     worker.stop();
     worker.join();
 
-    assertEquals(Integer.valueOf(0), a.read().get());
-    assertEquals(Integer.valueOf(0), b.read().get());
-    assertEquals(Integer.valueOf(0), c.read().get());
-    assertEquals(Integer.valueOf(1), d.read().get());
+    assertEquals(Integer.valueOf(0), driverA.persistence().read().get());
+    assertEquals(Integer.valueOf(0), driverB.persistence().read().get());
+    assertEquals(Integer.valueOf(0), driverC.persistence().read().get());
+    assertEquals(Integer.valueOf(1), driverD.persistence().read().get());
   }
 
   @Ignore

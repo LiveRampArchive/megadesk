@@ -17,54 +17,78 @@
 package com.liveramp.megadesk.state;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.google.common.collect.Maps;
 
 public class BaseTransactionDependency implements TransactionDependency {
 
-  private List<Reference> reads;
-  private List<Reference> writes;
+  private Map<Reference, Driver> reads;
+  private Map<Reference, Driver> writes;
 
-  public BaseTransactionDependency() {
-    this.reads = Collections.emptyList();
-    this.writes = Collections.emptyList();
-  }
-
-  public BaseTransactionDependency(List<Reference> reads,
-                                   List<Reference> writes) {
-    this.reads = Collections.unmodifiableList(reads);
-    this.writes = Collections.unmodifiableList(writes);
+  public BaseTransactionDependency(Collection<Driver> reads,
+                                   Collection<Driver> writes) {
+    this.reads = Collections.unmodifiableMap(map(reads));
+    this.writes = Collections.unmodifiableMap(map(writes));
   }
 
   @Override
-  public List<Reference> reads() {
-    return reads;
+  public Collection<Driver> reads() {
+    return reads.values();
   }
 
   @Override
-  public List<Reference> writes() {
-    return writes;
+  public Collection<Driver> writes() {
+    return writes.values();
+  }
+
+  private Map<Reference, Driver> map(Collection<Driver> drivers) {
+    Map<Reference, Driver> result = Maps.newHashMap();
+    for (Driver driver : drivers) {
+      result.put(driver.reference(), driver);
+    }
+    return result;
+  }
+
+  public Set<Reference> readReferences() {
+    return reads.keySet();
+  }
+
+  public Set<Reference> writeReferences() {
+    return writes.keySet();
+  }
+
+  public <VALUE> Driver<VALUE> readDriver(Reference<VALUE> reference) {
+    return reads.get(reference);
+  }
+
+  public <VALUE> Driver<VALUE> writeDriver(Reference<VALUE> reference) {
+    return writes.get(reference);
   }
 
   public static class Builder {
 
-    private List<Reference> reads;
-    private List<Reference> writes;
+    private List<Driver> reads;
+    private List<Driver> writes;
 
-    public Builder reads(Reference... references) {
+    public Builder reads(Driver... references) {
       return reads(Arrays.asList(references));
     }
 
-    public Builder reads(List<Reference> references) {
+    public Builder reads(List<Driver> references) {
       this.reads = Collections.unmodifiableList(references);
       return this;
     }
 
-    public Builder writes(Reference... references) {
+    public Builder writes(Driver... references) {
       return writes(Arrays.asList(references));
     }
 
-    public Builder writes(List<Reference> references) {
+    public Builder writes(List<Driver> references) {
       this.writes = Collections.unmodifiableList(references);
       return this;
     }

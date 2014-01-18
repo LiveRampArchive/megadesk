@@ -16,6 +16,7 @@
 
 package com.liveramp.megadesk.state;
 
+import java.util.Collection;
 import java.util.List;
 
 public class BaseTransaction implements Transaction {
@@ -24,7 +25,7 @@ public class BaseTransaction implements Transaction {
   private BaseTransactionData data;
   private BaseTransactionExecution execution;
 
-  public BaseTransaction(List<Reference> reads, List<Reference> writes) {
+  public BaseTransaction(Collection<Driver> reads, Collection<Driver> writes) {
     dependency = new BaseTransactionDependency(reads, writes);
     data = new BaseTransactionData(dependency);
     execution = new BaseTransactionExecution(dependency, data);

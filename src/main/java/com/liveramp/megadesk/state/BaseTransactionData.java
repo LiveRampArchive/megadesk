@@ -22,23 +22,23 @@ import com.google.common.collect.Maps;
 
 public class BaseTransactionData implements TransactionData {
 
-  private final TransactionDependency dependency;
+  private final BaseTransactionDependency dependency;
   private final Map<Reference, Value> updates;
 
-  public BaseTransactionData(TransactionDependency dependency) {
+  public BaseTransactionData(BaseTransactionDependency dependency) {
     this.dependency = dependency;
     this.updates = Maps.newHashMap();
   }
 
   @Override
   public <VALUE> Value<VALUE> read(Reference<VALUE> reference) {
-    if (!dependency.reads().contains(reference)) {
+    if (!dependency.readReferences().contains(reference)) {
       throw new IllegalArgumentException(reference + " is not a read dependency");
     }
     if (updates.containsKey(reference)) {
       return (Value<VALUE>)updates.get(reference);
     } else {
-      return reference.read();
+      return dependency.readDriver(reference).persistence().read();
     }
   }
 
@@ -54,7 +54,7 @@ public class BaseTransactionData implements TransactionData {
 
   @Override
   public <VALUE> void write(Reference<VALUE> reference, Value<VALUE> value) {
-    if (!dependency.writes().contains(reference)) {
+    if (!dependency.writeReferences().contains(reference)) {
       throw new IllegalArgumentException(reference + " is not a write dependency");
     }
     updates.put(reference, value);

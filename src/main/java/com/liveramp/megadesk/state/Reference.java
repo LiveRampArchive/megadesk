@@ -16,13 +16,5 @@
 
 package com.liveramp.megadesk.state;
 
-import java.util.concurrent.locks.ReadWriteLock;
-
 public interface Reference<VALUE> {
-
-  ReadWriteLock lock();
-
-  Value<VALUE> read();
-
-  void write(Value<VALUE> value);
 }
