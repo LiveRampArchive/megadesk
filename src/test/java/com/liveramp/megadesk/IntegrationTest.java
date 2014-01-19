@@ -30,7 +30,7 @@ import org.junit.Test;
 
 import com.liveramp.megadesk.gear.ConditionalGear;
 import com.liveramp.megadesk.gear.Gear;
-import com.liveramp.megadesk.old.attempt.Outcome;
+import com.liveramp.megadesk.gear.Outcome;
 import com.liveramp.megadesk.old.dependency.Dependency;
 import com.liveramp.megadesk.old.dependency.lib.NodeHierarchyDependency;
 import com.liveramp.megadesk.old.dependency.lib.ReadWriteDependency;

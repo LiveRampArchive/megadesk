@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.liveramp.megadesk.old.attempt.Outcome;
+import com.liveramp.megadesk.gear.Outcome;
 import com.liveramp.megadesk.old.gear.OldGear;
 
 public class NaiveOldWorker implements OldWorker {

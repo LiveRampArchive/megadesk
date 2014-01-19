@@ -18,7 +18,7 @@ package com.liveramp.megadesk.old.worker;
 
 import org.apache.log4j.Logger;
 
-import com.liveramp.megadesk.old.attempt.Outcome;
+import com.liveramp.megadesk.gear.Outcome;
 import com.liveramp.megadesk.old.dependency.DependencyCheck;
 import com.liveramp.megadesk.old.gear.OldGear;
 import com.liveramp.megadesk.old.register.Participant;

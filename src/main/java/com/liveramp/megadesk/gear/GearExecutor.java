@@ -16,7 +16,6 @@
 
 package com.liveramp.megadesk.gear;
 
-import com.liveramp.megadesk.old.attempt.Outcome;
 import com.liveramp.megadesk.transaction.Transaction;
 
 public class GearExecutor {

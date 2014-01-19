@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.old.attempt;
+package com.liveramp.megadesk.gear;
 
 public enum Outcome {
   SUCCESS,

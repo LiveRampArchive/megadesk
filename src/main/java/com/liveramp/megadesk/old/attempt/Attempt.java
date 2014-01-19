@@ -18,6 +18,8 @@ package com.liveramp.megadesk.old.attempt;
 
 import java.util.Date;
 
+import com.liveramp.megadesk.gear.Outcome;
+
 public interface Attempt {
 
   Outcome getOutcome();
