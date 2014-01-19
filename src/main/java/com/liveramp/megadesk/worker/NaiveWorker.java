@@ -20,12 +20,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.liveramp.megadesk.gear.Outcome;
+import org.apache.log4j.Logger;
+
 import com.liveramp.megadesk.gear.Gear;
 import com.liveramp.megadesk.gear.GearExecutor;
+import com.liveramp.megadesk.gear.Outcome;
 import com.liveramp.megadesk.transaction.BaseTransaction;
 
 public class NaiveWorker implements Worker {
+
+  private static final Logger LOG = Logger.getLogger(NaiveWorker.class);
 
   private final List<Gear> gears;
   private final Thread executor;
@@ -46,7 +50,7 @@ public class NaiveWorker implements Worker {
 
   @Override
   public void stop() {
-      stopping = true;
+    stopping = true;
   }
 
   //  private void stop(OldGear gear) {
@@ -82,6 +86,7 @@ public class NaiveWorker implements Worker {
                 it.remove();
               }
             } catch (Exception e) {
+              LOG.error(e); // TODO
               throw new RuntimeException(e); // TODO
             }
           }

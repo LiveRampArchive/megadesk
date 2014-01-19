@@ -14,18 +14,10 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.utils;
+package com.liveramp.megadesk.transaction;
 
-public final class FormatUtils {
+import com.liveramp.megadesk.state.Persistence;
 
-  private FormatUtils() {
-  }
+public interface Binding<VALUE> extends Persistence<VALUE> {
 
-  public static String formatToString(Object o) {
-    return "[" + o.getClass().getSimpleName() + " " + o.toString() + "]";
-  }
-
-  public static String formatToString(Object o, String toString) {
-    return "[" + o.getClass().getSimpleName() + " " + toString + "]";
-  }
 }

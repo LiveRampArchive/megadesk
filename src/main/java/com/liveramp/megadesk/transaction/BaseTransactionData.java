@@ -21,49 +21,31 @@ import java.util.Map;
 import com.google.common.collect.Maps;
 
 import com.liveramp.megadesk.state.Reference;
-import com.liveramp.megadesk.state.Value;
 
 public class BaseTransactionData implements TransactionData {
 
-  private final BaseTransactionDependency dependency;
-  private final Map<Reference, Value> updates;
+  private final Map<Reference, Binding> bindings;
 
   public BaseTransactionData(BaseTransactionDependency dependency) {
-    this.dependency = dependency;
-    this.updates = Maps.newHashMap();
-  }
-
-  @Override
-  public <VALUE> Value<VALUE> read(Reference<VALUE> reference) {
-    if (!dependency.readReferences().contains(reference)) {
-      throw new IllegalArgumentException(reference + " is not a read dependency");
+    bindings = Maps.newHashMap();
+    for (Reference reference : dependency.readReferences()) {
+      // TODO is this necessary?
+      // Skip to avoid deadlocks
+      if (dependency.writeReferences().contains(reference)) {
+        continue;
+      }
+      bindings.put(reference, new BaseBinding(dependency.readDriver(reference).persistence().read(), true));
     }
-    if (updates.containsKey(reference)) {
-      return (Value<VALUE>)updates.get(reference);
-    } else {
-      return dependency.readDriver(reference).persistence().read();
+    for (Reference reference : dependency.writeReferences()) {
+      bindings.put(reference, new BaseBinding(dependency.writeDriver(reference).persistence().read(), false));
     }
   }
 
   @Override
-  public <VALUE> VALUE get(Reference<VALUE> reference) {
-    Value<VALUE> value = read(reference);
-    if (value == null) {
-      return null;
-    } else {
-      return value.get();
+  public <VALUE> Binding<VALUE> get(Reference<VALUE> reference) {
+    if (!bindings.containsKey(reference)) {
+      throw new IllegalStateException(); // TODO message
     }
-  }
-
-  @Override
-  public <VALUE> void write(Reference<VALUE> reference, Value<VALUE> value) {
-    if (!dependency.writeReferences().contains(reference)) {
-      throw new IllegalArgumentException(reference + " is not a write dependency");
-    }
-    updates.put(reference, value);
-  }
-
-  public Map<Reference, Value> updates() {
-    return updates;
+    return bindings.get(reference);
   }
 }

@@ -16,7 +16,6 @@
 
 package com.liveramp.megadesk.transaction;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
@@ -67,9 +66,8 @@ public class BaseTransactionExecution implements TransactionExecution {
   public void commit() {
     ensureState(State.RUNNING);
     // Write updates
-    for (Map.Entry<Reference, Value> entry : data.updates().entrySet()) {
-      Value value = entry.getValue();
-      Reference reference = entry.getKey();
+    for (Reference reference : dependency.writeReferences()) {
+      Value value = data.get(reference).read();
       dependency.writeDriver(reference).persistence().write(value);
     }
     // Release locks

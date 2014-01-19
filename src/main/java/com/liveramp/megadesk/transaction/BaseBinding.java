@@ -14,35 +14,37 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.state.lib;
+package com.liveramp.megadesk.transaction;
 
 import com.liveramp.megadesk.state.Persistence;
 import com.liveramp.megadesk.state.Value;
+import com.liveramp.megadesk.state.lib.InMemoryPersistence;
 
-public class InMemoryPersistence<VALUE> implements Persistence<VALUE> {
+public class BaseBinding<VALUE> implements Binding<VALUE> {
 
-  private Value<VALUE> value;
+  private final Persistence<VALUE> persistence;
+  private final boolean readOnly;
 
-  public InMemoryPersistence() {
-    this.value = null;
-  }
-
-  public InMemoryPersistence(Value<VALUE> value) {
-    this.value = value;
+  public BaseBinding(Value<VALUE> value, boolean readOnly) {
+    this.readOnly = readOnly;
+    persistence = new InMemoryPersistence<VALUE>(value);
   }
 
   @Override
   public Value<VALUE> read() {
-    return value;
+    return persistence.read();
   }
 
   @Override
   public VALUE get() {
-    return read().get();
+    return persistence.get();
   }
 
   @Override
   public void write(Value<VALUE> value) {
-    this.value = value;
+    if (readOnly) {
+      throw new IllegalStateException(); // TODO message
+    }
+    persistence.write(value);
   }
 }
