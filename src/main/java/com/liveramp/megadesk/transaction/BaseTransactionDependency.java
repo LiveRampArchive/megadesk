@@ -21,6 +21,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import com.liveramp.megadesk.state.Driver;
 
 public class BaseTransactionDependency implements TransactionDependency {
@@ -32,9 +34,9 @@ public class BaseTransactionDependency implements TransactionDependency {
   public BaseTransactionDependency(Collection<Driver> snapshots,
                                    Collection<Driver> reads,
                                    Collection<Driver> writes) {
-    this.snapshots = Collections.unmodifiableCollection(snapshots);
-    this.reads = Collections.unmodifiableCollection(reads);
-    this.writes = Collections.unmodifiableCollection(writes);
+    this.snapshots = Collections.unmodifiableCollection(Lists.newArrayList(snapshots));
+    this.reads = Collections.unmodifiableCollection(Lists.newArrayList(reads));
+    this.writes = Collections.unmodifiableCollection(Lists.newArrayList(writes));
     checkIntegrity();
   }
 
