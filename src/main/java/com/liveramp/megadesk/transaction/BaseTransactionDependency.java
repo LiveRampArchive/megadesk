@@ -20,57 +20,28 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import com.google.common.collect.Maps;
 
 import com.liveramp.megadesk.state.Driver;
-import com.liveramp.megadesk.state.Reference;
 
 public class BaseTransactionDependency implements TransactionDependency {
 
-  private Map<Reference, Driver> reads;
-  private Map<Reference, Driver> writes;
+  private Collection<Driver> reads;
+  private Collection<Driver> writes;
 
   public BaseTransactionDependency(Collection<Driver> reads,
                                    Collection<Driver> writes) {
-    this.reads = Collections.unmodifiableMap(map(reads));
-    this.writes = Collections.unmodifiableMap(map(writes));
+    this.reads = Collections.unmodifiableCollection(reads);
+    this.writes = Collections.unmodifiableCollection(writes);
   }
 
   @Override
   public Collection<Driver> reads() {
-    return reads.values();
+    return reads;
   }
 
   @Override
   public Collection<Driver> writes() {
-    return writes.values();
-  }
-
-  private Map<Reference, Driver> map(Collection<Driver> drivers) {
-    Map<Reference, Driver> result = Maps.newHashMap();
-    for (Driver driver : drivers) {
-      result.put(driver.reference(), driver);
-    }
-    return result;
-  }
-
-  public Set<Reference> readReferences() {
-    return reads.keySet();
-  }
-
-  public Set<Reference> writeReferences() {
-    return writes.keySet();
-  }
-
-  public <VALUE> Driver<VALUE> readDriver(Reference<VALUE> reference) {
-    return reads.get(reference);
-  }
-
-  public <VALUE> Driver<VALUE> writeDriver(Reference<VALUE> reference) {
-    return writes.get(reference);
+    return writes;
   }
 
   public static class Builder {
