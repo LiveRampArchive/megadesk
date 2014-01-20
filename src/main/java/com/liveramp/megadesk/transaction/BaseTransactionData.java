@@ -20,24 +20,25 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
+import com.liveramp.megadesk.state.Driver;
 import com.liveramp.megadesk.state.Reference;
 
 public class BaseTransactionData implements TransactionData {
 
   private final Map<Reference, Binding> bindings;
 
-  public BaseTransactionData(BaseTransactionDependency dependency) {
+  public BaseTransactionData(TransactionDependency dependency) {
     bindings = Maps.newHashMap();
-    for (Reference reference : dependency.readReferences()) {
+    for (Driver driver : dependency.reads()) {
       // TODO is this necessary?
       // Skip to avoid deadlocks
-      if (dependency.writeReferences().contains(reference)) {
+      if (dependency.writes().contains(driver)) {
         continue;
       }
-      bindings.put(reference, new BaseBinding(dependency.readDriver(reference).persistence().read(), true));
+      bindings.put(driver.reference(), new BaseBinding(driver.persistence().read(), true));
     }
-    for (Reference reference : dependency.writeReferences()) {
-      bindings.put(reference, new BaseBinding(dependency.writeDriver(reference).persistence().read(), false));
+    for (Driver driver : dependency.writes()) {
+      bindings.put(driver.reference(), new BaseBinding(driver.persistence().read(), false));
     }
   }
 

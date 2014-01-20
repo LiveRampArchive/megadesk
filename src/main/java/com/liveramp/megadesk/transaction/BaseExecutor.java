@@ -20,13 +20,14 @@ public class BaseExecutor implements Executor {
 
   @Override
   public <V> ExecutionResult<V> execute(Transaction transaction, Function<V> function) throws Exception {
-    if (transaction.execution().tryBegin(function.dependency())) {
+    TransactionData transactionData = transaction.tryBegin(function.dependency());
+    if (transactionData != null) {
       try {
-        V result = function.run(transaction.data());
-        transaction.execution().commit(transaction.data());
+        V result = function.run(transactionData);
+        transaction.commit(transactionData);
         return new ExecutionResult<V>(true, result);
       } catch (Exception e) {
-        transaction.execution().abort();
+        transaction.abort();
         throw e;
       }
     } else {

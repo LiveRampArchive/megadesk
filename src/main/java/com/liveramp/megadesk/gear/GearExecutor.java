@@ -20,16 +20,14 @@ import com.liveramp.megadesk.transaction.BaseExecutor;
 import com.liveramp.megadesk.transaction.BaseTransaction;
 import com.liveramp.megadesk.transaction.ExecutionResult;
 import com.liveramp.megadesk.transaction.Executor;
-import com.liveramp.megadesk.transaction.Transaction;
 
 public class GearExecutor {
 
   private final Executor executor = new BaseExecutor();
 
   public Outcome execute(Gear gear) {
-    Transaction transaction = new BaseTransaction(gear.dependency().reads(), gear.dependency().writes());
     try {
-      ExecutionResult<Outcome> result = executor.execute(transaction, gear);
+      ExecutionResult<Outcome> result = executor.execute(new BaseTransaction(), gear);
       if (result.executed()) {
         return result.result();
       } else {

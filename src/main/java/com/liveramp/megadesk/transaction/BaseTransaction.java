@@ -16,28 +16,122 @@
 
 package com.liveramp.megadesk.transaction;
 
-import java.util.Collection;
+import java.util.Set;
+import java.util.concurrent.locks.Lock;
+
+import com.google.common.collect.Sets;
 
 import com.liveramp.megadesk.state.Driver;
+import com.liveramp.megadesk.state.Value;
 
 public class BaseTransaction implements Transaction {
 
-  private BaseTransactionData data;
-  private BaseTransactionExecution execution;
+  public enum State {
+    STANDBY,
+    RUNNING,
+    COMMITTED,
+    ABORTED
+  }
 
-  public BaseTransaction(Collection<Driver> reads, Collection<Driver> writes) {
-    BaseTransactionDependency dependency = new BaseTransactionDependency(reads, writes);
-    data = new BaseTransactionData(dependency);
-    execution = new BaseTransactionExecution();
+  private TransactionDependency dependency;
+  private State state = State.STANDBY;
+  private final Set<Lock> locked;
+
+  public BaseTransaction() {
+    locked = Sets.newHashSet();
   }
 
   @Override
-  public TransactionData data() {
-    return data;
+  public TransactionData begin(TransactionDependency dependency) {
+    ensureState(State.STANDBY);
+    this.dependency = dependency;
+    lock(dependency);
+    state = State.RUNNING;
+    return new BaseTransactionData(dependency);
   }
 
   @Override
-  public TransactionExecution execution() {
-    return execution;
+  public TransactionData tryBegin(TransactionDependency dependency) {
+    ensureState(State.STANDBY);
+    this.dependency = dependency;
+    boolean result = tryLock(dependency);
+    if (result) {
+      state = State.RUNNING;
+      return new BaseTransactionData(dependency);
+    } else {
+      return null;
+    }
+  }
+
+  @Override
+  public void commit(TransactionData data) {
+    ensureState(State.RUNNING);
+    // Write updates
+    for (Driver driver : dependency.writes()) {
+      Value value = data.get(driver.reference()).read();
+      driver.persistence().write(value);
+    }
+    // Release locks
+    unlock();
+    state = State.COMMITTED;
+  }
+
+  @Override
+  public void abort() {
+    ensureState(State.RUNNING);
+    unlock();
+    state = State.ABORTED;
+  }
+
+  private boolean tryLock(TransactionDependency dependency) {
+    for (Driver read : dependency.reads()) {
+      // TODO is this necessary?
+      // Skip to avoid deadlocks
+      if (dependency.writes().contains(read)) {
+        continue;
+      }
+      if (!read.lock().readLock().tryLock()) {
+        unlock();
+        return false;
+      }
+    }
+    for (Driver write : dependency.writes()) {
+      if (!write.lock().writeLock().tryLock()) {
+        unlock();
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private void lock(Lock lock) {
+    lock.lock();
+    locked.add(lock);
+  }
+
+  private void lock(TransactionDependency dependency) {
+    for (Driver read : dependency.reads()) {
+      // TODO is this necessary?
+      // Skip to avoid deadlocks
+      if (dependency.writes().contains(read)) {
+        continue;
+      }
+      lock(read.lock().readLock());
+    }
+    for (Driver write : dependency.writes()) {
+      lock(write.lock().writeLock());
+    }
+  }
+
+  private void unlock() {
+    for (Lock lock : locked) {
+      lock.unlock();
+    }
+  }
+
+  private void ensureState(State state) {
+    if (this.state != state) {
+      throw new IllegalArgumentException("Transaction state should be " + state + " but is " + this.state);
+    }
   }
 }
