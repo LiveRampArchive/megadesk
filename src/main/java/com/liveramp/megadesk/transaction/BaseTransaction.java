@@ -34,6 +34,7 @@ public class BaseTransaction implements Transaction {
   }
 
   private TransactionDependency dependency;
+  private TransactionData data;
   private State state = State.STANDBY;
   private final Set<Lock> locked;
 
@@ -47,7 +48,8 @@ public class BaseTransaction implements Transaction {
     lock(dependency);
     this.state = State.RUNNING;
     this.dependency = dependency;
-    return new BaseTransactionData(dependency);
+    this.data = new BaseTransactionData(dependency);
+    return data;
   }
 
   @Override
@@ -57,14 +59,15 @@ public class BaseTransaction implements Transaction {
     if (result) {
       this.state = State.RUNNING;
       this.dependency = dependency;
-      return new BaseTransactionData(dependency);
+      this.data = new BaseTransactionData(dependency);
+      return data;
     } else {
       return null;
     }
   }
 
   @Override
-  public void commit(TransactionData data) {
+  public void commit() {
     ensureState(State.RUNNING);
     // Write updates
     for (Driver driver : dependency.writes()) {

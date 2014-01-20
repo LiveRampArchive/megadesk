@@ -22,7 +22,7 @@ public interface Transaction {
 
   TransactionData tryBegin(TransactionDependency dependency);
 
-  void commit(TransactionData data);
+  void commit();
 
   void abort();
 }
