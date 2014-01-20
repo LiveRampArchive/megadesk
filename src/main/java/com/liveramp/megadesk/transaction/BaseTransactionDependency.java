@@ -79,7 +79,7 @@ public class BaseTransactionDependency implements TransactionDependency {
     }
 
     public Builder snapshots(List<Driver> references) {
-      this.snapshots = references;
+      this.snapshots = Lists.newArrayList(references);
       return this;
     }
 
@@ -88,7 +88,7 @@ public class BaseTransactionDependency implements TransactionDependency {
     }
 
     public Builder reads(List<Driver> references) {
-      this.reads = references;
+      this.reads = Lists.newArrayList(references);
       return this;
     }
 
@@ -97,7 +97,7 @@ public class BaseTransactionDependency implements TransactionDependency {
     }
 
     public Builder writes(List<Driver> references) {
-      this.writes = references;
+      this.writes = Lists.newArrayList(references);
       return this;
     }
 
