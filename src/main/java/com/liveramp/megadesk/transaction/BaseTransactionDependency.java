@@ -34,10 +34,17 @@ public class BaseTransactionDependency implements TransactionDependency {
   public BaseTransactionDependency(Collection<Driver> snapshots,
                                    Collection<Driver> reads,
                                    Collection<Driver> writes) {
-    this.snapshots = Collections.unmodifiableCollection(Lists.newArrayList(snapshots));
-    this.reads = Collections.unmodifiableCollection(Lists.newArrayList(reads));
-    this.writes = Collections.unmodifiableCollection(Lists.newArrayList(writes));
+    this.snapshots = prepareList(snapshots);
+    this.reads = prepareList(reads);
+    this.writes = prepareList(writes);
     checkIntegrity();
+  }
+
+  private List<Driver> prepareList(Collection<Driver> drivers) {
+    // Deep copy, sort, and make unmodifiable
+    List<Driver> result = Lists.newArrayList(drivers);
+    Collections.sort(result);
+    return Collections.unmodifiableList(result);
   }
 
   private void checkIntegrity() {
@@ -74,30 +81,30 @@ public class BaseTransactionDependency implements TransactionDependency {
     private List<Driver> reads = Collections.emptyList();
     private List<Driver> writes = Collections.emptyList();
 
-    public Builder snapshots(Driver... references) {
-      return snapshots(Arrays.asList(references));
+    public Builder snapshots(Driver... drivers) {
+      return snapshots(Arrays.asList(drivers));
     }
 
-    public Builder snapshots(List<Driver> references) {
-      this.snapshots = Lists.newArrayList(references);
+    public Builder snapshots(List<Driver> drivers) {
+      this.snapshots = Lists.newArrayList(drivers);
       return this;
     }
 
-    public Builder reads(Driver... references) {
-      return reads(Arrays.asList(references));
+    public Builder reads(Driver... drivers) {
+      return reads(Arrays.asList(drivers));
     }
 
-    public Builder reads(List<Driver> references) {
-      this.reads = Lists.newArrayList(references);
+    public Builder reads(List<Driver> drivers) {
+      this.reads = Lists.newArrayList(drivers);
       return this;
     }
 
-    public Builder writes(Driver... references) {
-      return writes(Arrays.asList(references));
+    public Builder writes(Driver... drivers) {
+      return writes(Arrays.asList(drivers));
     }
 
-    public Builder writes(List<Driver> references) {
-      this.writes = Lists.newArrayList(references);
+    public Builder writes(List<Driver> drivers) {
+      this.writes = Lists.newArrayList(drivers);
       return this;
     }
 

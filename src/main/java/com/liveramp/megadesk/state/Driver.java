@@ -18,7 +18,7 @@ package com.liveramp.megadesk.state;
 
 import java.util.concurrent.locks.ReadWriteLock;
 
-public interface Driver<VALUE> {
+public interface Driver<VALUE> extends Comparable<Driver<VALUE>> {
 
   Reference<VALUE> reference();
 
