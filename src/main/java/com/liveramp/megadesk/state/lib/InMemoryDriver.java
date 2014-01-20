@@ -27,7 +27,8 @@ import com.liveramp.megadesk.state.Value;
 public class InMemoryDriver<VALUE> implements Driver<VALUE> {
 
   private final Reference<VALUE> reference = new InMemoryReference<VALUE>();
-  private final ReadWriteLock lock = new ReentrantReadWriteLock();
+  private final ReadWriteLock executionLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock persistenceLock = new ReentrantReadWriteLock();
   private final Persistence<VALUE> persistence;
 
   public InMemoryDriver() {
@@ -44,8 +45,13 @@ public class InMemoryDriver<VALUE> implements Driver<VALUE> {
   }
 
   @Override
-  public ReadWriteLock lock() {
-    return lock;
+  public ReadWriteLock executionLock() {
+    return executionLock;
+  }
+
+  @Override
+  public ReadWriteLock persistenceLock() {
+    return persistenceLock;
   }
 
   @Override

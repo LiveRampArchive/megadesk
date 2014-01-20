@@ -22,7 +22,9 @@ public interface Driver<VALUE> {
 
   Reference<VALUE> reference();
 
-  ReadWriteLock lock();
+  ReadWriteLock executionLock();
+
+  ReadWriteLock persistenceLock();
 
   Persistence<VALUE> persistence();
 }

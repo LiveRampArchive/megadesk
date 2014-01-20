@@ -17,7 +17,6 @@
 package com.liveramp.megadesk.transaction;
 
 import java.util.Collection;
-import java.util.List;
 
 import com.liveramp.megadesk.state.Driver;
 

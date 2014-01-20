@@ -40,10 +40,12 @@ public class BaseTransaction implements Transaction {
   private TransactionDependency dependency;
   private TransactionData data;
   private State state = State.STANDBY;
-  private final Set<Lock> locked;
+  private final Set<Lock> executionLocksAcquired;
+  private final Set<Lock> persistenceLocksAcquired;
 
   public BaseTransaction() {
-    locked = Sets.newHashSet();
+    executionLocksAcquired = Sets.newHashSet();
+    persistenceLocksAcquired = Sets.newHashSet();
   }
 
   @Override
@@ -65,43 +67,58 @@ public class BaseTransaction implements Transaction {
   }
 
   private TransactionData prepare(TransactionDependency dependency) {
+    // Acquire persistence read locks for snapshot
+    lockAndRemember(persistenceReadLocks(dependency), persistenceLocksAcquired);
+    try {
+      this.data = new BaseTransactionData(dependency);
+    } finally {
+      // Always release persistence read locks
+      unlock(persistenceLocksAcquired);
+    }
+    // Prepare rest of transaction
     this.state = State.RUNNING;
     this.dependency = dependency;
-    this.data = new BaseTransactionData(dependency);
     return this.data;
   }
 
   @Override
   public void commit() {
     ensureState(State.RUNNING);
-    // Write updates
-    for (Driver driver : dependency.writes()) {
-      Value value = data.binding(driver.reference()).read();
-      driver.persistence().write(value);
+    // Acquire persistence write locks
+    lockAndRemember(persistenceWriteLocks(dependency), persistenceLocksAcquired);
+    try {
+      // Write updates
+      for (Driver driver : dependency.writes()) {
+        Value value = data.binding(driver.reference()).read();
+        driver.persistence().write(value);
+      }
+    } finally {
+      // Always release persistence write locks
+      unlock(persistenceLocksAcquired);
     }
-    // Release locks
-    unlock(locked);
+    // Release execution locks
+    unlock(executionLocksAcquired);
     state = State.COMMITTED;
   }
 
   @Override
   public void abort() {
     ensureState(State.RUNNING);
-    unlock(locked);
+    unlock(executionLocksAcquired);
     state = State.ABORTED;
   }
 
   private boolean tryLock(TransactionDependency dependency) {
-    return tryLockAndRemember(readLocks(dependency), locked)
-               && tryLockAndRemember(writeLocks(dependency), locked);
+    return tryLockAndRemember(executionReadLocks(dependency), executionLocksAcquired)
+               && tryLockAndRemember(executionWriteLocks(dependency), executionLocksAcquired);
   }
 
   private void lock(TransactionDependency dependency) {
-    lockAndRemember(readLocks(dependency), locked);
-    lockAndRemember(writeLocks(dependency), locked);
+    lockAndRemember(executionReadLocks(dependency), executionLocksAcquired);
+    lockAndRemember(executionWriteLocks(dependency), executionLocksAcquired);
   }
 
-  private static List<Lock> readLocks(TransactionDependency dependency) {
+  private static List<Lock> executionReadLocks(TransactionDependency dependency) {
     List<Lock> result = Lists.newArrayList();
     for (Driver driver : dependency.reads()) {
       // TODO is this necessary?
@@ -109,50 +126,75 @@ public class BaseTransaction implements Transaction {
       if (dependency.writes().contains(driver)) {
         continue;
       }
-      result.add(driver.lock().readLock());
+      result.add(driver.executionLock().readLock());
     }
     return result;
   }
 
-  private static List<Lock> writeLocks(TransactionDependency dependency) {
+  private static List<Lock> executionWriteLocks(TransactionDependency dependency) {
     List<Lock> result = Lists.newArrayList();
     for (Driver driver : dependency.writes()) {
-      result.add(driver.lock().writeLock());
+      result.add(driver.executionLock().writeLock());
     }
     return result;
   }
 
-  private static boolean tryLockAndRemember(Collection<Lock> locks, Set<Lock> locked) {
+  private static List<Lock> persistenceReadLocks(TransactionDependency dependency) {
+    List<Lock> result = Lists.newArrayList();
+    for (Driver driver : dependency.reads()) {
+      // TODO is this necessary?
+      // Skip to avoid deadlocks
+      if (dependency.writes().contains(driver)) {
+        continue;
+      }
+      result.add(driver.persistenceLock().readLock());
+    }
+    // Need to read writes as well
+    for (Driver driver : dependency.writes()) {
+      result.add(driver.persistenceLock().readLock());
+    }
+    return result;
+  }
+
+  private static List<Lock> persistenceWriteLocks(TransactionDependency dependency) {
+    List<Lock> result = Lists.newArrayList();
+    for (Driver driver : dependency.writes()) {
+      result.add(driver.persistenceLock().writeLock());
+    }
+    return result;
+  }
+
+  private static boolean tryLockAndRemember(Collection<Lock> locks, Set<Lock> acquiredLocks) {
     for (Lock lock : locks) {
-      if (!tryLockAndRemember(lock, locked)) {
-        unlock(locked);
+      if (!tryLockAndRemember(lock, acquiredLocks)) {
+        unlock(acquiredLocks);
         return false;
       }
     }
     return true;
   }
 
-  private static void lockAndRemember(Collection<Lock> locks, Set<Lock> locked) {
+  private static void lockAndRemember(Collection<Lock> locks, Set<Lock> acquiredLocks) {
     for (Lock lock : locks) {
-      lockAndRemember(lock, locked);
+      lockAndRemember(lock, acquiredLocks);
     }
   }
 
-  private static boolean tryLockAndRemember(Lock lock, Set<Lock> locked) {
+  private static boolean tryLockAndRemember(Lock lock, Set<Lock> acquiredLocks) {
     boolean result = lock.tryLock();
     if (result) {
-      locked.add(lock);
+      acquiredLocks.add(lock);
     }
     return result;
   }
 
-  private static void lockAndRemember(Lock lock, Set<Lock> locked) {
+  private static void lockAndRemember(Lock lock, Set<Lock> acquiredLocks) {
     lock.lock();
-    locked.add(lock);
+    acquiredLocks.add(lock);
   }
 
-  private static void unlock(Set<Lock> locked) {
-    Iterator<Lock> lockIterator = locked.iterator();
+  private static void unlock(Set<Lock> acquiredLocks) {
+    Iterator<Lock> lockIterator = acquiredLocks.iterator();
     while (lockIterator.hasNext()) {
       lockIterator.next().unlock();
       lockIterator.remove();
