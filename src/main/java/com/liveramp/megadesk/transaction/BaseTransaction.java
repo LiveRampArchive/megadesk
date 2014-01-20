@@ -44,19 +44,19 @@ public class BaseTransaction implements Transaction {
   @Override
   public TransactionData begin(TransactionDependency dependency) {
     ensureState(State.STANDBY);
-    this.dependency = dependency;
     lock(dependency);
-    state = State.RUNNING;
+    this.state = State.RUNNING;
+    this.dependency = dependency;
     return new BaseTransactionData(dependency);
   }
 
   @Override
   public TransactionData tryBegin(TransactionDependency dependency) {
     ensureState(State.STANDBY);
-    this.dependency = dependency;
     boolean result = tryLock(dependency);
     if (result) {
-      state = State.RUNNING;
+      this.state = State.RUNNING;
+      this.dependency = dependency;
       return new BaseTransactionData(dependency);
     } else {
       return null;
