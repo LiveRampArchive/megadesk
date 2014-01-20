@@ -17,7 +17,10 @@
 package com.liveramp.megadesk;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
+import com.google.common.collect.Lists;
 import org.apache.curator.test.TestingServer;
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -46,12 +49,10 @@ public class IntegrationTest extends BaseTestCase {
   private static final Logger LOG = Logger.getLogger(IntegrationTest.class);
 
   private TestingServer testingServer;
-  //  private CuratorDriver driver;
 
   @Before
   public void setUpDriver() throws Exception {
     this.testingServer = new TestingServer(12000);
-    //    this.driver = new CuratorDriver(testingServer.getConnectString());
   }
 
   @After
@@ -59,68 +60,41 @@ public class IntegrationTest extends BaseTestCase {
     this.testingServer.close();
   }
 
-  //  public static abstract class StepOldGear extends CuratorOldGear implements OldGear {
-  //
-  //    private boolean isCompleted;
-  //    private List<StepOldGear> dependencies;
-  //
-  //    public StepOldGear(CuratorDriver driver,
-  //                       String path,
-  //                       StepOldGear... dependencies) throws Exception {
-  //      super(driver, path);
-  //      this.isCompleted = false;
-  //      this.dependencies = Arrays.asList(dependencies);
-  //      depends(new NodeHierarchyDependency(this.getNode()), new StepGearDependency());
-  //    }
-  //
-  //    private class StepGearDependency extends ReadWriteDependency implements Dependency {
-  //
-  //      protected StepGearDependency() {
-  //        super(Gears.getNodes(dependencies), Collections.<Node>emptyList());
-  //      }
-  //
-  //      @Override
-  //      public boolean check() {
-  //        for (StepOldGear dependency : dependencies) {
-  //          if (!dependency.isCompleted()) {
-  //            return false;
-  //          }
-  //        }
-  //        return true;
-  //      }
-  //    }
-  //
-  //    public abstract void doRun();
-  //
-  //    @Override
-  //    public Outcome run() throws Exception {
-  //      doRun();
-  //      setCompleted(true);
-  //      return Outcome.ABANDON;
-  //    }
-  //
-  //    public boolean isCompleted() {
-  //      return isCompleted;
-  //    }
-  //
-  //    private void setCompleted(boolean isCompleted) {
-  //      this.isCompleted = isCompleted;
-  //    }
-  //  }
+  private static class StepGear extends ConditionalGear implements Gear {
 
-  //  public static class MockStepOldGear extends StepOldGear implements OldGear {
-  //
-  //    public MockStepOldGear(CuratorDriver driver,
-  //                           String path,
-  //                           StepOldGear... dependencies) throws Exception {
-  //      super(driver, path, dependencies);
-  //    }
-  //
-  //    @Override
-  //    public void doRun() {
-  //      // no op
-  //    }
-  //  }
+    private final List<StepGear> parents;
+    private final Driver<Boolean> driver = new InMemoryDriver<Boolean>(new InMemoryValue<Boolean>(false));
+
+    public StepGear(StepGear... parents) {
+      this.parents = Arrays.asList(parents);
+      setDependency(BaseTransactionDependency.builder().reads(drivers(parents)).writes(driver).build());
+    }
+
+    private static List<Driver> drivers(StepGear... parents) {
+      List<Driver> result = Lists.newArrayList();
+      for (StepGear parent : parents) {
+        result.add(parent.driver);
+      }
+      return result;
+    }
+
+    @Override
+    public Outcome check(TransactionData transactionData) {
+      for (StepGear parent : parents) {
+        if (!transactionData.get(parent.driver.reference())) {
+          return Outcome.STANDBY;
+        }
+      }
+      return Outcome.SUCCESS;
+    }
+
+    @Override
+    public Outcome execute(TransactionData transactionData) {
+      // no-op
+      transactionData.write(driver.reference(), new InMemoryValue<Boolean>(true));
+      return Outcome.ABANDON;
+    }
+  }
 
   private static class TransferGear extends ConditionalGear implements Gear {
 
@@ -163,17 +137,11 @@ public class IntegrationTest extends BaseTestCase {
     Driver<Integer> driverC = new InMemoryDriver<Integer>(v0);
     Driver<Integer> driverD = new InMemoryDriver<Integer>(v0);
 
-    Worker worker = new NaiveWorker();
-
     Gear gearA = new TransferGear(driverA, driverB);
     Gear gearB = new TransferGear(driverB, driverC);
     Gear gearC = new TransferGear(driverC, driverD);
 
-    worker.run(gearA);
-    worker.run(gearB);
-    worker.run(gearC);
-    worker.stop();
-    worker.join();
+    run(gearA, gearB, gearC);
 
     assertEquals(Integer.valueOf(0), driverA.persistence().read().get());
     assertEquals(Integer.valueOf(0), driverB.persistence().read().get());
@@ -181,26 +149,25 @@ public class IntegrationTest extends BaseTestCase {
     assertEquals(Integer.valueOf(1), driverD.persistence().read().get());
   }
 
-  //  @Ignore
-  //  @Test
-  //  public void testSteps() throws Exception {
-  //
-  //    StepOldGear stepA = new MockStepOldGear(driver, "/a");
-  //    StepOldGear stepB = new MockStepOldGear(driver, "/b", stepA);
-  //    StepOldGear stepC = new MockStepOldGear(driver, "/c", stepA);
-  //    StepOldGear stepD = new MockStepOldGear(driver, "/d", stepB, stepC);
-  //
-  //    // Run
-  //    OldWorker worker = new NaiveOldWorker();
-  //    worker.run(stepA);
-  //    worker.run(stepB);
-  //    worker.run(stepC);
-  //    worker.run(stepD);
-  //    worker.join();
-  //
-  //    assertEquals(true, stepA.isCompleted);
-  //    assertEquals(true, stepB.isCompleted);
-  //    assertEquals(true, stepC.isCompleted);
-  //    assertEquals(true, stepD.isCompleted);
-  //  }
+  private void run(Gear... gears) throws InterruptedException {
+    Worker worker = new NaiveWorker();
+    worker.run(gears);
+    worker.stop();
+    worker.join();
+  }
+
+  @Test
+  public void testSteps() throws Exception {
+    StepGear stepA = new StepGear();
+    StepGear stepB = new StepGear(stepA);
+    StepGear stepC = new StepGear(stepA);
+    StepGear stepD = new StepGear(stepB, stepC);
+
+    run(stepA, stepB, stepC, stepD);
+
+    assertEquals(true, stepA.driver.persistence().get());
+    assertEquals(true, stepB.driver.persistence().get());
+    assertEquals(true, stepC.driver.persistence().get());
+    assertEquals(true, stepD.driver.persistence().get());
+  }
 }

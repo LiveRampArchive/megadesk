@@ -21,6 +21,9 @@ import com.liveramp.megadesk.transaction.TransactionData;
 
 public abstract class ConditionalGear extends BaseGear implements Gear {
 
+  public ConditionalGear() {
+  }
+
   public ConditionalGear(BaseTransactionDependency dependency) {
     super(dependency);
   }

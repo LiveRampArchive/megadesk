@@ -14,27 +14,25 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.gear;
+package com.liveramp.megadesk.worker;
 
-import com.liveramp.megadesk.transaction.TransactionDependency;
+import java.util.List;
 
-public abstract class BaseGear implements Gear {
+import com.liveramp.megadesk.gear.Gear;
 
-  private TransactionDependency dependency;
+public abstract class BaseWorker implements Worker {
 
-  public BaseGear() {
-  }
-
-  public BaseGear(TransactionDependency dependency) {
-    this.dependency = dependency;
+  @Override
+  public void run(Gear... gears) {
+    for (Gear gear : gears) {
+      run(gear);
+    }
   }
 
   @Override
-  public TransactionDependency dependency() {
-    return dependency;
-  }
-
-  protected void setDependency(TransactionDependency dependency) {
-    this.dependency = dependency;
+  public void run(List<Gear> gears) {
+    for (Gear gear : gears) {
+      run(gear);
+    }
   }
 }

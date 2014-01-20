@@ -16,11 +16,17 @@
 
 package com.liveramp.megadesk.worker;
 
+import java.util.List;
+
 import com.liveramp.megadesk.gear.Gear;
 
 public interface Worker {
 
   void run(Gear gear);
+
+  void run(Gear... gears);
+
+  void run(List<Gear> gears);
 
   void stop();
 
