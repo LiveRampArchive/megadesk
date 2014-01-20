@@ -16,10 +16,13 @@
 
 package com.liveramp.megadesk.transaction;
 
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import com.liveramp.megadesk.state.Driver;
@@ -89,19 +92,39 @@ public class BaseTransaction implements Transaction {
   }
 
   private boolean tryLock(TransactionDependency dependency) {
-    for (Driver read : dependency.reads()) {
+    return tryLockAndRemember(readLocks(dependency), locked)
+               && tryLockAndRemember(writeLocks(dependency), locked);
+  }
+
+  private void lock(TransactionDependency dependency) {
+    lockAndRemember(readLocks(dependency), locked);
+    lockAndRemember(writeLocks(dependency), locked);
+  }
+
+  private static List<Lock> readLocks(TransactionDependency dependency) {
+    List<Lock> result = Lists.newArrayList();
+    for (Driver driver : dependency.reads()) {
       // TODO is this necessary?
       // Skip to avoid deadlocks
-      if (dependency.writes().contains(read)) {
+      if (dependency.writes().contains(driver)) {
         continue;
       }
-      if (!tryLockAndRemember(read.lock().readLock(), locked)) {
-        unlock(locked);
-        return false;
-      }
+      result.add(driver.lock().readLock());
     }
-    for (Driver write : dependency.writes()) {
-      if (!tryLockAndRemember(write.lock().writeLock(), locked)) {
+    return result;
+  }
+
+  private static List<Lock> writeLocks(TransactionDependency dependency) {
+    List<Lock> result = Lists.newArrayList();
+    for (Driver driver : dependency.writes()) {
+      result.add(driver.lock().writeLock());
+    }
+    return result;
+  }
+
+  private static boolean tryLockAndRemember(Collection<Lock> locks, Set<Lock> locked) {
+    for (Lock lock : locks) {
+      if (!tryLockAndRemember(lock, locked)) {
         unlock(locked);
         return false;
       }
@@ -109,17 +132,9 @@ public class BaseTransaction implements Transaction {
     return true;
   }
 
-  private void lock(TransactionDependency dependency) {
-    for (Driver read : dependency.reads()) {
-      // TODO is this necessary?
-      // Skip to avoid deadlocks
-      if (dependency.writes().contains(read)) {
-        continue;
-      }
-      lockAndRemember(read.lock().readLock(), locked);
-    }
-    for (Driver write : dependency.writes()) {
-      lockAndRemember(write.lock().writeLock(), locked);
+  private static void lockAndRemember(Collection<Lock> locks, Set<Lock> locked) {
+    for (Lock lock : locks) {
+      lockAndRemember(lock, locked);
     }
   }
 
