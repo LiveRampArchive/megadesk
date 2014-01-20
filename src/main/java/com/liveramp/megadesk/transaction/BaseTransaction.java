@@ -22,19 +22,13 @@ import com.liveramp.megadesk.state.Driver;
 
 public class BaseTransaction implements Transaction {
 
-  private BaseTransactionDependency dependency;
   private BaseTransactionData data;
   private BaseTransactionExecution execution;
 
   public BaseTransaction(Collection<Driver> reads, Collection<Driver> writes) {
-    dependency = new BaseTransactionDependency(reads, writes);
+    BaseTransactionDependency dependency = new BaseTransactionDependency(reads, writes);
     data = new BaseTransactionData(dependency);
     execution = new BaseTransactionExecution(dependency, data);
-  }
-
-  @Override
-  public TransactionDependency dependency() {
-    return dependency;
   }
 
   @Override

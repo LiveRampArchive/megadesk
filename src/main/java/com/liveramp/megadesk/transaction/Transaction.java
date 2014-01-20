@@ -18,8 +18,6 @@ package com.liveramp.megadesk.transaction;
 
 public interface Transaction {
 
-  TransactionDependency dependency();
-
   TransactionExecution execution();
 
   TransactionData data();
