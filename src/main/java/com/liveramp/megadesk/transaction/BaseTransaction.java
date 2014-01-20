@@ -101,7 +101,7 @@ public class BaseTransaction implements Transaction {
       }
     }
     for (Driver write : dependency.writes()) {
-      if (!write.lock().writeLock().tryLock()) {
+      if (!tryLockAndRemember(write.lock().writeLock(), locked)) {
         unlock(locked);
         return false;
       }
