@@ -22,7 +22,6 @@ import java.util.concurrent.locks.Lock;
 import com.google.common.collect.Sets;
 
 import com.liveramp.megadesk.state.Driver;
-import com.liveramp.megadesk.state.Reference;
 import com.liveramp.megadesk.state.Value;
 
 public class BaseTransactionExecution implements TransactionExecution {
@@ -34,25 +33,26 @@ public class BaseTransactionExecution implements TransactionExecution {
     ABORTED
   }
 
-  private final BaseTransactionDependency dependency;
+  private TransactionDependency dependency;
   private State state = State.STANDBY;
   private final Set<Lock> locked;
 
-  public BaseTransactionExecution(BaseTransactionDependency dependency) {
-    this.dependency = dependency;
+  public BaseTransactionExecution() {
     locked = Sets.newHashSet();
   }
 
   @Override
-  public void begin() {
+  public void begin(TransactionDependency dependency) {
     ensureState(State.STANDBY);
+    this.dependency = dependency;
     lock(dependency);
     state = State.RUNNING;
   }
 
   @Override
-  public boolean tryBegin() {
+  public boolean tryBegin(TransactionDependency dependency) {
     ensureState(State.STANDBY);
+    this.dependency = dependency;
     boolean result = tryLock(dependency);
     if (result) {
       state = State.RUNNING;
@@ -64,9 +64,9 @@ public class BaseTransactionExecution implements TransactionExecution {
   public void commit(TransactionData data) {
     ensureState(State.RUNNING);
     // Write updates
-    for (Reference reference : dependency.writeReferences()) {
-      Value value = data.get(reference).read();
-      dependency.writeDriver(reference).persistence().write(value);
+    for (Driver driver : dependency.writes()) {
+      Value value = data.get(driver.reference()).read();
+      driver.persistence().write(value);
     }
     // Release locks
     unlock();

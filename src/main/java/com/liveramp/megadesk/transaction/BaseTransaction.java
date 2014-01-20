@@ -28,7 +28,7 @@ public class BaseTransaction implements Transaction {
   public BaseTransaction(Collection<Driver> reads, Collection<Driver> writes) {
     BaseTransactionDependency dependency = new BaseTransactionDependency(reads, writes);
     data = new BaseTransactionData(dependency);
-    execution = new BaseTransactionExecution(dependency);
+    execution = new BaseTransactionExecution();
   }
 
   @Override

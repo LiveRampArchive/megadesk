@@ -19,7 +19,7 @@ package com.liveramp.megadesk.transaction;
 public class BaseExecutor implements Executor {
 
   public <V> ExecutionResult<V> execute(Transaction transaction, Function<V> function) throws Exception {
-    if (transaction.execution().tryBegin()) {
+    if (transaction.execution().tryBegin(function.dependency())) {
       try {
         V result = function.run(transaction.data());
         transaction.execution().commit(transaction.data());
