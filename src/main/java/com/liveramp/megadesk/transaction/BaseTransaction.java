@@ -77,14 +77,14 @@ public class BaseTransaction implements Transaction {
       driver.persistence().write(value);
     }
     // Release locks
-    unlock();
+    unlock(locked);
     state = State.COMMITTED;
   }
 
   @Override
   public void abort() {
     ensureState(State.RUNNING);
-    unlock();
+    unlock(locked);
     state = State.ABORTED;
   }
 
@@ -95,23 +95,18 @@ public class BaseTransaction implements Transaction {
       if (dependency.writes().contains(read)) {
         continue;
       }
-      if (!read.lock().readLock().tryLock()) {
-        unlock();
+      if (!tryLockAndRemember(read.lock().readLock(), locked)) {
+        unlock(locked);
         return false;
       }
     }
     for (Driver write : dependency.writes()) {
       if (!write.lock().writeLock().tryLock()) {
-        unlock();
+        unlock(locked);
         return false;
       }
     }
     return true;
-  }
-
-  private void lock(Lock lock) {
-    lock.lock();
-    locked.add(lock);
   }
 
   private void lock(TransactionDependency dependency) {
@@ -121,14 +116,27 @@ public class BaseTransaction implements Transaction {
       if (dependency.writes().contains(read)) {
         continue;
       }
-      lock(read.lock().readLock());
+      lockAndRemember(read.lock().readLock(), locked);
     }
     for (Driver write : dependency.writes()) {
-      lock(write.lock().writeLock());
+      lockAndRemember(write.lock().writeLock(), locked);
     }
   }
 
-  private void unlock() {
+  private static boolean tryLockAndRemember(Lock lock, Set<Lock> locked) {
+    boolean result = lock.tryLock();
+    if (result) {
+      locked.add(lock);
+    }
+    return result;
+  }
+
+  private static void lockAndRemember(Lock lock, Set<Lock> locked) {
+    lock.lock();
+    locked.add(lock);
+  }
+
+  private static void unlock(Set<Lock> locked) {
     Iterator<Lock> lockIterator = locked.iterator();
     while (lockIterator.hasNext()) {
       lockIterator.next().unlock();
