@@ -35,6 +35,20 @@ public class BaseTransactionDependency implements TransactionDependency {
     this.snapshots = Collections.unmodifiableCollection(snapshots);
     this.reads = Collections.unmodifiableCollection(reads);
     this.writes = Collections.unmodifiableCollection(writes);
+    checkIntegrity();
+  }
+
+  private void checkIntegrity() {
+    for (Driver driver : snapshots) {
+      if (reads.contains(driver) || writes.contains(driver)) {
+        throw new IllegalStateException(); // TODO message
+      }
+    }
+    for (Driver driver : reads) {
+      if (writes.contains(driver)) {
+        throw new IllegalStateException(); // TODO message
+      }
+    }
   }
 
   @Override
@@ -63,7 +77,7 @@ public class BaseTransactionDependency implements TransactionDependency {
     }
 
     public Builder snapshots(List<Driver> references) {
-      this.snapshots = Collections.unmodifiableList(references);
+      this.snapshots = references;
       return this;
     }
 
@@ -72,7 +86,7 @@ public class BaseTransactionDependency implements TransactionDependency {
     }
 
     public Builder reads(List<Driver> references) {
-      this.reads = Collections.unmodifiableList(references);
+      this.reads = references;
       return this;
     }
 
@@ -81,7 +95,7 @@ public class BaseTransactionDependency implements TransactionDependency {
     }
 
     public Builder writes(List<Driver> references) {
-      this.writes = Collections.unmodifiableList(references);
+      this.writes = references;
       return this;
     }
 

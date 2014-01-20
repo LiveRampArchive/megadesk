@@ -44,20 +44,10 @@ public class BaseTransactionData implements TransactionData {
     List<Driver> result = Lists.newArrayList();
     // Snapshots
     for (Driver driver : dependency.snapshots()) {
-      // TODO is this necessary?
-      // Skip to avoid deadlocks
-      if (dependency.writes().contains(driver)) {
-        continue;
-      }
       result.add(driver);
     }
     // Execution reads
     for (Driver driver : dependency.reads()) {
-      // TODO is this necessary?
-      // Skip to avoid deadlocks
-      if (dependency.writes().contains(driver)) {
-        continue;
-      }
       result.add(driver);
     }
     return result;

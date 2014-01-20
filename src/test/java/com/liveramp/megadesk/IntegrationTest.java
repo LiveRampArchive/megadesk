@@ -102,7 +102,7 @@ public class IntegrationTest extends BaseTestCase {
     private final Reference<Integer> dst;
 
     private TransferGear(Driver<Integer> src, Driver<Integer> dst) {
-      super(BaseTransactionDependency.builder().reads(src).writes(src, dst).build());
+      super(BaseTransactionDependency.builder().writes(src, dst).build());
       this.src = src.reference();
       this.dst = dst.reference();
     }
