@@ -126,6 +126,13 @@ public class IntegrationTest extends BaseTestCase {
     }
   }
 
+  private void run(Gear... gears) throws InterruptedException {
+    Worker worker = new NaiveWorker();
+    worker.run(gears);
+    worker.stop();
+    worker.join();
+  }
+
   @Test
   public void testState() throws InterruptedException {
 
@@ -147,13 +154,6 @@ public class IntegrationTest extends BaseTestCase {
     assertEquals(Integer.valueOf(0), driverB.persistence().read().get());
     assertEquals(Integer.valueOf(0), driverC.persistence().read().get());
     assertEquals(Integer.valueOf(1), driverD.persistence().read().get());
-  }
-
-  private void run(Gear... gears) throws InterruptedException {
-    Worker worker = new NaiveWorker();
-    worker.run(gears);
-    worker.stop();
-    worker.join();
   }
 
   @Test
