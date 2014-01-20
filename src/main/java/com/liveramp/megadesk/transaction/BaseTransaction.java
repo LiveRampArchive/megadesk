@@ -50,7 +50,7 @@ public class BaseTransaction implements Transaction {
   public TransactionData begin(TransactionDependency dependency) {
     ensureState(State.STANDBY);
     lock(dependency);
-    return setUp(dependency);
+    return prepare(dependency);
   }
 
   @Override
@@ -58,13 +58,13 @@ public class BaseTransaction implements Transaction {
     ensureState(State.STANDBY);
     boolean result = tryLock(dependency);
     if (result) {
-      return setUp(dependency);
+      return prepare(dependency);
     } else {
       return null;
     }
   }
 
-  private TransactionData setUp(TransactionDependency dependency) {
+  private TransactionData prepare(TransactionDependency dependency) {
     this.state = State.RUNNING;
     this.dependency = dependency;
     this.data = new BaseTransactionData(dependency);
