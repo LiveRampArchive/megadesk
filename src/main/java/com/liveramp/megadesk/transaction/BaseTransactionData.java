@@ -16,8 +16,10 @@
 
 package com.liveramp.megadesk.transaction;
 
+import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import com.liveramp.megadesk.state.Driver;
@@ -30,17 +32,48 @@ public class BaseTransactionData implements TransactionData {
 
   public BaseTransactionData(TransactionDependency dependency) {
     bindings = Maps.newHashMap();
+    for (Driver driver : readDrivers(dependency)) {
+      addBinding(driver, true);
+    }
+    for (Driver driver : writeDrivers(dependency)) {
+      addBinding(driver, false);
+    }
+  }
+
+  private static List<Driver> readDrivers(TransactionDependency dependency) {
+    List<Driver> result = Lists.newArrayList();
+    // Snapshots
+    for (Driver driver : dependency.snapshots()) {
+      // TODO is this necessary?
+      // Skip to avoid deadlocks
+      if (dependency.writes().contains(driver)) {
+        continue;
+      }
+      result.add(driver);
+    }
+    // Execution reads
     for (Driver driver : dependency.reads()) {
       // TODO is this necessary?
       // Skip to avoid deadlocks
       if (dependency.writes().contains(driver)) {
         continue;
       }
-      bindings.put(driver.reference(), new BaseBinding(driver.persistence().read(), true));
+      result.add(driver);
     }
+    return result;
+  }
+
+  private static List<Driver> writeDrivers(TransactionDependency dependency) {
+    List<Driver> result = Lists.newArrayList();
+    // Execution writes
     for (Driver driver : dependency.writes()) {
-      bindings.put(driver.reference(), new BaseBinding(driver.persistence().read(), false));
+      result.add(driver);
     }
+    return result;
+  }
+
+  private void addBinding(Driver driver, boolean readOnly) {
+    bindings.put(driver.reference(), new BaseBinding(driver.persistence().read(), readOnly));
   }
 
   @Override

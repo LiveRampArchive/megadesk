@@ -141,6 +141,16 @@ public class BaseTransaction implements Transaction {
 
   private static List<Lock> persistenceReadLocks(TransactionDependency dependency) {
     List<Lock> result = Lists.newArrayList();
+    // Snapshots
+    for (Driver driver : dependency.snapshots()) {
+      // TODO is this necessary?
+      // Skip to avoid deadlocks
+      if (dependency.writes().contains(driver)) {
+        continue;
+      }
+      result.add(driver.persistenceLock().readLock());
+    }
+    // Execution reads
     for (Driver driver : dependency.reads()) {
       // TODO is this necessary?
       // Skip to avoid deadlocks
@@ -149,7 +159,7 @@ public class BaseTransaction implements Transaction {
       }
       result.add(driver.persistenceLock().readLock());
     }
-    // Need to read writes as well
+    // Execution writes
     for (Driver driver : dependency.writes()) {
       result.add(driver.persistenceLock().readLock());
     }
@@ -158,6 +168,7 @@ public class BaseTransaction implements Transaction {
 
   private static List<Lock> persistenceWriteLocks(TransactionDependency dependency) {
     List<Lock> result = Lists.newArrayList();
+    // Execution writes only
     for (Driver driver : dependency.writes()) {
       result.add(driver.persistenceLock().writeLock());
     }

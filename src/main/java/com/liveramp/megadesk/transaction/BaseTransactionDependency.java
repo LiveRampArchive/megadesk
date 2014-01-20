@@ -25,13 +25,21 @@ import com.liveramp.megadesk.state.Driver;
 
 public class BaseTransactionDependency implements TransactionDependency {
 
-  private Collection<Driver> reads;
-  private Collection<Driver> writes;
+  private final Collection<Driver> snapshots;
+  private final Collection<Driver> reads;
+  private final Collection<Driver> writes;
 
-  public BaseTransactionDependency(Collection<Driver> reads,
+  public BaseTransactionDependency(Collection<Driver> snapshots,
+                                   Collection<Driver> reads,
                                    Collection<Driver> writes) {
+    this.snapshots = Collections.unmodifiableCollection(snapshots);
     this.reads = Collections.unmodifiableCollection(reads);
     this.writes = Collections.unmodifiableCollection(writes);
+  }
+
+  @Override
+  public Collection<Driver> snapshots() {
+    return snapshots;
   }
 
   @Override
@@ -46,8 +54,18 @@ public class BaseTransactionDependency implements TransactionDependency {
 
   public static class Builder {
 
-    private List<Driver> reads;
-    private List<Driver> writes;
+    private List<Driver> snapshots = Collections.emptyList();
+    private List<Driver> reads = Collections.emptyList();
+    private List<Driver> writes = Collections.emptyList();
+
+    public Builder snapshots(Driver... references) {
+      return snapshots(Arrays.asList(references));
+    }
+
+    public Builder snapshots(List<Driver> references) {
+      this.snapshots = Collections.unmodifiableList(references);
+      return this;
+    }
 
     public Builder reads(Driver... references) {
       return reads(Arrays.asList(references));
@@ -68,7 +86,7 @@ public class BaseTransactionDependency implements TransactionDependency {
     }
 
     public BaseTransactionDependency build() {
-      return new BaseTransactionDependency(reads, writes);
+      return new BaseTransactionDependency(snapshots, reads, writes);
     }
   }
 

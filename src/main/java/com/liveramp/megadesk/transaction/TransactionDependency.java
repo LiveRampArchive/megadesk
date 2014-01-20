@@ -22,6 +22,8 @@ import com.liveramp.megadesk.state.Driver;
 
 public interface TransactionDependency {
 
+  Collection<Driver> snapshots();
+
   Collection<Driver> reads();
 
   Collection<Driver> writes();

@@ -67,7 +67,7 @@ public class IntegrationTest extends BaseTestCase {
 
     public StepGear(StepGear... parents) {
       this.parents = Arrays.asList(parents);
-      setDependency(BaseTransactionDependency.builder().reads(drivers(parents)).writes(driver).build());
+      setDependency(BaseTransactionDependency.builder().snapshots(drivers(parents)).writes(driver).build());
     }
 
     private static List<Driver> drivers(StepGear... parents) {
