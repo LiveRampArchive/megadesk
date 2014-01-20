@@ -16,6 +16,7 @@
 
 package com.liveramp.megadesk.transaction;
 
+import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
@@ -127,8 +128,10 @@ public class BaseTransaction implements Transaction {
   }
 
   private void unlock() {
-    for (Lock lock : locked) {
-      lock.unlock();
+    Iterator<Lock> lockIterator = locked.iterator();
+    while (lockIterator.hasNext()) {
+      lockIterator.next().unlock();
+      lockIterator.remove();
     }
   }
 
