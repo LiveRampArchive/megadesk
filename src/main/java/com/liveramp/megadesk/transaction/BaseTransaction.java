@@ -137,7 +137,7 @@ public class BaseTransaction implements Transaction {
 
   private void ensureState(State state) {
     if (this.state != state) {
-      throw new IllegalArgumentException("Transaction state should be " + state + " but is " + this.state);
+      throw new IllegalStateException("Transaction state should be " + state + " but is " + this.state);
     }
   }
 }
