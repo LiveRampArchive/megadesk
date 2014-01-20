@@ -31,6 +31,9 @@ public abstract class BaseGear implements Gear {
 
   @Override
   public TransactionDependency dependency() {
+    if (dependency == null) {
+      throw new IllegalStateException(); // TODO message
+    }
     return dependency;
   }
 
