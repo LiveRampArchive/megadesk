@@ -49,7 +49,7 @@ public class InMemoryDriver<VALUE> implements Driver<VALUE> {
   }
 
   @Override
-  public Persistence persistence() {
+  public Persistence<VALUE> persistence() {
     return persistence;
   }
 }
