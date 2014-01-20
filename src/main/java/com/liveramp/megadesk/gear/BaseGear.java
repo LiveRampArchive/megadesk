@@ -16,7 +16,6 @@
 
 package com.liveramp.megadesk.gear;
 
-import com.liveramp.megadesk.gear.Gear;
 import com.liveramp.megadesk.transaction.BaseTransactionDependency;
 
 public abstract class BaseGear implements Gear {
