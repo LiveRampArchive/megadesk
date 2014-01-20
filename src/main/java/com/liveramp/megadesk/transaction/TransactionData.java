@@ -17,8 +17,15 @@
 package com.liveramp.megadesk.transaction;
 
 import com.liveramp.megadesk.state.Reference;
+import com.liveramp.megadesk.state.Value;
 
 public interface TransactionData {
 
-  <VALUE> Binding<VALUE> get(Reference<VALUE> reference);
+  <VALUE> Binding<VALUE> binding(Reference<VALUE> reference);
+
+  <VALUE> Value<VALUE> read(Reference<VALUE> reference);
+
+  <VALUE> VALUE get(Reference<VALUE> reference);
+
+  <VALUE> void write(Reference<VALUE> reference, Value<VALUE> value);
 }

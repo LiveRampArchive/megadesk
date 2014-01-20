@@ -68,7 +68,7 @@ public class BaseTransaction implements Transaction {
     ensureState(State.RUNNING);
     // Write updates
     for (Driver driver : dependency.writes()) {
-      Value value = data.get(driver.reference()).read();
+      Value value = data.binding(driver.reference()).read();
       driver.persistence().write(value);
     }
     // Release locks

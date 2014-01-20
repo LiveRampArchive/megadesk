@@ -135,8 +135,7 @@ public class IntegrationTest extends BaseTestCase {
 
     @Override
     public Outcome check(TransactionData transactionData) {
-      Binding<Integer> source = transactionData.get(src);
-      if (source.get() > 0) {
+      if (transactionData.get(src) > 0) {
         return Outcome.SUCCESS;
       } else {
         return Outcome.STANDBY;
@@ -145,8 +144,8 @@ public class IntegrationTest extends BaseTestCase {
 
     @Override
     public Outcome execute(TransactionData transactionData) {
-      Binding<Integer> source = transactionData.get(src);
-      Binding<Integer> destination = transactionData.get(dst);
+      Binding<Integer> source = transactionData.binding(src);
+      Binding<Integer> destination = transactionData.binding(dst);
       destination.write(source.read());
       source.write(new InMemoryValue<Integer>(0));
       return Outcome.ABANDON;

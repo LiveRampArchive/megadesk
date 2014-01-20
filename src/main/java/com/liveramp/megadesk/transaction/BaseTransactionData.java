@@ -22,6 +22,7 @@ import com.google.common.collect.Maps;
 
 import com.liveramp.megadesk.state.Driver;
 import com.liveramp.megadesk.state.Reference;
+import com.liveramp.megadesk.state.Value;
 
 public class BaseTransactionData implements TransactionData {
 
@@ -43,10 +44,25 @@ public class BaseTransactionData implements TransactionData {
   }
 
   @Override
-  public <VALUE> Binding<VALUE> get(Reference<VALUE> reference) {
+  public <VALUE> Binding<VALUE> binding(Reference<VALUE> reference) {
     if (!bindings.containsKey(reference)) {
       throw new IllegalStateException(); // TODO message
     }
     return bindings.get(reference);
+  }
+
+  @Override
+  public <VALUE> Value<VALUE> read(Reference<VALUE> reference) {
+    return binding(reference).read();
+  }
+
+  @Override
+  public <VALUE> VALUE get(Reference<VALUE> reference) {
+    return binding(reference).get();
+  }
+
+  @Override
+  public <VALUE> void write(Reference<VALUE> reference, Value<VALUE> value) {
+    binding(reference).write(value);
   }
 }
