@@ -35,13 +35,11 @@ public class BaseTransactionExecution implements TransactionExecution {
   }
 
   private final BaseTransactionDependency dependency;
-  private final BaseTransactionData data;
   private State state = State.STANDBY;
   private final Set<Lock> locked;
 
-  public BaseTransactionExecution(BaseTransactionDependency dependency, BaseTransactionData data) {
+  public BaseTransactionExecution(BaseTransactionDependency dependency) {
     this.dependency = dependency;
-    this.data = data;
     locked = Sets.newHashSet();
   }
 
@@ -63,7 +61,7 @@ public class BaseTransactionExecution implements TransactionExecution {
   }
 
   @Override
-  public void commit() {
+  public void commit(TransactionData data) {
     ensureState(State.RUNNING);
     // Write updates
     for (Reference reference : dependency.writeReferences()) {

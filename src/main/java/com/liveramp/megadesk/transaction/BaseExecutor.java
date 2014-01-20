@@ -22,7 +22,7 @@ public class BaseExecutor implements Executor {
     if (transaction.execution().tryBegin()) {
       try {
         V result = function.run(transaction.data());
-        transaction.execution().commit();
+        transaction.execution().commit(transaction.data());
         return new ExecutionResult<V>(true, result);
       } catch (Exception e) {
         transaction.execution().abort();

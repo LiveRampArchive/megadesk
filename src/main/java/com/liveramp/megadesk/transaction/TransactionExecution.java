@@ -22,7 +22,7 @@ public interface TransactionExecution {
 
   boolean tryBegin();
 
-  void commit();
+  void commit(TransactionData data);
 
   void abort();
 }
