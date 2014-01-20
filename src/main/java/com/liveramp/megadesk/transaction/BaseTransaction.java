@@ -47,10 +47,7 @@ public class BaseTransaction implements Transaction {
   public TransactionData begin(TransactionDependency dependency) {
     ensureState(State.STANDBY);
     lock(dependency);
-    this.state = State.RUNNING;
-    this.dependency = dependency;
-    this.data = new BaseTransactionData(dependency);
-    return data;
+    return setUp(dependency);
   }
 
   @Override
@@ -58,13 +55,17 @@ public class BaseTransaction implements Transaction {
     ensureState(State.STANDBY);
     boolean result = tryLock(dependency);
     if (result) {
-      this.state = State.RUNNING;
-      this.dependency = dependency;
-      this.data = new BaseTransactionData(dependency);
-      return data;
+      return setUp(dependency);
     } else {
       return null;
     }
+  }
+
+  private TransactionData setUp(TransactionDependency dependency) {
+    this.state = State.RUNNING;
+    this.dependency = dependency;
+    this.data = new BaseTransactionData(dependency);
+    return this.data;
   }
 
   @Override
