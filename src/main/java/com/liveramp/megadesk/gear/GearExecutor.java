@@ -16,26 +16,27 @@
 
 package com.liveramp.megadesk.gear;
 
+import com.liveramp.megadesk.transaction.BaseExecutor;
+import com.liveramp.megadesk.transaction.BaseTransaction;
+import com.liveramp.megadesk.transaction.ExecutionResult;
+import com.liveramp.megadesk.transaction.Executor;
 import com.liveramp.megadesk.transaction.Transaction;
 
 public class GearExecutor {
 
-  public Outcome execute(Gear gear, Transaction transaction) {
-    if (transaction.execution().tryBegin()) {
-      try {
-        Outcome outcome = gear.run(transaction.data());
-        if (outcome != Outcome.FAILURE) {
-          transaction.execution().commit();
-        } else {
-          transaction.execution().abort();
-        }
-        return outcome;
-      } catch (Exception e) {
-        transaction.execution().abort();
-        return Outcome.FAILURE;
+  private final Executor executor = new BaseExecutor();
+
+  public Outcome execute(Gear gear) {
+    Transaction transaction = new BaseTransaction(gear.dependency().reads(), gear.dependency().writes());
+    try {
+      ExecutionResult<Outcome> result = executor.execute(transaction, gear);
+      if (result.executed()) {
+        return result.result();
+      } else {
+        return Outcome.STANDBY;
       }
-    } else {
-      return Outcome.STANDBY;
+    } catch (Exception e) {
+      return Outcome.FAILURE;
     }
   }
 }

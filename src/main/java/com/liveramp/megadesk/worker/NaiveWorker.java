@@ -81,7 +81,7 @@ public class NaiveWorker implements Worker {
           while (it.hasNext()) {
             Gear gear = it.next();
             try {
-              Outcome outcome = gearExecutor.execute(gear, new BaseTransaction(gear.dependency().reads(), gear.dependency().writes()));
+              Outcome outcome = gearExecutor.execute(gear);
               if (outcome == Outcome.ABANDON) {
                 it.remove();
               }

@@ -14,11 +14,22 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.gear;
+package com.liveramp.megadesk.transaction;
 
-import com.liveramp.megadesk.transaction.Function;
-import com.liveramp.megadesk.transaction.TransactionData;
-import com.liveramp.megadesk.transaction.TransactionDependency;
+public class BaseExecutor implements Executor {
 
-public interface Gear extends Function<Outcome> {
+  public <V> ExecutionResult<V> execute(Transaction transaction, Function<V> function) throws Exception {
+    if (transaction.execution().tryBegin()) {
+      try {
+        V result = function.run(transaction.data());
+        transaction.execution().commit();
+        return new ExecutionResult<V>(true, result);
+      } catch (Exception e) {
+        transaction.execution().abort();
+        throw e;
+      }
+    } else {
+      return new ExecutionResult<V>(false, null);
+    }
+  }
 }

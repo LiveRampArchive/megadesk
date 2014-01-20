@@ -14,11 +14,9 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.gear;
+package com.liveramp.megadesk.transaction;
 
-import com.liveramp.megadesk.transaction.Function;
-import com.liveramp.megadesk.transaction.TransactionData;
-import com.liveramp.megadesk.transaction.TransactionDependency;
+public interface Executor {
 
-public interface Gear extends Function<Outcome> {
+  <V> ExecutionResult<V> execute(Transaction transaction, Function<V> function) throws Exception;
 }

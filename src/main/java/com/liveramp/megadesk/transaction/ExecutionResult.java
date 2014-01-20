@@ -14,11 +14,26 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.gear;
+package com.liveramp.megadesk.transaction;
 
-import com.liveramp.megadesk.transaction.Function;
-import com.liveramp.megadesk.transaction.TransactionData;
-import com.liveramp.megadesk.transaction.TransactionDependency;
+public class ExecutionResult<V> {
 
-public interface Gear extends Function<Outcome> {
+  private final boolean executed;
+  private final V result;
+
+  public ExecutionResult(boolean executed, V result) {
+    this.executed = executed;
+    this.result = result;
+  }
+
+  public boolean executed() {
+    return executed;
+  }
+
+  public V result() {
+    if (!executed) {
+      throw new IllegalStateException(); // TODO message
+    }
+    return result;
+  }
 }
