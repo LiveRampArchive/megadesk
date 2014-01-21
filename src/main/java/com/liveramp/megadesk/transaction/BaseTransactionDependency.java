@@ -27,9 +27,9 @@ import com.liveramp.megadesk.state.Driver;
 
 public class BaseTransactionDependency implements TransactionDependency {
 
-  private final Collection<Driver> snapshots;
-  private final Collection<Driver> reads;
-  private final Collection<Driver> writes;
+  private final List<Driver> snapshots;
+  private final List<Driver> reads;
+  private final List<Driver> writes;
 
   public BaseTransactionDependency(Collection<Driver> snapshots,
                                    Collection<Driver> reads,
@@ -61,17 +61,17 @@ public class BaseTransactionDependency implements TransactionDependency {
   }
 
   @Override
-  public Collection<Driver> snapshots() {
+  public List<Driver> snapshots() {
     return snapshots;
   }
 
   @Override
-  public Collection<Driver> reads() {
+  public List<Driver> reads() {
     return reads;
   }
 
   @Override
-  public Collection<Driver> writes() {
+  public List<Driver> writes() {
     return writes;
   }
 
@@ -85,6 +85,10 @@ public class BaseTransactionDependency implements TransactionDependency {
       return snapshots(Arrays.asList(drivers));
     }
 
+    public Builder snapshots(List<Driver>... lists) {
+      return snapshots(concatenate(lists));
+    }
+
     public Builder snapshots(List<Driver> drivers) {
       this.snapshots = Lists.newArrayList(drivers);
       return this;
@@ -92,6 +96,10 @@ public class BaseTransactionDependency implements TransactionDependency {
 
     public Builder reads(Driver... drivers) {
       return reads(Arrays.asList(drivers));
+    }
+
+    public Builder reads(List<Driver>... lists) {
+      return reads(concatenate(lists));
     }
 
     public Builder reads(List<Driver> drivers) {
@@ -103,10 +111,23 @@ public class BaseTransactionDependency implements TransactionDependency {
       return writes(Arrays.asList(drivers));
     }
 
+    public Builder writes(List<Driver>... lists) {
+      return writes(concatenate(lists));
+    }
+
     public Builder writes(List<Driver> drivers) {
       this.writes = Lists.newArrayList(drivers);
       return this;
     }
+
+    private List<Driver> concatenate(List<Driver>... lists) {
+      List<Driver> result = Lists.newArrayList();
+      for (List<Driver> list : lists) {
+        result.addAll(list);
+      }
+      return result;
+    }
+
 
     public BaseTransactionDependency build() {
       return new BaseTransactionDependency(snapshots, reads, writes);

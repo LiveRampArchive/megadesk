@@ -16,15 +16,15 @@
 
 package com.liveramp.megadesk.transaction;
 
-import java.util.Collection;
+import java.util.List;
 
 import com.liveramp.megadesk.state.Driver;
 
 public interface TransactionDependency {
 
-  Collection<Driver> snapshots();
+  List<Driver> snapshots();
 
-  Collection<Driver> reads();
+  List<Driver> reads();
 
-  Collection<Driver> writes();
+  List<Driver> writes();
 }
