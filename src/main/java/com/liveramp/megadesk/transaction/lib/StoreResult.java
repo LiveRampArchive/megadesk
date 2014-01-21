@@ -28,13 +28,13 @@ import com.liveramp.megadesk.transaction.Function;
 import com.liveramp.megadesk.transaction.TransactionData;
 import com.liveramp.megadesk.transaction.TransactionDependency;
 
-public class Apply<V> implements Function<Value<V>> {
+public class StoreResult<V> implements Function<Value<V>> {
 
   private final Function<Value<V>> function;
   private final Reference<V> result;
   private final TransactionDependency dependency;
 
-  public Apply(Function<Value<V>> function, Driver<V> result) {
+  public StoreResult(Function<Value<V>> function, Driver<V> result) {
     this.function = function;
     this.result = result.reference();
     // Original dependency, with result added as a write

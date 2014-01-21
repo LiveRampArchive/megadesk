@@ -25,7 +25,7 @@ public interface Executor {
 
   <V> ExecutionResult<V> tryExecute(Function<V> function) throws Exception;
 
-  <V> Value<V> apply(Function<Value<V>> function, Driver<V> result) throws Exception;
+  <V> Value<V> execute(Function<Value<V>> function, Driver<V> result) throws Exception;
 
-  <V> ExecutionResult<Value<V>> tryApply(Function<Value<V>> function, Driver<V> result) throws Exception;
+  <V> ExecutionResult<Value<V>> tryExecute(Function<Value<V>> function, Driver<V> result) throws Exception;
 }
