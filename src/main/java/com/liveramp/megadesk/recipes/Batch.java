@@ -2,8 +2,6 @@ package com.liveramp.megadesk.recipes;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
-import com.liveramp.megadesk.gear.BaseGear;
-import com.liveramp.megadesk.gear.Outcome;
 import com.liveramp.megadesk.state.Driver;
 import com.liveramp.megadesk.state.Reference;
 import com.liveramp.megadesk.state.Value;
@@ -58,7 +56,7 @@ public class Batch<VALUE> {
 
   public ImmutableList<VALUE> readBatch() {
     try {
-      new BaseExecutor().execute(new BatcherGear());
+      new BaseExecutor().execute(new TransferBatch(input, output));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -78,14 +76,25 @@ public class Batch<VALUE> {
     }
   }
 
-  private class BatcherGear extends BaseGear {
+  private static class TransferBatch implements Procedure {
 
-    public BatcherGear() {
-      super(BaseDependency.builder().writes(input, output).build());
+    private final Dependency dependency;
+    private final Driver<ImmutableList> input;
+    private final Driver<ImmutableList> output;
+
+    public TransferBatch(Driver<ImmutableList> input, Driver<ImmutableList> output) {
+      this.input = input;
+      this.output = output;
+      this.dependency = BaseDependency.builder().writes(input, output).build();
     }
 
     @Override
-    public Value<Outcome> call(Transaction transaction) throws Exception {
+    public Dependency dependency() {
+      return dependency;
+    }
+
+    @Override
+    public void run(Transaction transaction) throws Exception {
       Binding<ImmutableList> inputList = transaction.binding(input.reference());
       Binding<ImmutableList> outputList = transaction.binding(output.reference());
       if (outputList.get().isEmpty()) {
@@ -93,11 +102,10 @@ public class Batch<VALUE> {
         outputList.write(values);
         inputList.write(wrapper.<ImmutableList>wrap(ImmutableList.of()));
       }
-      return wrapper.wrap(Outcome.SUCCESS);
     }
   }
 
-  private class Append<V> implements Procedure {
+  private static class Append<V> implements Procedure {
 
     private final Dependency dependency;
     private final Reference<ImmutableList> reference;
@@ -124,7 +132,7 @@ public class Batch<VALUE> {
     }
   }
 
-  private class Erase implements Procedure {
+  private static class Erase implements Procedure {
 
     private final Dependency dependency;
     private final Reference<ImmutableList> reference;
