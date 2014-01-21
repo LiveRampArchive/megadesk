@@ -132,9 +132,7 @@ public class IntegrationTest extends BaseTestCase {
 
   private void run(Gear... gears) throws InterruptedException {
     Worker worker = new NaiveWorker();
-    worker.run(gears);
-    worker.stop();
-    worker.join();
+    worker.complete(gears);
   }
 
   @Test
