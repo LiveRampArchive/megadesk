@@ -36,9 +36,12 @@ import com.liveramp.megadesk.state.Value;
 import com.liveramp.megadesk.state.lib.InMemoryDriver;
 import com.liveramp.megadesk.state.lib.InMemoryValue;
 import com.liveramp.megadesk.test.BaseTestCase;
+import com.liveramp.megadesk.transaction.BaseExecutor;
 import com.liveramp.megadesk.transaction.BaseTransactionDependency;
 import com.liveramp.megadesk.transaction.Binding;
+import com.liveramp.megadesk.transaction.Function;
 import com.liveramp.megadesk.transaction.TransactionData;
+import com.liveramp.megadesk.transaction.TransactionDependency;
 import com.liveramp.megadesk.worker.NaiveWorker;
 import com.liveramp.megadesk.worker.Worker;
 
@@ -109,7 +112,7 @@ public class IntegrationTest extends BaseTestCase {
 
     @Override
     public Outcome check(TransactionData transactionData) {
-      if (transactionData.get(src) > 0) {
+      if (transactionData.get(src) > 0 && transactionData.get(dst) == 0) {
         return Outcome.SUCCESS;
       } else {
         return Outcome.STANDBY;
@@ -134,15 +137,15 @@ public class IntegrationTest extends BaseTestCase {
   }
 
   @Test
-  public void testState() throws InterruptedException {
+  public void testState() throws Exception {
 
     Value<Integer> v0 = new InMemoryValue<Integer>(0);
     Value<Integer> v1 = new InMemoryValue<Integer>(1);
 
-    Driver<Integer> driverA = new InMemoryDriver<Integer>(v1);
-    Driver<Integer> driverB = new InMemoryDriver<Integer>(v0);
-    Driver<Integer> driverC = new InMemoryDriver<Integer>(v0);
-    Driver<Integer> driverD = new InMemoryDriver<Integer>(v0);
+    final Driver<Integer> driverA = new InMemoryDriver<Integer>(v1);
+    final Driver<Integer> driverB = new InMemoryDriver<Integer>(v0);
+    final Driver<Integer> driverC = new InMemoryDriver<Integer>(v0);
+    final Driver<Integer> driverD = new InMemoryDriver<Integer>(v0);
 
     Gear gearA = new TransferGear(driverA, driverB);
     Gear gearB = new TransferGear(driverB, driverC);
@@ -150,10 +153,26 @@ public class IntegrationTest extends BaseTestCase {
 
     run(gearA, gearB, gearC);
 
-    assertEquals(Integer.valueOf(0), driverA.persistence().read().get());
-    assertEquals(Integer.valueOf(0), driverB.persistence().read().get());
-    assertEquals(Integer.valueOf(0), driverC.persistence().read().get());
-    assertEquals(Integer.valueOf(1), driverD.persistence().read().get());
+    // Check using a transaction
+    assertEquals(true, new BaseExecutor().execute(new Function<Boolean>() {
+      @Override
+      public TransactionDependency dependency() {
+        return BaseTransactionDependency.builder().reads(driverA, driverB, driverC, driverD).build();
+      }
+
+      @Override
+      public Boolean run(TransactionData transactionData) throws Exception {
+        return transactionData.get(driverA.reference()) == 0
+                   && transactionData.get(driverB.reference()) == 0
+                   && transactionData.get(driverC.reference()) == 0
+                   && transactionData.get(driverD.reference()) == 1;
+      }
+    }).result());
+
+    assertEquals(Integer.valueOf(0), driverA.persistence().get());
+    assertEquals(Integer.valueOf(0), driverB.persistence().get());
+    assertEquals(Integer.valueOf(0), driverC.persistence().get());
+    assertEquals(Integer.valueOf(1), driverD.persistence().get());
   }
 
   @Test
