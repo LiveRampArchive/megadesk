@@ -31,16 +31,16 @@ import com.liveramp.megadesk.transaction.TransactionDependency;
 public class Apply<V> implements Function<Value<V>> {
 
   private final Function<Value<V>> function;
-  private final Reference<V> returnValue;
+  private final Reference<V> result;
   private final TransactionDependency dependency;
 
-  public Apply(Function<Value<V>> function, Driver<V> returnValue) {
+  public Apply(Function<Value<V>> function, Driver<V> result) {
     this.function = function;
-    this.returnValue = returnValue.reference();
+    this.result = result.reference();
     // Original dependency, with result added as a write
     List<Driver> writes = Lists.newArrayList(function.dependency().writes());
-    if (!writes.contains(returnValue)) {
-      writes.add(returnValue);
+    if (!writes.contains(result)) {
+      writes.add(result);
     }
     this.dependency = BaseTransactionDependency.builder()
                           .snapshots(function.dependency().snapshots())
@@ -58,7 +58,7 @@ public class Apply<V> implements Function<Value<V>> {
   public Value<V> run(TransactionData transactionData) throws Exception {
     // TODO prevent the transaction data passed in to have the return value as a valid write dependency
     Value<V> result = function.run(transactionData);
-    transactionData.write(returnValue, result);
+    transactionData.write(this.result, result);
     return result;
   }
 }
