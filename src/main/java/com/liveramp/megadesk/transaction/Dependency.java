@@ -20,7 +20,7 @@ import java.util.List;
 
 import com.liveramp.megadesk.state.Driver;
 
-public interface TransactionDependency {
+public interface Dependency {
 
   List<Driver> snapshots();
 

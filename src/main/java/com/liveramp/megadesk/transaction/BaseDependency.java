@@ -25,15 +25,15 @@ import com.google.common.collect.Lists;
 
 import com.liveramp.megadesk.state.Driver;
 
-public class BaseTransactionDependency implements TransactionDependency {
+public class BaseDependency implements Dependency {
 
   private final List<Driver> snapshots;
   private final List<Driver> reads;
   private final List<Driver> writes;
 
-  public BaseTransactionDependency(Collection<Driver> snapshots,
-                                   Collection<Driver> reads,
-                                   Collection<Driver> writes) {
+  public BaseDependency(Collection<Driver> snapshots,
+                        Collection<Driver> reads,
+                        Collection<Driver> writes) {
     this.snapshots = prepareList(snapshots);
     this.reads = prepareList(reads);
     this.writes = prepareList(writes);
@@ -129,8 +129,8 @@ public class BaseTransactionDependency implements TransactionDependency {
     }
 
 
-    public BaseTransactionDependency build() {
-      return new BaseTransactionDependency(snapshots, reads, writes);
+    public BaseDependency build() {
+      return new BaseDependency(snapshots, reads, writes);
     }
   }
 

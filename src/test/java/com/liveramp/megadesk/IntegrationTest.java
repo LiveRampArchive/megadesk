@@ -36,13 +36,13 @@ import com.liveramp.megadesk.state.Value;
 import com.liveramp.megadesk.state.lib.InMemoryDriver;
 import com.liveramp.megadesk.state.lib.InMemoryValue;
 import com.liveramp.megadesk.test.BaseTestCase;
+import com.liveramp.megadesk.transaction.BaseDependency;
 import com.liveramp.megadesk.transaction.BaseExecutor;
-import com.liveramp.megadesk.transaction.BaseTransactionDependency;
 import com.liveramp.megadesk.transaction.Binding;
+import com.liveramp.megadesk.transaction.Dependency;
 import com.liveramp.megadesk.transaction.Function;
 import com.liveramp.megadesk.transaction.Procedure;
-import com.liveramp.megadesk.transaction.TransactionData;
-import com.liveramp.megadesk.transaction.TransactionDependency;
+import com.liveramp.megadesk.transaction.Transaction;
 import com.liveramp.megadesk.transaction.lib.Alter;
 import com.liveramp.megadesk.worker.NaiveWorker;
 
@@ -71,7 +71,7 @@ public class IntegrationTest extends BaseTestCase {
 
     public StepGear(StepGear... parents) {
       this.parents = Arrays.asList(parents);
-      setDependency(BaseTransactionDependency.builder().snapshots(drivers(parents)).writes(driver).build());
+      setDependency(BaseDependency.builder().snapshots(drivers(parents)).writes(driver).build());
     }
 
     private static List<Driver> drivers(StepGear... parents) {
@@ -83,9 +83,9 @@ public class IntegrationTest extends BaseTestCase {
     }
 
     @Override
-    public Outcome check(TransactionData transactionData) {
+    public Outcome check(Transaction transaction) {
       for (StepGear parent : parents) {
-        if (!transactionData.get(parent.driver.reference())) {
+        if (!transaction.get(parent.driver.reference())) {
           return Outcome.STANDBY;
         }
       }
@@ -93,9 +93,9 @@ public class IntegrationTest extends BaseTestCase {
     }
 
     @Override
-    public Outcome execute(TransactionData transactionData) {
+    public Outcome execute(Transaction transaction) {
       // no-op
-      transactionData.write(driver.reference(), new InMemoryValue<Boolean>(true));
+      transaction.write(driver.reference(), new InMemoryValue<Boolean>(true));
       return Outcome.ABANDON;
     }
   }
@@ -106,14 +106,14 @@ public class IntegrationTest extends BaseTestCase {
     private final Reference<Integer> dst;
 
     private TransferGear(Driver<Integer> src, Driver<Integer> dst) {
-      super(BaseTransactionDependency.builder().writes(src, dst).build());
+      super(BaseDependency.builder().writes(src, dst).build());
       this.src = src.reference();
       this.dst = dst.reference();
     }
 
     @Override
-    public Outcome check(TransactionData transactionData) {
-      if (transactionData.get(src) > 0 && transactionData.get(dst) == 0) {
+    public Outcome check(Transaction transaction) {
+      if (transaction.get(src) > 0 && transaction.get(dst) == 0) {
         return Outcome.SUCCESS;
       } else {
         return Outcome.STANDBY;
@@ -121,9 +121,9 @@ public class IntegrationTest extends BaseTestCase {
     }
 
     @Override
-    public Outcome execute(TransactionData transactionData) {
-      Binding<Integer> source = transactionData.binding(src);
-      Binding<Integer> destination = transactionData.binding(dst);
+    public Outcome execute(Transaction transaction) {
+      Binding<Integer> source = transaction.binding(src);
+      Binding<Integer> destination = transaction.binding(dst);
       destination.write(source.read());
       source.write(new InMemoryValue<Integer>(0));
       return Outcome.ABANDON;
@@ -163,16 +163,16 @@ public class IntegrationTest extends BaseTestCase {
     assertEquals(true, execute(new Function<Boolean>() {
 
       @Override
-      public TransactionDependency dependency() {
-        return BaseTransactionDependency.builder().reads(driverA, driverB, driverC, driverD).build();
+      public Dependency dependency() {
+        return BaseDependency.builder().reads(driverA, driverB, driverC, driverD).build();
       }
 
       @Override
-      public Value<Boolean> call(TransactionData transactionData) throws Exception {
-        return new InMemoryValue<Boolean>(transactionData.get(driverA.reference()) == 0
-                                              && transactionData.get(driverB.reference()) == 0
-                                              && transactionData.get(driverC.reference()) == 0
-                                              && transactionData.get(driverD.reference()) == 1);
+      public Value<Boolean> call(Transaction transaction) throws Exception {
+        return new InMemoryValue<Boolean>(transaction.get(driverA.reference()) == 0
+                                              && transaction.get(driverB.reference()) == 0
+                                              && transaction.get(driverC.reference()) == 0
+                                              && transaction.get(driverD.reference()) == 1);
       }
     }).get());
 

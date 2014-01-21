@@ -18,7 +18,7 @@ package com.liveramp.megadesk.transaction;
 
 public interface Procedure {
 
-  TransactionDependency dependency();
+  Dependency dependency();
 
-  void run(TransactionData transactionData) throws Exception;
+  void run(Transaction transaction) throws Exception;
 }

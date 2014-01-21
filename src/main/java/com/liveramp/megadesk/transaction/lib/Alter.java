@@ -19,30 +19,30 @@ package com.liveramp.megadesk.transaction.lib;
 import com.liveramp.megadesk.state.Driver;
 import com.liveramp.megadesk.state.Reference;
 import com.liveramp.megadesk.state.Value;
-import com.liveramp.megadesk.transaction.BaseTransactionDependency;
+import com.liveramp.megadesk.transaction.BaseDependency;
+import com.liveramp.megadesk.transaction.Dependency;
 import com.liveramp.megadesk.transaction.Procedure;
-import com.liveramp.megadesk.transaction.TransactionData;
-import com.liveramp.megadesk.transaction.TransactionDependency;
+import com.liveramp.megadesk.transaction.Transaction;
 
 public abstract class Alter<V> implements Procedure {
 
   private final Reference<V> reference;
-  private final BaseTransactionDependency dependency;
+  private final BaseDependency dependency;
 
   public Alter(Driver<V> driver) {
     this.reference = driver.reference();
-    this.dependency = BaseTransactionDependency.builder().writes(driver).build();
+    this.dependency = BaseDependency.builder().writes(driver).build();
   }
 
   @Override
-  public TransactionDependency dependency() {
+  public Dependency dependency() {
     return dependency;
   }
 
   @Override
-  public void run(TransactionData transactionData) throws Exception {
-    Value<V> result = alter(transactionData.read(reference));
-    transactionData.write(reference, result);
+  public void run(Transaction transaction) throws Exception {
+    Value<V> result = alter(transaction.read(reference));
+    transaction.write(reference, result);
   }
 
   public abstract Value<V> alter(Value<V> value);

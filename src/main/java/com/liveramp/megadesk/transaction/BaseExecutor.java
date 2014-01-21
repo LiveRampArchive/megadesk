@@ -27,28 +27,28 @@ public class BaseExecutor implements Executor {
 
   @Override
   public void execute(Procedure procedure) throws Exception {
-    Transaction transaction = new BaseTransaction();
-    TransactionData transactionData = transaction.begin(procedure.dependency());
+    TransactionExecution transactionExecution = new BaseTransactionExecution();
+    Transaction transaction = transactionExecution.begin(procedure.dependency());
     try {
-      procedure.run(transactionData);
-      transaction.commit();
+      procedure.run(transaction);
+      transactionExecution.commit();
     } catch (Exception e) {
-      transaction.abort();
+      transactionExecution.abort();
       throw e;
     }
   }
 
   @Override
   public boolean tryExecute(Procedure procedure) throws Exception {
-    Transaction transaction = new BaseTransaction();
-    TransactionData transactionData = transaction.tryBegin(procedure.dependency());
-    if (transactionData != null) {
+    TransactionExecution transactionExecution = new BaseTransactionExecution();
+    Transaction transaction = transactionExecution.tryBegin(procedure.dependency());
+    if (transaction != null) {
       try {
-        procedure.run(transactionData);
-        transaction.commit();
+        procedure.run(transaction);
+        transactionExecution.commit();
         return true;
       } catch (Exception e) {
-        transaction.abort();
+        transactionExecution.abort();
         throw e;
       }
     } else {
@@ -68,37 +68,37 @@ public class BaseExecutor implements Executor {
 
   @Override
   public <V> Value<V> execute(Function<V> function, Driver<V> result) throws Exception {
-    Transaction transaction = new BaseTransaction();
-    TransactionData transactionData = transaction.begin(makeFunctionDependency(function.dependency(), result));
+    TransactionExecution transactionExecution = new BaseTransactionExecution();
+    Transaction transaction = transactionExecution.begin(makeFunctionDependency(function.dependency(), result));
     try {
-      Value<V> resultValue = function.call(transactionData);
+      Value<V> resultValue = function.call(transaction);
       // Write result only if needed
       if (result != null) {
-        transactionData.write(result.reference(), resultValue);
+        transaction.write(result.reference(), resultValue);
       }
-      transaction.commit();
+      transactionExecution.commit();
       return resultValue;
     } catch (Exception e) {
-      transaction.abort();
+      transactionExecution.abort();
       throw e;
     }
   }
 
   @Override
   public <V> ExecutionResult<Value<V>> tryExecute(Function<V> function, Driver<V> result) throws Exception {
-    Transaction transaction = new BaseTransaction();
-    TransactionData transactionData = transaction.tryBegin(makeFunctionDependency(function.dependency(), result));
-    if (transactionData != null) {
+    TransactionExecution transactionExecution = new BaseTransactionExecution();
+    Transaction transaction = transactionExecution.tryBegin(makeFunctionDependency(function.dependency(), result));
+    if (transaction != null) {
       try {
-        Value<V> resultValue = function.call(transactionData);
+        Value<V> resultValue = function.call(transaction);
         // Write result only if needed
         if (result != null) {
-          transactionData.write(result.reference(), resultValue);
+          transaction.write(result.reference(), resultValue);
         }
-        transaction.commit();
+        transactionExecution.commit();
         return new ExecutionResult<Value<V>>(true, resultValue);
       } catch (Exception e) {
-        transaction.abort();
+        transactionExecution.abort();
         throw e;
       }
     } else {
@@ -106,15 +106,15 @@ public class BaseExecutor implements Executor {
     }
   }
 
-  private static TransactionDependency makeFunctionDependency(TransactionDependency dependency, Driver resultValue) {
+  private static Dependency makeFunctionDependency(Dependency dependency, Driver resultValue) {
     if (resultValue != null) {
-      TransactionDependency result;
+      Dependency result;
       // Original dependency, with result added as a write
       List<Driver> writes = Lists.newArrayList(dependency.writes());
       if (!writes.contains(resultValue)) {
         writes.add(resultValue);
       }
-      result = BaseTransactionDependency.builder()
+      result = BaseDependency.builder()
                    .snapshots(dependency.snapshots())
                    .reads(dependency.reads())
                    .writes(writes)

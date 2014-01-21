@@ -16,16 +16,13 @@
 
 package com.liveramp.megadesk.transaction;
 
-import com.liveramp.megadesk.state.Reference;
-import com.liveramp.megadesk.state.Value;
+public interface TransactionExecution {
 
-public interface TransactionData {
+  Transaction begin(Dependency dependency);
 
-  <VALUE> Binding<VALUE> binding(Reference<VALUE> reference);
+  Transaction tryBegin(Dependency dependency);
 
-  <VALUE> Value<VALUE> read(Reference<VALUE> reference);
+  void commit();
 
-  <VALUE> VALUE get(Reference<VALUE> reference);
-
-  <VALUE> void write(Reference<VALUE> reference, Value<VALUE> value);
+  void abort();
 }

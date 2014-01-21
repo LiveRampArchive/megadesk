@@ -16,190 +16,76 @@
 
 package com.liveramp.megadesk.transaction;
 
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.locks.Lock;
+import java.util.Map;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.google.common.collect.Maps;
 
 import com.liveramp.megadesk.state.Driver;
+import com.liveramp.megadesk.state.Reference;
 import com.liveramp.megadesk.state.Value;
 
 public class BaseTransaction implements Transaction {
 
-  public enum State {
-    STANDBY,
-    RUNNING,
-    COMMITTED,
-    ABORTED
-  }
+  private final Map<Reference, Binding> bindings;
 
-  private TransactionDependency dependency;
-  private TransactionData data;
-  private State state = State.STANDBY;
-  private final Set<Lock> executionLocksAcquired;
-  private final Set<Lock> persistenceLocksAcquired;
-
-  public BaseTransaction() {
-    executionLocksAcquired = Sets.newHashSet();
-    persistenceLocksAcquired = Sets.newHashSet();
-  }
-
-  @Override
-  public TransactionData begin(TransactionDependency dependency) {
-    ensureState(State.STANDBY);
-    lock(dependency);
-    return prepare(dependency);
-  }
-
-  @Override
-  public TransactionData tryBegin(TransactionDependency dependency) {
-    ensureState(State.STANDBY);
-    boolean result = tryLock(dependency);
-    if (result) {
-      return prepare(dependency);
-    } else {
-      return null;
+  public BaseTransaction(Dependency dependency) {
+    bindings = Maps.newHashMap();
+    for (Driver driver : readDrivers(dependency)) {
+      addBinding(driver, true);
+    }
+    for (Driver driver : writeDrivers(dependency)) {
+      addBinding(driver, false);
     }
   }
 
-  private TransactionData prepare(TransactionDependency dependency) {
-    // Acquire persistence read locks for snapshot
-    lockAndRemember(persistenceReadLocks(dependency), persistenceLocksAcquired);
-    try {
-      this.data = new BaseTransactionData(dependency);
-    } finally {
-      // Always release persistence read locks
-      unlock(persistenceLocksAcquired);
-    }
-    // Prepare rest of transaction
-    this.state = State.RUNNING;
-    this.dependency = dependency;
-    return this.data;
-  }
-
-  @Override
-  public void commit() {
-    ensureState(State.RUNNING);
-    // Acquire persistence write locks
-    lockAndRemember(persistenceWriteLocks(dependency), persistenceLocksAcquired);
-    try {
-      // Write updates
-      for (Driver driver : dependency.writes()) {
-        Value value = data.binding(driver.reference()).read();
-        driver.persistence().write(value);
-      }
-    } finally {
-      // Always release persistence write locks
-      unlock(persistenceLocksAcquired);
-    }
-    // Release execution locks
-    unlock(executionLocksAcquired);
-    state = State.COMMITTED;
-  }
-
-  @Override
-  public void abort() {
-    ensureState(State.RUNNING);
-    unlock(executionLocksAcquired);
-    state = State.ABORTED;
-  }
-
-  private boolean tryLock(TransactionDependency dependency) {
-    return tryLockAndRemember(executionReadLocks(dependency), executionLocksAcquired)
-               && tryLockAndRemember(executionWriteLocks(dependency), executionLocksAcquired);
-  }
-
-  private void lock(TransactionDependency dependency) {
-    lockAndRemember(executionReadLocks(dependency), executionLocksAcquired);
-    lockAndRemember(executionWriteLocks(dependency), executionLocksAcquired);
-  }
-
-  private static List<Lock> executionReadLocks(TransactionDependency dependency) {
-    List<Lock> result = Lists.newArrayList();
-    for (Driver driver : dependency.reads()) {
-      result.add(driver.executionLock().readLock());
-    }
-    return result;
-  }
-
-  private static List<Lock> executionWriteLocks(TransactionDependency dependency) {
-    List<Lock> result = Lists.newArrayList();
-    for (Driver driver : dependency.writes()) {
-      result.add(driver.executionLock().writeLock());
-    }
-    return result;
-  }
-
-  private static List<Lock> persistenceReadLocks(TransactionDependency dependency) {
-    List<Lock> result = Lists.newArrayList();
+  private static List<Driver> readDrivers(Dependency dependency) {
+    List<Driver> result = Lists.newArrayList();
     // Snapshots
     for (Driver driver : dependency.snapshots()) {
-      result.add(driver.persistenceLock().readLock());
+      result.add(driver);
     }
     // Execution reads
     for (Driver driver : dependency.reads()) {
-      result.add(driver.persistenceLock().readLock());
+      result.add(driver);
     }
+    return result;
+  }
+
+  private static List<Driver> writeDrivers(Dependency dependency) {
+    List<Driver> result = Lists.newArrayList();
     // Execution writes
     for (Driver driver : dependency.writes()) {
-      result.add(driver.persistenceLock().readLock());
+      result.add(driver);
     }
     return result;
   }
 
-  private static List<Lock> persistenceWriteLocks(TransactionDependency dependency) {
-    List<Lock> result = Lists.newArrayList();
-    // Execution writes only
-    for (Driver driver : dependency.writes()) {
-      result.add(driver.persistenceLock().writeLock());
-    }
-    return result;
+  private void addBinding(Driver driver, boolean readOnly) {
+    bindings.put(driver.reference(), new BaseBinding(driver.persistence().read(), readOnly));
   }
 
-  private static boolean tryLockAndRemember(Collection<Lock> locks, Set<Lock> acquiredLocks) {
-    for (Lock lock : locks) {
-      if (!tryLockAndRemember(lock, acquiredLocks)) {
-        unlock(acquiredLocks);
-        return false;
-      }
+  @Override
+  public <VALUE> Binding<VALUE> binding(Reference<VALUE> reference) {
+    if (!bindings.containsKey(reference)) {
+      throw new IllegalStateException(); // TODO message
     }
-    return true;
+    return bindings.get(reference);
   }
 
-  private static void lockAndRemember(Collection<Lock> locks, Set<Lock> acquiredLocks) {
-    for (Lock lock : locks) {
-      lockAndRemember(lock, acquiredLocks);
-    }
+  @Override
+  public <VALUE> Value<VALUE> read(Reference<VALUE> reference) {
+    return binding(reference).read();
   }
 
-  private static boolean tryLockAndRemember(Lock lock, Set<Lock> acquiredLocks) {
-    boolean result = lock.tryLock();
-    if (result) {
-      acquiredLocks.add(lock);
-    }
-    return result;
+  @Override
+  public <VALUE> VALUE get(Reference<VALUE> reference) {
+    return binding(reference).get();
   }
 
-  private static void lockAndRemember(Lock lock, Set<Lock> acquiredLocks) {
-    lock.lock();
-    acquiredLocks.add(lock);
-  }
-
-  private static void unlock(Set<Lock> acquiredLocks) {
-    Iterator<Lock> lockIterator = acquiredLocks.iterator();
-    while (lockIterator.hasNext()) {
-      lockIterator.next().unlock();
-      lockIterator.remove();
-    }
-  }
-
-  private void ensureState(State state) {
-    if (this.state != state) {
-      throw new IllegalStateException("Transaction state should be " + state + " but is " + this.state);
-    }
+  @Override
+  public <VALUE> void write(Reference<VALUE> reference, Value<VALUE> value) {
+    binding(reference).write(value);
   }
 }

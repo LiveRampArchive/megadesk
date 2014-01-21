@@ -20,7 +20,7 @@ import com.liveramp.megadesk.state.Value;
 
 public interface Function<V> {
 
-  TransactionDependency dependency();
+  Dependency dependency();
 
-  Value<V> call(TransactionData transactionData) throws Exception;
+  Value<V> call(Transaction transaction) throws Exception;
 }
