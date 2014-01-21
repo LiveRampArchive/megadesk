@@ -17,7 +17,6 @@
 package com.liveramp.megadesk.gear;
 
 import com.liveramp.megadesk.transaction.BaseExecutor;
-import com.liveramp.megadesk.transaction.BaseTransaction;
 import com.liveramp.megadesk.transaction.ExecutionResult;
 import com.liveramp.megadesk.transaction.Executor;
 
@@ -27,7 +26,7 @@ public class GearExecutor {
 
   public Outcome execute(Gear gear) {
     try {
-      ExecutionResult<Outcome> result = executor.execute(gear);
+      ExecutionResult<Outcome> result = executor.tryExecute(gear);
       if (result.executed()) {
         return result.result();
       } else {

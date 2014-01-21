@@ -167,7 +167,7 @@ public class IntegrationTest extends BaseTestCase {
                    && transactionData.get(driverC.reference()) == 0
                    && transactionData.get(driverD.reference()) == 1;
       }
-    }).result());
+    }));
 
     assertEquals(Integer.valueOf(0), driverA.persistence().get());
     assertEquals(Integer.valueOf(0), driverB.persistence().get());
