@@ -16,6 +16,8 @@
 
 package com.liveramp.megadesk.gear;
 
+import com.liveramp.megadesk.state.Value;
+import com.liveramp.megadesk.state.lib.InMemoryValue;
 import com.liveramp.megadesk.transaction.BaseTransactionDependency;
 import com.liveramp.megadesk.transaction.TransactionData;
 
@@ -33,12 +35,12 @@ public abstract class ConditionalGear extends BaseGear implements Gear {
   public abstract Outcome execute(TransactionData transactionData);
 
   @Override
-  public final Outcome run(TransactionData transactionData) throws Exception {
+  public final Value<Outcome> call(TransactionData transactionData) throws Exception {
     Outcome check = check(transactionData);
     if (check == Outcome.SUCCESS) {
-      return execute(transactionData);
+      return new InMemoryValue<Outcome>(execute(transactionData));
     } else {
-      return check;
+      return new InMemoryValue<Outcome>(check);
     }
   }
 }

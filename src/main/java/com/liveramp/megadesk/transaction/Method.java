@@ -16,13 +16,9 @@
 
 package com.liveramp.megadesk.transaction;
 
-public interface Executor {
+public interface Method {
 
-  void execute(Method method) throws Exception;
+  TransactionDependency dependency();
 
-  boolean tryExecute(Method method) throws Exception;
-
-  <V> V call(Function<V> function) throws Exception;
-
-  <V> ExecutionResult<V> tryCall(Function<V> function) throws Exception;
+  void run(TransactionData transactionData) throws Exception;
 }

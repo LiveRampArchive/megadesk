@@ -16,20 +16,15 @@
 
 package com.liveramp.megadesk.transaction;
 
-import com.liveramp.megadesk.state.Driver;
-import com.liveramp.megadesk.state.Value;
-import com.liveramp.megadesk.transaction.lib.StoreResult;
-
 public class BaseExecutor implements Executor {
 
   @Override
-  public <V> V execute(Function<V> function) throws Exception {
+  public void execute(Method method) throws Exception {
     Transaction transaction = new BaseTransaction();
-    TransactionData transactionData = transaction.begin(function.dependency());
+    TransactionData transactionData = transaction.begin(method.dependency());
     try {
-      V result = function.run(transactionData);
+      method.run(transactionData);
       transaction.commit();
-      return result;
     } catch (Exception e) {
       transaction.abort();
       throw e;
@@ -37,30 +32,35 @@ public class BaseExecutor implements Executor {
   }
 
   @Override
-  public <V> ExecutionResult<V> tryExecute(Function<V> function) throws Exception {
+  public boolean tryExecute(Method method) throws Exception {
     Transaction transaction = new BaseTransaction();
-    TransactionData transactionData = transaction.tryBegin(function.dependency());
+    TransactionData transactionData = transaction.tryBegin(method.dependency());
     if (transactionData != null) {
       try {
-        V result = function.run(transactionData);
+        method.run(transactionData);
         transaction.commit();
-        return new ExecutionResult<V>(true, result);
+        return true;
       } catch (Exception e) {
         transaction.abort();
         throw e;
       }
     } else {
-      return new ExecutionResult<V>(false, null);
+      return false;
     }
   }
 
   @Override
-  public <V> Value<V> execute(Function<Value<V>> function, Driver<V> result) throws Exception {
-    return execute(new StoreResult<V>(function, result));
+  public <V> V call(Function<V> function) throws Exception {
+    execute(function);
+    return function.result().persistence().get();
   }
 
   @Override
-  public <V> ExecutionResult<Value<V>> tryExecute(Function<Value<V>> function, Driver<V> result) throws Exception {
-    return tryExecute(new StoreResult<V>(function, result));
+  public <V> ExecutionResult<V> tryCall(Function<V> function) throws Exception {
+    if (tryExecute(function)) {
+      return new ExecutionResult<V>(true, function.result().persistence().get());
+    } else {
+      return new ExecutionResult<V>(false, null);
+    }
   }
 }

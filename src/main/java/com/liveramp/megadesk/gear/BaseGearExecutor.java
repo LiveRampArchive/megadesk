@@ -17,7 +17,6 @@
 package com.liveramp.megadesk.gear;
 
 import com.liveramp.megadesk.transaction.BaseExecutor;
-import com.liveramp.megadesk.transaction.ExecutionResult;
 import com.liveramp.megadesk.transaction.Executor;
 
 public class BaseGearExecutor implements GearExecutor {
@@ -27,9 +26,8 @@ public class BaseGearExecutor implements GearExecutor {
   @Override
   public Outcome execute(Gear gear) {
     try {
-      ExecutionResult<Outcome> result = executor.tryExecute(gear);
-      if (result.executed()) {
-        return result.result();
+      if (executor.tryExecute(gear)) {
+        return gear.result().persistence().get();
       } else {
         return Outcome.STANDBY;
       }

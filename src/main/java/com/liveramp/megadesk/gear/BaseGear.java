@@ -16,28 +16,17 @@
 
 package com.liveramp.megadesk.gear;
 
+import com.liveramp.megadesk.state.lib.InMemoryDriver;
+import com.liveramp.megadesk.transaction.BaseFunction;
 import com.liveramp.megadesk.transaction.TransactionDependency;
 
-public abstract class BaseGear implements Gear {
-
-  private TransactionDependency dependency;
+public abstract class BaseGear extends BaseFunction<Outcome> implements Gear {
 
   public BaseGear() {
+    super(new InMemoryDriver<Outcome>());
   }
 
   public BaseGear(TransactionDependency dependency) {
-    this.dependency = dependency;
-  }
-
-  @Override
-  public TransactionDependency dependency() {
-    if (dependency == null) {
-      throw new IllegalStateException(); // TODO message
-    }
-    return dependency;
-  }
-
-  protected void setDependency(TransactionDependency dependency) {
-    this.dependency = dependency;
+    super(dependency, new InMemoryDriver<Outcome>());
   }
 }

@@ -39,9 +39,8 @@ import com.liveramp.megadesk.test.BaseTestCase;
 import com.liveramp.megadesk.transaction.BaseExecutor;
 import com.liveramp.megadesk.transaction.BaseTransactionDependency;
 import com.liveramp.megadesk.transaction.Binding;
-import com.liveramp.megadesk.transaction.Function;
+import com.liveramp.megadesk.transaction.Method;
 import com.liveramp.megadesk.transaction.TransactionData;
-import com.liveramp.megadesk.transaction.TransactionDependency;
 import com.liveramp.megadesk.transaction.lib.Alter;
 import com.liveramp.megadesk.worker.NaiveWorker;
 
@@ -133,8 +132,8 @@ public class IntegrationTest extends BaseTestCase {
     new NaiveWorker().complete(gears);
   }
 
-  private void run(Function function) throws Exception {
-    new BaseExecutor().execute(function);
+  private void run(Method method) throws Exception {
+    new BaseExecutor().execute(method);
   }
 
   @Test
@@ -155,20 +154,20 @@ public class IntegrationTest extends BaseTestCase {
     run(gearA, gearB, gearC);
 
     // Check using a transaction
-    assertEquals(true, new BaseExecutor().execute(new Function<Boolean>() {
-      @Override
-      public TransactionDependency dependency() {
-        return BaseTransactionDependency.builder().reads(driverA, driverB, driverC, driverD).build();
-      }
-
-      @Override
-      public Boolean run(TransactionData transactionData) throws Exception {
-        return transactionData.get(driverA.reference()) == 0
-                   && transactionData.get(driverB.reference()) == 0
-                   && transactionData.get(driverC.reference()) == 0
-                   && transactionData.get(driverD.reference()) == 1;
-      }
-    }));
+    //        assertEquals(true, new BaseExecutor().execute(new BaseFunction<Boolean>() {
+    //      @Override
+    //      public TransactionDependency dependency() {
+    //        return BaseTransactionDependency.builder().reads(driverA, driverB, driverC, driverD).build();
+    //      }
+    //
+    //      @Override
+    //      public Boolean call(TransactionData transactionData) throws Exception {
+    //        return transactionData.get(driverA.reference()) == 0
+    //                   && transactionData.get(driverB.reference()) == 0
+    //                   && transactionData.get(driverC.reference()) == 0
+    //                   && transactionData.get(driverD.reference()) == 1;
+    //      }
+    //    }));
 
     assertEquals(Integer.valueOf(0), driverA.persistence().get());
     assertEquals(Integer.valueOf(0), driverB.persistence().get());

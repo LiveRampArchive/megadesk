@@ -20,11 +20,11 @@ import com.liveramp.megadesk.state.Driver;
 import com.liveramp.megadesk.state.Reference;
 import com.liveramp.megadesk.state.Value;
 import com.liveramp.megadesk.transaction.BaseTransactionDependency;
-import com.liveramp.megadesk.transaction.Function;
+import com.liveramp.megadesk.transaction.Method;
 import com.liveramp.megadesk.transaction.TransactionData;
 import com.liveramp.megadesk.transaction.TransactionDependency;
 
-public abstract class Alter<V> implements Function<Value<V>> {
+public abstract class Alter<V> implements Method {
 
   private final Reference<V> reference;
   private final BaseTransactionDependency dependency;
@@ -40,10 +40,9 @@ public abstract class Alter<V> implements Function<Value<V>> {
   }
 
   @Override
-  public Value<V> run(TransactionData transactionData) throws Exception {
+  public void run(TransactionData transactionData) throws Exception {
     Value<V> result = alter(transactionData.read(reference));
     transactionData.write(reference, result);
-    return result;
   }
 
   public abstract Value<V> alter(Value<V> value);
