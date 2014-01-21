@@ -16,13 +16,11 @@
 
 package com.liveramp.megadesk.state.lib;
 
-import java.util.UUID;
-
 import com.liveramp.megadesk.state.Reference;
 
-public class InMemoryReference<VALUE> extends BaseReference<VALUE> implements Reference<VALUE> {
+public class Name<VALUE> extends BaseReference<VALUE> implements Reference<VALUE> {
 
-  public InMemoryReference() {
-    super(UUID.randomUUID().toString());
+  public Name(String name) {
+    super(name);
   }
 }

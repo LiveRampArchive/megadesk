@@ -14,15 +14,11 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.state.lib;
+package com.liveramp.megadesk.transaction;
 
-import java.util.UUID;
+public interface UnboundProcedure {
 
-import com.liveramp.megadesk.state.Reference;
+  Dependency<String> dependency();
 
-public class InMemoryReference<VALUE> extends BaseReference<VALUE> implements Reference<VALUE> {
-
-  public InMemoryReference() {
-    super(UUID.randomUUID().toString());
-  }
+  void run(UnboundTransaction transaction) throws Exception;
 }

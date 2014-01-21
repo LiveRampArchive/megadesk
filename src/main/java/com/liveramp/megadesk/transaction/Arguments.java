@@ -14,15 +14,27 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.state.lib;
+package com.liveramp.megadesk.transaction;
 
-import java.util.UUID;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
-import com.liveramp.megadesk.state.Reference;
+import com.google.common.collect.Lists;
 
-public class InMemoryReference<VALUE> extends BaseReference<VALUE> implements Reference<VALUE> {
+public class Arguments {
 
-  public InMemoryReference() {
-    super(UUID.randomUUID().toString());
+  private final List<String> arguments;
+
+  public Arguments(List<String> arguments) {
+    this.arguments = Collections.unmodifiableList(Lists.newArrayList(arguments));
+  }
+
+  public Arguments(String arguments) {
+    this(Arrays.asList(arguments));
+  }
+
+  public List<String> get() {
+    return arguments;
   }
 }
