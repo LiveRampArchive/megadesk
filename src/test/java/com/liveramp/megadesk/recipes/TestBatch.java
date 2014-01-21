@@ -12,7 +12,7 @@ public class TestBatch extends BaseTestCase {
   @Test
   public void testBatching() {
 
-    Batch<Integer, Integer> batch = new Batch<Integer, Integer>("summed-integers", new IntSummer());
+    Batch<Integer, Integer> batch = Batch.getByName("summed-integers", new IntSummer());
 
     batch.append(3);
     batch.append(2);
@@ -27,7 +27,7 @@ public class TestBatch extends BaseTestCase {
     sum = batch.readBatch();
     assertEquals(10, sum);
 
-    Batch<Integer, Integer> sameBatchNewName = new Batch<Integer, Integer>("summed-integers", new IntSummer());
+    Batch<Integer, Integer> sameBatchNewName = Batch.getByName("summed-integers", new IntSummer());
     int newSum = sameBatchNewName.readBatch();
     assertEquals(10, newSum);
   }

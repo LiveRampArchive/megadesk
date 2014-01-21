@@ -29,22 +29,26 @@ public class Batch<VALUE, MergedValues> {
   private final Driver<ImmutableList> input;
   private final Driver<ImmutableList> output;
   private final Merger<VALUE, MergedValues> merger;
-  private ValueWrapper wrapper = new InMemoryWrapper();
+  private static ValueWrapper wrapper = new InMemoryWrapper();
 
-  public Batch(String name, Merger<VALUE, MergedValues> merger) {
-    this.merger = merger;
-    this.input = getDriver(name + "-input");
-    this.output = getDriver(name + "-output");
+  public static <VALUE, MergedValues> Batch<VALUE, MergedValues> getByName(String name, Merger<VALUE, MergedValues> merger) {
+    return new Batch<VALUE, MergedValues>(getDriver(name + "-input"), getDriver(name + "-output"), merger);
   }
 
-  private Driver<ImmutableList> getDriver(String name) {
+  public Batch(Driver<ImmutableList> input, Driver<ImmutableList> output, Merger<VALUE, MergedValues> merger) {
+    this.input = input;
+    this.output = output;
+    this.merger = merger;
+  }
+
+  private static Driver<ImmutableList> getDriver(String name) {
     if (!drivers.containsKey(name)) {
       drivers.put(name, makeDriver(name));
     }
     return drivers.get(name);
   }
 
-  private Driver<ImmutableList> makeDriver(String name) {
+  private static Driver<ImmutableList> makeDriver(String name) {
     return new InMemoryDriver<ImmutableList>(wrapper.<ImmutableList>wrap(ImmutableList.of()));
   }
 
@@ -155,7 +159,7 @@ public class Batch<VALUE, MergedValues> {
     public MergedValues merge(List<VALUE> values);
   }
 
-  private class InMemoryWrapper implements ValueWrapper {
+  private static class InMemoryWrapper implements ValueWrapper {
 
     @Override
     public <T> Value<T> wrap(T value) {
