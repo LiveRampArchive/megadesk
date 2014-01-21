@@ -193,9 +193,7 @@ public class IntegrationTest extends BaseTestCase {
 
   @Test
   public void testBatch() throws Exception {
-
     final Value<Integer> v0 = new InMemoryValue<Integer>(0);
-
     final Driver<Integer> driverA = new InMemoryDriver<Integer>(v0);
     final Driver<Integer> driverB = new InMemoryDriver<Integer>(v0);
 
@@ -208,9 +206,7 @@ public class IntegrationTest extends BaseTestCase {
 
     // Alter A
     new BaseExecutor().execute(incrementA);
-
     new BaseExecutor().execute(incrementA);
-
     // Transfer A to B
     new NaiveWorker().complete(new TransferGear(driverA, driverB));
 
