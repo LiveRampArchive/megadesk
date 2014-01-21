@@ -22,8 +22,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.liveramp.megadesk.gear.BaseGearExecutor;
 import com.liveramp.megadesk.gear.Gear;
-import com.liveramp.megadesk.gear.GearExecutor;
 import com.liveramp.megadesk.gear.Outcome;
 
 public class NaiveWorker extends BaseWorker implements Worker {
@@ -61,7 +61,7 @@ public class NaiveWorker extends BaseWorker implements Worker {
 
     private static final long SLEEP_PERIOD_MS = 100;
 
-    private final GearExecutor gearExecutor = new GearExecutor();
+    private final BaseGearExecutor gearExecutor = new BaseGearExecutor();
 
     @Override
     public void run() {

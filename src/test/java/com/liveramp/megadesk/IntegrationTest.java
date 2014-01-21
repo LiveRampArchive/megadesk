@@ -189,4 +189,9 @@ public class IntegrationTest extends BaseTestCase {
     assertEquals(true, stepC.driver.persistence().get());
     assertEquals(true, stepD.driver.persistence().get());
   }
+
+  @Test
+  public void testBatch() throws Exception {
+    
+  }
 }
