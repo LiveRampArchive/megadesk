@@ -56,6 +56,7 @@ public class Apply<V> implements Function<Value<V>> {
 
   @Override
   public Value<V> run(TransactionData transactionData) throws Exception {
+    // TODO prevent the transaction data passed in to have the return value as a valid write dependency
     Value<V> result = function.run(transactionData);
     transactionData.write(returnValue, result);
     return result;
