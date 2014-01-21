@@ -16,29 +16,24 @@ import com.liveramp.megadesk.transaction.Dependency;
 import com.liveramp.megadesk.transaction.Procedure;
 import com.liveramp.megadesk.transaction.Transaction;
 import com.liveramp.megadesk.utils.ValueWrapper;
-import com.liveramp.megadesk.worker.NaiveWorker;
-import com.liveramp.megadesk.worker.Worker;
 
-import java.util.List;
 import java.util.Map;
 
-public class Batch<VALUE, MergedValues> {
+public class Batch<VALUE> {
 
   private static Map<String, Driver<ImmutableList>> drivers = Maps.newConcurrentMap();
 
   private final Driver<ImmutableList> input;
   private final Driver<ImmutableList> output;
-  private final Merger<VALUE, MergedValues> merger;
   private static ValueWrapper wrapper = new InMemoryWrapper();
 
-  public static <VALUE, MergedValues> Batch<VALUE, MergedValues> getByName(String name, Merger<VALUE, MergedValues> merger) {
-    return new Batch<VALUE, MergedValues>(getDriver(name + "-input"), getDriver(name + "-output"), merger);
+  public static <VALUE> Batch<VALUE> getByName(String name) {
+    return new Batch<VALUE>(getDriver(name + "-input"), getDriver(name + "-output"));
   }
 
-  public Batch(Driver<ImmutableList> input, Driver<ImmutableList> output, Merger<VALUE, MergedValues> merger) {
+  public Batch(Driver<ImmutableList> input, Driver<ImmutableList> output) {
     this.input = input;
     this.output = output;
-    this.merger = merger;
   }
 
   private static Driver<ImmutableList> getDriver(String name) {
@@ -52,10 +47,6 @@ public class Batch<VALUE, MergedValues> {
     return new InMemoryDriver<ImmutableList>(wrapper.<ImmutableList>wrap(ImmutableList.of()));
   }
 
-  private Worker makeWorker() {
-    return new NaiveWorker();
-  }
-
   public void append(VALUE value) {
     Append<VALUE> append = new Append<VALUE>(input, value);
     try {
@@ -65,14 +56,14 @@ public class Batch<VALUE, MergedValues> {
     }
   }
 
-  public MergedValues readBatch() {
+  public ImmutableList<VALUE> readBatch() {
     try {
       new BaseExecutor().execute(new BatcherGear());
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
     ImmutableList batch = read(output);
-    return merger.merge(batch);
+    return batch;
   }
 
   private <T> T read(Driver<T> ref) {
@@ -152,11 +143,6 @@ public class Batch<VALUE, MergedValues> {
     public void run(Transaction transaction) throws Exception {
       transaction.write(reference, wrapper.<ImmutableList>wrap(ImmutableList.of()));
     }
-  }
-
-  public static interface Merger<VALUE, MergedValues> {
-
-    public MergedValues merge(List<VALUE> values);
   }
 
   private static class InMemoryWrapper implements ValueWrapper {
