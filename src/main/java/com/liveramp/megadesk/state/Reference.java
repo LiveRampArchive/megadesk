@@ -16,5 +16,7 @@
 
 package com.liveramp.megadesk.state;
 
-public interface Reference<VALUE> {
+public interface Reference<VALUE> extends Comparable<Reference<VALUE>> {
+
+  String name();
 }

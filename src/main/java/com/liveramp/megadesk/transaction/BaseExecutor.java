@@ -19,7 +19,8 @@ package com.liveramp.megadesk.transaction;
 public class BaseExecutor implements Executor {
 
   @Override
-  public <V> ExecutionResult<V> execute(Transaction transaction, Function<V> function) throws Exception {
+  public <V> ExecutionResult<V> execute(Function<V> function) throws Exception {
+    Transaction transaction = new BaseTransaction();
     TransactionData transactionData = transaction.tryBegin(function.dependency());
     if (transactionData != null) {
       try {

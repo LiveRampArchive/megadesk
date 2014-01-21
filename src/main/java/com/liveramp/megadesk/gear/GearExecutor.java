@@ -27,7 +27,7 @@ public class GearExecutor {
 
   public Outcome execute(Gear gear) {
     try {
-      ExecutionResult<Outcome> result = executor.execute(new BaseTransaction(), gear);
+      ExecutionResult<Outcome> result = executor.execute(gear);
       if (result.executed()) {
         return result.result();
       } else {

@@ -19,6 +19,8 @@ package com.liveramp.megadesk.state.lib;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.commons.lang.builder.CompareToBuilder;
+
 import com.liveramp.megadesk.state.Driver;
 import com.liveramp.megadesk.state.Persistence;
 import com.liveramp.megadesk.state.Reference;
@@ -57,5 +59,10 @@ public class InMemoryDriver<VALUE> implements Driver<VALUE> {
   @Override
   public Persistence<VALUE> persistence() {
     return persistence;
+  }
+
+  @Override
+  public int compareTo(Driver<VALUE> other) {
+    return new CompareToBuilder().append(reference, other.reference()).toComparison();
   }
 }

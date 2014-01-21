@@ -18,5 +18,5 @@ package com.liveramp.megadesk.transaction;
 
 public interface Executor {
 
-  <V> ExecutionResult<V> execute(Transaction transaction, Function<V> function) throws Exception;
+  <V> ExecutionResult<V> execute(Function<V> function) throws Exception;
 }
