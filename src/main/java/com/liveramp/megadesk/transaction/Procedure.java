@@ -16,7 +16,7 @@
 
 package com.liveramp.megadesk.transaction;
 
-public interface Method {
+public interface Procedure {
 
   TransactionDependency dependency();
 

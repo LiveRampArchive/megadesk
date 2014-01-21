@@ -20,11 +20,11 @@ import com.liveramp.megadesk.state.Driver;
 import com.liveramp.megadesk.state.Reference;
 import com.liveramp.megadesk.state.Value;
 import com.liveramp.megadesk.transaction.BaseTransactionDependency;
-import com.liveramp.megadesk.transaction.Method;
+import com.liveramp.megadesk.transaction.Procedure;
 import com.liveramp.megadesk.transaction.TransactionData;
 import com.liveramp.megadesk.transaction.TransactionDependency;
 
-public abstract class Alter<V> implements Method {
+public abstract class Alter<V> implements Procedure {
 
   private final Reference<V> reference;
   private final BaseTransactionDependency dependency;

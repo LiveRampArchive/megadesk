@@ -26,11 +26,11 @@ import com.liveramp.megadesk.state.Value;
 public class BaseExecutor implements Executor {
 
   @Override
-  public void execute(Method method) throws Exception {
+  public void execute(Procedure procedure) throws Exception {
     Transaction transaction = new BaseTransaction();
-    TransactionData transactionData = transaction.begin(method.dependency());
+    TransactionData transactionData = transaction.begin(procedure.dependency());
     try {
-      method.run(transactionData);
+      procedure.run(transactionData);
       transaction.commit();
     } catch (Exception e) {
       transaction.abort();
@@ -39,12 +39,12 @@ public class BaseExecutor implements Executor {
   }
 
   @Override
-  public boolean tryExecute(Method method) throws Exception {
+  public boolean tryExecute(Procedure procedure) throws Exception {
     Transaction transaction = new BaseTransaction();
-    TransactionData transactionData = transaction.tryBegin(method.dependency());
+    TransactionData transactionData = transaction.tryBegin(procedure.dependency());
     if (transactionData != null) {
       try {
-        method.run(transactionData);
+        procedure.run(transactionData);
         transaction.commit();
         return true;
       } catch (Exception e) {

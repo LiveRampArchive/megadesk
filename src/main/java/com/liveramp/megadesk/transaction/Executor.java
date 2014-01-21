@@ -21,9 +21,9 @@ import com.liveramp.megadesk.state.Value;
 
 public interface Executor {
 
-  void execute(Method method) throws Exception;
+  void execute(Procedure procedure) throws Exception;
 
-  boolean tryExecute(Method method) throws Exception;
+  boolean tryExecute(Procedure procedure) throws Exception;
 
   <V> Value<V> execute(Function<V> function) throws Exception;
 

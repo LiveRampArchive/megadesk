@@ -40,7 +40,7 @@ import com.liveramp.megadesk.transaction.BaseExecutor;
 import com.liveramp.megadesk.transaction.BaseTransactionDependency;
 import com.liveramp.megadesk.transaction.Binding;
 import com.liveramp.megadesk.transaction.Function;
-import com.liveramp.megadesk.transaction.Method;
+import com.liveramp.megadesk.transaction.Procedure;
 import com.liveramp.megadesk.transaction.TransactionData;
 import com.liveramp.megadesk.transaction.TransactionDependency;
 import com.liveramp.megadesk.transaction.lib.Alter;
@@ -134,8 +134,8 @@ public class IntegrationTest extends BaseTestCase {
     new NaiveWorker().complete(gears);
   }
 
-  private void execute(Method method) throws Exception {
-    new BaseExecutor().execute(method);
+  private void execute(Procedure procedure) throws Exception {
+    new BaseExecutor().execute(procedure);
   }
 
   private <V> Value<V> execute(Function<V> function) throws Exception {
