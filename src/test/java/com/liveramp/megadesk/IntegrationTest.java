@@ -133,6 +133,10 @@ public class IntegrationTest extends BaseTestCase {
     new NaiveWorker().complete(gears);
   }
 
+  private void run(Function function) throws Exception {
+    new BaseExecutor().execute(function);
+  }
+
   @Test
   public void testState() throws Exception {
 
@@ -201,10 +205,10 @@ public class IntegrationTest extends BaseTestCase {
     };
 
     // Alter A
-    new BaseExecutor().execute(incrementA);
-    new BaseExecutor().execute(incrementA);
+    run(incrementA);
+    run(incrementA);
     // Transfer A to B
-    new NaiveWorker().complete(new TransferGear(driverA, driverB));
+    run(new TransferGear(driverA, driverB));
 
     assertEquals(Integer.valueOf(0), driverA.persistence().get());
     assertEquals(Integer.valueOf(2), driverB.persistence().get());
