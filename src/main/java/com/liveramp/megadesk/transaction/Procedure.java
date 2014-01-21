@@ -16,9 +16,11 @@
 
 package com.liveramp.megadesk.transaction;
 
+import com.liveramp.megadesk.state.Driver;
+
 public interface Procedure {
 
-  Dependency dependency();
+  Dependency<Driver> dependency();
 
   void run(Transaction transaction) throws Exception;
 }

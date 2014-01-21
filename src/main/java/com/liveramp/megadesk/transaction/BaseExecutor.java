@@ -106,15 +106,15 @@ public class BaseExecutor implements Executor {
     }
   }
 
-  private static Dependency makeFunctionDependency(Dependency dependency, Driver resultValue) {
+  private static Dependency<Driver> makeFunctionDependency(Dependency<Driver> dependency, Driver resultValue) {
     if (resultValue != null) {
-      Dependency result;
+      Dependency<Driver> result;
       // Original dependency, with result added as a write
       List<Driver> writes = Lists.newArrayList(dependency.writes());
       if (!writes.contains(resultValue)) {
         writes.add(resultValue);
       }
-      result = BaseDependency.builder()
+      result = BaseDependency.<Driver>builder()
                    .snapshots(dependency.snapshots())
                    .reads(dependency.reads())
                    .writes(writes)

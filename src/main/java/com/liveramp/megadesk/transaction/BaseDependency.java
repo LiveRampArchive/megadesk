@@ -1,19 +1,3 @@
-/**
- *  Copyright 2014 LiveRamp
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
-
 package com.liveramp.megadesk.transaction;
 
 import java.util.Arrays;
@@ -23,118 +7,112 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import com.liveramp.megadesk.state.Driver;
+public class BaseDependency<V extends Comparable> implements Dependency<V> {
 
-public class BaseDependency implements Dependency {
+  private final List<V> snapshots;
+  private final List<V> reads;
+  private final List<V> writes;
 
-  private final List<Driver> snapshots;
-  private final List<Driver> reads;
-  private final List<Driver> writes;
-
-  public BaseDependency(Collection<Driver> snapshots,
-                        Collection<Driver> reads,
-                        Collection<Driver> writes) {
+  public BaseDependency(Collection<V> snapshots,
+                        Collection<V> reads,
+                        Collection<V> writes) {
     this.snapshots = prepareList(snapshots);
     this.reads = prepareList(reads);
     this.writes = prepareList(writes);
     checkIntegrity();
   }
 
-  private List<Driver> prepareList(Collection<Driver> drivers) {
+  private List<V> prepareList(Collection<V> drivers) {
     // Deep copy, sort, and make unmodifiable
-    List<Driver> result = Lists.newArrayList(drivers);
+    List<V> result = Lists.newArrayList(drivers);
     Collections.sort(result);
     return Collections.unmodifiableList(result);
   }
 
   private void checkIntegrity() {
-    for (Driver driver : snapshots) {
-      if (reads.contains(driver) || writes.contains(driver)) {
+    for (V dependency : snapshots) {
+      if (reads.contains(dependency) || writes.contains(dependency)) {
         throw new IllegalStateException(); // TODO message
       }
     }
-    for (Driver driver : reads) {
-      if (writes.contains(driver)) {
+    for (V dependency : reads) {
+      if (writes.contains(dependency)) {
         throw new IllegalStateException(); // TODO message
       }
     }
   }
 
-  @Override
-  public List<Driver> snapshots() {
+  public List<V> snapshots() {
     return snapshots;
   }
 
-  @Override
-  public List<Driver> reads() {
+  public List<V> reads() {
     return reads;
   }
 
-  @Override
-  public List<Driver> writes() {
+  public List<V> writes() {
     return writes;
   }
 
-  public static class Builder {
+  public static class Builder<V extends Comparable> {
 
-    private List<Driver> snapshots = Collections.emptyList();
-    private List<Driver> reads = Collections.emptyList();
-    private List<Driver> writes = Collections.emptyList();
+    private List<V> snapshots = Collections.emptyList();
+    private List<V> reads = Collections.emptyList();
+    private List<V> writes = Collections.emptyList();
 
-    public Builder snapshots(Driver... drivers) {
-      return snapshots(Arrays.asList(drivers));
+    public Builder<V> snapshots(V... dependencies) {
+      return snapshots(Arrays.asList(dependencies));
     }
 
-    public Builder snapshots(Driver[]... drivers) {
-      return snapshots(concatenate(drivers));
+    public Builder<V> snapshots(V[]... dependencies) {
+      return snapshots(concatenate(dependencies));
     }
 
-    public Builder snapshots(List<Driver> drivers) {
-      this.snapshots = Lists.newArrayList(drivers);
+    public Builder<V> snapshots(List<V> dependencies) {
+      this.snapshots = Lists.newArrayList(dependencies);
       return this;
     }
 
-    public Builder reads(Driver... drivers) {
-      return reads(Arrays.asList(drivers));
+    public Builder<V> reads(V... dependencies) {
+      return reads(Arrays.asList(dependencies));
     }
 
-    public Builder reads(Driver[]... drivers) {
-      return reads(concatenate(drivers));
+    public Builder<V> reads(V[]... dependencies) {
+      return reads(concatenate(dependencies));
     }
 
-    public Builder reads(List<Driver> drivers) {
-      this.reads = Lists.newArrayList(drivers);
+    public Builder<V> reads(List<V> dependencies) {
+      this.reads = Lists.newArrayList(dependencies);
       return this;
     }
 
-    public Builder writes(Driver... drivers) {
-      return writes(Arrays.asList(drivers));
+    public Builder<V> writes(V... dependencies) {
+      return writes(Arrays.asList(dependencies));
     }
 
-    public Builder writes(Driver[]... drivers) {
-      return writes(concatenate(drivers));
+    public Builder<V> writes(V[]... dependencies) {
+      return writes(concatenate(dependencies));
     }
 
-    public Builder writes(List<Driver> drivers) {
+    public Builder<V> writes(List<V> drivers) {
       this.writes = Lists.newArrayList(drivers);
       return this;
     }
 
-    private List<Driver> concatenate(Driver[]... lists) {
-      List<Driver> result = Lists.newArrayList();
-      for (Driver[] list : lists) {
+    private List<V> concatenate(V[]... lists) {
+      List<V> result = Lists.newArrayList();
+      for (V[] list : lists) {
         result.addAll(Arrays.asList(list));
       }
       return result;
     }
 
-
-    public BaseDependency build() {
-      return new BaseDependency(snapshots, reads, writes);
+    public BaseDependency<V> build() {
+      return new BaseDependency<V>(snapshots, reads, writes);
     }
   }
 
-  public static Builder builder() {
-    return new Builder();
+  public static <V extends Comparable> Builder<V> builder() {
+    return new Builder<V>();
   }
 }

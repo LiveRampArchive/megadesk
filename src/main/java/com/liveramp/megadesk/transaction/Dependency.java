@@ -18,13 +18,11 @@ package com.liveramp.megadesk.transaction;
 
 import java.util.List;
 
-import com.liveramp.megadesk.state.Driver;
+public interface Dependency<V> {
 
-public interface Dependency {
+  List<V> snapshots();
 
-  List<Driver> snapshots();
+  List<V> reads();
 
-  List<Driver> reads();
-
-  List<Driver> writes();
+  List<V> writes();
 }

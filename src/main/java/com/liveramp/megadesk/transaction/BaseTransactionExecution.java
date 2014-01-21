@@ -37,7 +37,7 @@ public class BaseTransactionExecution implements TransactionExecution {
     ABORTED
   }
 
-  private Dependency dependency;
+  private Dependency<Driver> dependency;
   private Transaction data;
   private State state = State.STANDBY;
   private final Set<Lock> executionLocksAcquired;
@@ -49,14 +49,14 @@ public class BaseTransactionExecution implements TransactionExecution {
   }
 
   @Override
-  public Transaction begin(Dependency dependency) {
+  public Transaction begin(Dependency<Driver> dependency) {
     ensureState(State.STANDBY);
     lock(dependency);
     return prepare(dependency);
   }
 
   @Override
-  public Transaction tryBegin(Dependency dependency) {
+  public Transaction tryBegin(Dependency<Driver> dependency) {
     ensureState(State.STANDBY);
     boolean result = tryLock(dependency);
     if (result) {
@@ -66,7 +66,7 @@ public class BaseTransactionExecution implements TransactionExecution {
     }
   }
 
-  private Transaction prepare(Dependency dependency) {
+  private Transaction prepare(Dependency<Driver> dependency) {
     // Acquire persistence read locks for snapshot
     lockAndRemember(persistenceReadLocks(dependency), persistenceLocksAcquired);
     try {
@@ -108,17 +108,17 @@ public class BaseTransactionExecution implements TransactionExecution {
     state = State.ABORTED;
   }
 
-  private boolean tryLock(Dependency dependency) {
+  private boolean tryLock(Dependency<Driver> dependency) {
     return tryLockAndRemember(executionReadLocks(dependency), executionLocksAcquired)
                && tryLockAndRemember(executionWriteLocks(dependency), executionLocksAcquired);
   }
 
-  private void lock(Dependency dependency) {
+  private void lock(Dependency<Driver> dependency) {
     lockAndRemember(executionReadLocks(dependency), executionLocksAcquired);
     lockAndRemember(executionWriteLocks(dependency), executionLocksAcquired);
   }
 
-  private static List<Lock> executionReadLocks(Dependency dependency) {
+  private static List<Lock> executionReadLocks(Dependency<Driver> dependency) {
     List<Lock> result = Lists.newArrayList();
     for (Driver driver : dependency.reads()) {
       result.add(driver.executionLock().readLock());
@@ -126,7 +126,7 @@ public class BaseTransactionExecution implements TransactionExecution {
     return result;
   }
 
-  private static List<Lock> executionWriteLocks(Dependency dependency) {
+  private static List<Lock> executionWriteLocks(Dependency<Driver> dependency) {
     List<Lock> result = Lists.newArrayList();
     for (Driver driver : dependency.writes()) {
       result.add(driver.executionLock().writeLock());
@@ -134,7 +134,7 @@ public class BaseTransactionExecution implements TransactionExecution {
     return result;
   }
 
-  private static List<Lock> persistenceReadLocks(Dependency dependency) {
+  private static List<Lock> persistenceReadLocks(Dependency<Driver> dependency) {
     List<Lock> result = Lists.newArrayList();
     // Snapshots
     for (Driver driver : dependency.snapshots()) {
@@ -151,7 +151,7 @@ public class BaseTransactionExecution implements TransactionExecution {
     return result;
   }
 
-  private static List<Lock> persistenceWriteLocks(Dependency dependency) {
+  private static List<Lock> persistenceWriteLocks(Dependency<Driver> dependency) {
     List<Lock> result = Lists.newArrayList();
     // Execution writes only
     for (Driver driver : dependency.writes()) {

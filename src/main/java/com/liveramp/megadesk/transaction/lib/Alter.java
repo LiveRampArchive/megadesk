@@ -27,15 +27,15 @@ import com.liveramp.megadesk.transaction.Transaction;
 public abstract class Alter<V> implements Procedure {
 
   private final Reference<V> reference;
-  private final BaseDependency dependency;
+  private final BaseDependency<Driver> dependency;
 
   public Alter(Driver<V> driver) {
     this.reference = driver.reference();
-    this.dependency = BaseDependency.builder().writes(driver).build();
+    this.dependency = BaseDependency.<Driver>builder().writes(driver).build();
   }
 
   @Override
-  public Dependency dependency() {
+  public Dependency<Driver> dependency() {
     return dependency;
   }
 

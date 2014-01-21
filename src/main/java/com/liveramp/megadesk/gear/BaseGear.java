@@ -16,6 +16,7 @@
 
 package com.liveramp.megadesk.gear;
 
+import com.liveramp.megadesk.state.Driver;
 import com.liveramp.megadesk.transaction.Dependency;
 
 public abstract class BaseGear implements Gear {
@@ -37,7 +38,7 @@ public abstract class BaseGear implements Gear {
     return dependency;
   }
 
-  protected void setDependency(Dependency dependency) {
+  protected void setDependency(Dependency<Driver> dependency) {
     this.dependency = dependency;
   }
 }

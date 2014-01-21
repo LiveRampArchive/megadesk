@@ -30,7 +30,7 @@ public class BaseTransaction implements Transaction {
 
   private final Map<Reference, Binding> bindings;
 
-  public BaseTransaction(Dependency dependency) {
+  public BaseTransaction(Dependency<Driver> dependency) {
     bindings = Maps.newHashMap();
     for (Driver driver : readDrivers(dependency)) {
       addBinding(driver, true);
@@ -40,7 +40,7 @@ public class BaseTransaction implements Transaction {
     }
   }
 
-  private static List<Driver> readDrivers(Dependency dependency) {
+  private static List<Driver> readDrivers(Dependency<Driver> dependency) {
     List<Driver> result = Lists.newArrayList();
     // Snapshots
     for (Driver driver : dependency.snapshots()) {
@@ -53,7 +53,7 @@ public class BaseTransaction implements Transaction {
     return result;
   }
 
-  private static List<Driver> writeDrivers(Dependency dependency) {
+  private static List<Driver> writeDrivers(Dependency<Driver> dependency) {
     List<Driver> result = Lists.newArrayList();
     // Execution writes
     for (Driver driver : dependency.writes()) {

@@ -16,11 +16,13 @@
 
 package com.liveramp.megadesk.transaction;
 
+import com.liveramp.megadesk.state.Driver;
+
 public interface TransactionExecution {
 
-  Transaction begin(Dependency dependency);
+  Transaction begin(Dependency<Driver> dependency);
 
-  Transaction tryBegin(Dependency dependency);
+  Transaction tryBegin(Dependency<Driver> dependency);
 
   void commit();
 
