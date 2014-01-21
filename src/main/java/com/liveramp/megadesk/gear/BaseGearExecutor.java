@@ -24,16 +24,8 @@ public class BaseGearExecutor implements GearExecutor {
 
   private final Executor executor = new BaseExecutor();
 
-  public Outcome execute(Gear gear) {
-    try {
-      return executor.execute(gear);
-    } catch (Exception e) {
-      return Outcome.FAILURE;
-    }
-  }
-
   @Override
-  public Outcome tryExecute(Gear gear) {
+  public Outcome execute(Gear gear) {
     try {
       ExecutionResult<Outcome> result = executor.tryExecute(gear);
       if (result.executed()) {

@@ -42,6 +42,7 @@ import com.liveramp.megadesk.transaction.Binding;
 import com.liveramp.megadesk.transaction.Function;
 import com.liveramp.megadesk.transaction.TransactionData;
 import com.liveramp.megadesk.transaction.TransactionDependency;
+import com.liveramp.megadesk.transaction.lib.Alter;
 import com.liveramp.megadesk.worker.NaiveWorker;
 import com.liveramp.megadesk.worker.Worker;
 
@@ -192,6 +193,28 @@ public class IntegrationTest extends BaseTestCase {
 
   @Test
   public void testBatch() throws Exception {
-    
+
+    final Value<Integer> v0 = new InMemoryValue<Integer>(0);
+
+    final Driver<Integer> driverA = new InMemoryDriver<Integer>(v0);
+    final Driver<Integer> driverB = new InMemoryDriver<Integer>(v0);
+
+    Alter<Integer> incrementA = new Alter<Integer>(driverA) {
+      @Override
+      public Value<Integer> alter(Value<Integer> value) {
+        return new InMemoryValue<Integer>(value.get() + 1);
+      }
+    };
+
+    // Alter A
+    new BaseExecutor().execute(incrementA);
+
+    new BaseExecutor().execute(incrementA);
+
+    // Transfer A to B
+    new NaiveWorker().complete(new TransferGear(driverA, driverB));
+
+    assertEquals(Integer.valueOf(0), driverA.persistence().get());
+    assertEquals(Integer.valueOf(2), driverB.persistence().get());
   }
 }

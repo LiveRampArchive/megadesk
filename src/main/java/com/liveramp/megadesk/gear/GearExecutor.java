@@ -19,6 +19,4 @@ package com.liveramp.megadesk.gear;
 public interface GearExecutor {
 
   public Outcome execute(Gear gear);
-
-  public Outcome tryExecute(Gear gear);
 }

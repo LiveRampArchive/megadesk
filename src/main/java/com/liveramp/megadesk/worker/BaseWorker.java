@@ -16,6 +16,7 @@
 
 package com.liveramp.megadesk.worker;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.liveramp.megadesk.gear.Gear;
@@ -34,5 +35,22 @@ public abstract class BaseWorker implements Worker {
     for (Gear gear : gears) {
       run(gear);
     }
+  }
+
+  @Override
+  public void complete(Gear gear) throws InterruptedException {
+    complete(Arrays.asList(gear));
+  }
+
+  @Override
+  public void complete(Gear... gears) throws InterruptedException {
+    complete(Arrays.asList(gears));
+  }
+
+  @Override
+  public void complete(List<Gear> gears) throws InterruptedException {
+    run(gears);
+    stop();
+    join();
   }
 }

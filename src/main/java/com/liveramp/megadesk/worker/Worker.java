@@ -28,6 +28,12 @@ public interface Worker {
 
   void run(List<Gear> gears);
 
+  void complete(Gear gear) throws InterruptedException;
+
+  void complete(Gear... gears) throws InterruptedException;
+
+  void complete(List<Gear> gears) throws InterruptedException;
+
   void stop();
 
   void join() throws InterruptedException;
