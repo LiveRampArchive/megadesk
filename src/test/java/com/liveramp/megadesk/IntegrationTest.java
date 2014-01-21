@@ -44,7 +44,6 @@ import com.liveramp.megadesk.transaction.TransactionData;
 import com.liveramp.megadesk.transaction.TransactionDependency;
 import com.liveramp.megadesk.transaction.lib.Alter;
 import com.liveramp.megadesk.worker.NaiveWorker;
-import com.liveramp.megadesk.worker.Worker;
 
 import static org.junit.Assert.assertEquals;
 
@@ -131,8 +130,7 @@ public class IntegrationTest extends BaseTestCase {
   }
 
   private void run(Gear... gears) throws InterruptedException {
-    Worker worker = new NaiveWorker();
-    worker.complete(gears);
+    new NaiveWorker().complete(gears);
   }
 
   @Test
