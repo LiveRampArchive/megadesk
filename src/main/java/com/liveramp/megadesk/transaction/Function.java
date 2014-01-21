@@ -16,12 +16,11 @@
 
 package com.liveramp.megadesk.transaction;
 
-import com.liveramp.megadesk.state.Driver;
 import com.liveramp.megadesk.state.Value;
 
-public interface Function<V> extends Method {
+public interface Function<V> {
 
-  Driver<V> result();
+  TransactionDependency dependency();
 
   Value<V> call(TransactionData transactionData) throws Exception;
 }

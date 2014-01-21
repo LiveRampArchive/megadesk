@@ -16,7 +16,11 @@
 
 package com.liveramp.megadesk.gear;
 
+import com.liveramp.megadesk.state.Driver;
+import com.liveramp.megadesk.state.Value;
+import com.liveramp.megadesk.state.lib.InMemoryDriver;
 import com.liveramp.megadesk.transaction.BaseExecutor;
+import com.liveramp.megadesk.transaction.CallResult;
 import com.liveramp.megadesk.transaction.Executor;
 
 public class BaseGearExecutor implements GearExecutor {
@@ -26,8 +30,10 @@ public class BaseGearExecutor implements GearExecutor {
   @Override
   public Outcome execute(Gear gear) {
     try {
-      if (executor.tryExecute(gear)) {
-        return gear.result().persistence().get();
+      Driver<Outcome> outcome = new InMemoryDriver<Outcome>();
+      CallResult<Value<Outcome>> callResult = executor.tryCall(gear, outcome);
+      if (callResult.executed()) {
+        return callResult.result().get();
       } else {
         return Outcome.STANDBY;
       }

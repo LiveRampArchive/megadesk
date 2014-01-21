@@ -16,6 +16,13 @@
 
 package com.liveramp.megadesk.transaction;
 
+import java.util.List;
+
+import com.google.common.collect.Lists;
+
+import com.liveramp.megadesk.state.Driver;
+import com.liveramp.megadesk.state.Value;
+
 public class BaseExecutor implements Executor {
 
   @Override
@@ -50,17 +57,72 @@ public class BaseExecutor implements Executor {
   }
 
   @Override
-  public <V> V call(Function<V> function) throws Exception {
-    execute(function);
-    return function.result().persistence().get();
+  public <V> Value<V> call(Function<V> function) throws Exception {
+    return call(function, null);
   }
 
   @Override
-  public <V> ExecutionResult<V> tryCall(Function<V> function) throws Exception {
-    if (tryExecute(function)) {
-      return new ExecutionResult<V>(true, function.result().persistence().get());
+  public <V> CallResult<Value<V>> tryCall(Function<V> function) throws Exception {
+    return tryCall(function, null);
+  }
+
+  @Override
+  public <V> Value<V> call(Function<V> function, Driver<V> result) throws Exception {
+    Transaction transaction = new BaseTransaction();
+    TransactionData transactionData = transaction.begin(makeFunctionDependency(function.dependency(), result));
+    try {
+      Value<V> resultValue = function.call(transactionData);
+      // Write result only if needed
+      if (result != null) {
+        transactionData.write(result.reference(), resultValue);
+      }
+      transaction.commit();
+      return resultValue;
+    } catch (Exception e) {
+      transaction.abort();
+      throw e;
+    }
+  }
+
+  @Override
+  public <V> CallResult<Value<V>> tryCall(Function<V> function, Driver<V> result) throws Exception {
+    Transaction transaction = new BaseTransaction();
+    TransactionData transactionData = transaction.tryBegin(makeFunctionDependency(function.dependency(), result));
+    if (transactionData != null) {
+      try {
+        Value<V> resultValue = function.call(transactionData);
+        // Write result only if needed
+        if (result != null) {
+          transactionData.write(result.reference(), resultValue);
+        }
+        transaction.commit();
+        return new CallResult<Value<V>>(true, resultValue);
+      } catch (Exception e) {
+        transaction.abort();
+        throw e;
+      }
     } else {
-      return new ExecutionResult<V>(false, null);
+      return new CallResult<Value<V>>(false, null);
+    }
+  }
+
+  private static TransactionDependency makeFunctionDependency(TransactionDependency dependency, Driver resultValue) {
+    if (resultValue != null) {
+      TransactionDependency result;
+      // Original dependency, with result added as a write
+      List<Driver> writes = Lists.newArrayList(dependency.writes());
+      if (!writes.contains(resultValue)) {
+        writes.add(resultValue);
+      }
+      result = BaseTransactionDependency.builder()
+                   .snapshots(dependency.snapshots())
+                   .reads(dependency.reads())
+                   .writes(writes)
+                   .build();
+      return result;
+    } else {
+      // If not writing the return value, no change to the dependency
+      return dependency;
     }
   }
 }

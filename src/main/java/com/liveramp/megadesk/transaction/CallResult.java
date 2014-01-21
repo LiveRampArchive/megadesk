@@ -16,12 +16,12 @@
 
 package com.liveramp.megadesk.transaction;
 
-public class ExecutionResult<V> {
+public class CallResult<V> {
 
   private final boolean executed;
   private final V result;
 
-  public ExecutionResult(boolean executed, V result) {
+  public CallResult(boolean executed, V result) {
     this.executed = executed;
     this.result = result;
   }
