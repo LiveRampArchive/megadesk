@@ -16,6 +16,10 @@
 
 package com.liveramp.megadesk.transaction;
 
+import com.liveramp.megadesk.state.Driver;
+import com.liveramp.megadesk.state.Value;
+import com.liveramp.megadesk.transaction.lib.Apply;
+
 public class BaseExecutor implements Executor {
 
   @Override
@@ -48,5 +52,15 @@ public class BaseExecutor implements Executor {
     } else {
       return new ExecutionResult<V>(false, null);
     }
+  }
+
+  @Override
+  public <V> Value<V> apply(Function<Value<V>> function, Driver<V> result) throws Exception {
+    return execute(new Apply<V>(function, result));
+  }
+
+  @Override
+  public <V> ExecutionResult<Value<V>> tryApply(Function<Value<V>> function, Driver<V> result) throws Exception {
+    return tryExecute(new Apply<V>(function, result));
   }
 }

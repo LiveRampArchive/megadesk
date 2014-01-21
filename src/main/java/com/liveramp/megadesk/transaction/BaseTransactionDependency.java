@@ -85,8 +85,8 @@ public class BaseTransactionDependency implements TransactionDependency {
       return snapshots(Arrays.asList(drivers));
     }
 
-    public Builder snapshots(List<Driver>... lists) {
-      return snapshots(concatenate(lists));
+    public Builder snapshots(Driver[]... drivers) {
+      return snapshots(concatenate(drivers));
     }
 
     public Builder snapshots(List<Driver> drivers) {
@@ -98,8 +98,8 @@ public class BaseTransactionDependency implements TransactionDependency {
       return reads(Arrays.asList(drivers));
     }
 
-    public Builder reads(List<Driver>... lists) {
-      return reads(concatenate(lists));
+    public Builder reads(Driver[]... drivers) {
+      return reads(concatenate(drivers));
     }
 
     public Builder reads(List<Driver> drivers) {
@@ -111,8 +111,8 @@ public class BaseTransactionDependency implements TransactionDependency {
       return writes(Arrays.asList(drivers));
     }
 
-    public Builder writes(List<Driver>... lists) {
-      return writes(concatenate(lists));
+    public Builder writes(Driver[]... drivers) {
+      return writes(concatenate(drivers));
     }
 
     public Builder writes(List<Driver> drivers) {
@@ -120,10 +120,10 @@ public class BaseTransactionDependency implements TransactionDependency {
       return this;
     }
 
-    private List<Driver> concatenate(List<Driver>... lists) {
+    private List<Driver> concatenate(Driver[]... lists) {
       List<Driver> result = Lists.newArrayList();
-      for (List<Driver> list : lists) {
-        result.addAll(list);
+      for (Driver[] list : lists) {
+        result.addAll(Arrays.asList(list));
       }
       return result;
     }
