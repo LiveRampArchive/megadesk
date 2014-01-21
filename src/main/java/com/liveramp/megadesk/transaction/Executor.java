@@ -25,11 +25,11 @@ public interface Executor {
 
   boolean tryExecute(Method method) throws Exception;
 
-  <V> Value<V> call(Function<V> function) throws Exception;
+  <V> Value<V> execute(Function<V> function) throws Exception;
 
-  <V> Value<V> call(Function<V> function, Driver<V> result) throws Exception;
+  <V> Value<V> execute(Function<V> function, Driver<V> result) throws Exception;
 
-  <V> CallResult<Value<V>> tryCall(Function<V> function) throws Exception;
+  <V> ExecutionResult<Value<V>> tryExecute(Function<V> function) throws Exception;
 
-  <V> CallResult<Value<V>> tryCall(Function<V> function, Driver<V> result) throws Exception;
+  <V> ExecutionResult<Value<V>> tryExecute(Function<V> function, Driver<V> result) throws Exception;
 }

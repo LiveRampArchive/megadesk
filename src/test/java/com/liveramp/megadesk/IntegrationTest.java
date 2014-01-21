@@ -130,12 +130,16 @@ public class IntegrationTest extends BaseTestCase {
     }
   }
 
-  private void run(Gear... gears) throws InterruptedException {
+  private void execute(Gear... gears) throws InterruptedException {
     new NaiveWorker().complete(gears);
   }
 
-  private void run(Method method) throws Exception {
+  private void execute(Method method) throws Exception {
     new BaseExecutor().execute(method);
+  }
+
+  private <V> Value<V> execute(Function<V> function) throws Exception {
+    return new BaseExecutor().execute(function);
   }
 
   @Test
@@ -153,10 +157,10 @@ public class IntegrationTest extends BaseTestCase {
     Gear gearB = new TransferGear(driverB, driverC);
     Gear gearC = new TransferGear(driverC, driverD);
 
-    run(gearA, gearB, gearC);
+    execute(gearA, gearB, gearC);
 
     // Check using a transaction
-    assertEquals(true, new BaseExecutor().call(new Function<Boolean>() {
+    assertEquals(true, execute(new Function<Boolean>() {
 
       @Override
       public TransactionDependency dependency() {
@@ -185,7 +189,7 @@ public class IntegrationTest extends BaseTestCase {
     StepGear stepC = new StepGear(stepA);
     StepGear stepD = new StepGear(stepB, stepC);
 
-    run(stepA, stepB, stepC, stepD);
+    execute(stepA, stepB, stepC, stepD);
 
     assertEquals(true, stepA.driver.persistence().get());
     assertEquals(true, stepB.driver.persistence().get());
@@ -207,10 +211,10 @@ public class IntegrationTest extends BaseTestCase {
     };
 
     // Increment A twice
-    run(incrementA);
-    run(incrementA);
+    execute(incrementA);
+    execute(incrementA);
     // Transfer A to B
-    run(new TransferGear(driverA, driverB));
+    execute(new TransferGear(driverA, driverB));
 
     assertEquals(Integer.valueOf(0), driverA.persistence().get());
     assertEquals(Integer.valueOf(2), driverB.persistence().get());

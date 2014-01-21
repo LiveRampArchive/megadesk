@@ -57,17 +57,17 @@ public class BaseExecutor implements Executor {
   }
 
   @Override
-  public <V> Value<V> call(Function<V> function) throws Exception {
-    return call(function, null);
+  public <V> Value<V> execute(Function<V> function) throws Exception {
+    return execute(function, null);
   }
 
   @Override
-  public <V> CallResult<Value<V>> tryCall(Function<V> function) throws Exception {
-    return tryCall(function, null);
+  public <V> ExecutionResult<Value<V>> tryExecute(Function<V> function) throws Exception {
+    return tryExecute(function, null);
   }
 
   @Override
-  public <V> Value<V> call(Function<V> function, Driver<V> result) throws Exception {
+  public <V> Value<V> execute(Function<V> function, Driver<V> result) throws Exception {
     Transaction transaction = new BaseTransaction();
     TransactionData transactionData = transaction.begin(makeFunctionDependency(function.dependency(), result));
     try {
@@ -85,7 +85,7 @@ public class BaseExecutor implements Executor {
   }
 
   @Override
-  public <V> CallResult<Value<V>> tryCall(Function<V> function, Driver<V> result) throws Exception {
+  public <V> ExecutionResult<Value<V>> tryExecute(Function<V> function, Driver<V> result) throws Exception {
     Transaction transaction = new BaseTransaction();
     TransactionData transactionData = transaction.tryBegin(makeFunctionDependency(function.dependency(), result));
     if (transactionData != null) {
@@ -96,13 +96,13 @@ public class BaseExecutor implements Executor {
           transactionData.write(result.reference(), resultValue);
         }
         transaction.commit();
-        return new CallResult<Value<V>>(true, resultValue);
+        return new ExecutionResult<Value<V>>(true, resultValue);
       } catch (Exception e) {
         transaction.abort();
         throw e;
       }
     } else {
-      return new CallResult<Value<V>>(false, null);
+      return new ExecutionResult<Value<V>>(false, null);
     }
   }
 
