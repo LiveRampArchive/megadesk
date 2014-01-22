@@ -12,11 +12,11 @@ import java.io.IOException;
 public class CuratorPersistence<VALUE> implements Persistence<VALUE> {
 
   private final NodeCache cache;
-  private final SerializationHandler serializer;
+  private final SerializationHandler<VALUE> serializer;
   private CuratorFramework curator;
   private final String path;
 
-  public CuratorPersistence(CuratorFramework curator, String path, SerializationHandler serializer) {
+  public CuratorPersistence(CuratorFramework curator, String path, SerializationHandler<VALUE> serializer) {
     this.curator = curator;
     this.path = path;
     this.cache = new NodeCache(curator, path);
@@ -39,9 +39,9 @@ public class CuratorPersistence<VALUE> implements Persistence<VALUE> {
   @Override
   public VALUE get() {
     byte[] data = cache.getCurrentData().getData();
-    VALUE value = null;
+    VALUE value;
     try {
-      value = (VALUE) serializer.deserialize(data);
+      value = serializer.deserialize(data);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
