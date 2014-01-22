@@ -32,19 +32,18 @@ import com.liveramp.megadesk.gear.Gear;
 import com.liveramp.megadesk.gear.Outcome;
 import com.liveramp.megadesk.state.Driver;
 import com.liveramp.megadesk.state.Reference;
-import com.liveramp.megadesk.state.Value;
 import com.liveramp.megadesk.state.lib.InMemoryDriver;
-import com.liveramp.megadesk.state.lib.InMemoryValue;
 import com.liveramp.megadesk.test.BaseTestCase;
 import com.liveramp.megadesk.transaction.BaseDependency;
 import com.liveramp.megadesk.transaction.BaseExecutor;
 import com.liveramp.megadesk.transaction.Binding;
+import com.liveramp.megadesk.transaction.Context;
 import com.liveramp.megadesk.transaction.Dependency;
-import com.liveramp.megadesk.transaction.Function;
-import com.liveramp.megadesk.transaction.Procedure;
+import com.liveramp.megadesk.transaction.Executor;
 import com.liveramp.megadesk.transaction.Transaction;
 import com.liveramp.megadesk.transaction.lib.Alter;
 import com.liveramp.megadesk.worker.NaiveWorker;
+import com.liveramp.megadesk.worker.Worker;
 
 import static org.junit.Assert.assertEquals;
 
@@ -67,11 +66,11 @@ public class IntegrationTest extends BaseTestCase {
   private static class StepGear extends ConditionalGear implements Gear {
 
     private final List<StepGear> parents;
-    private final Driver<Boolean> driver = new InMemoryDriver<Boolean>(new InMemoryValue<Boolean>(false));
+    private final Driver<Boolean> driver = new InMemoryDriver<Boolean>(false);
 
     public StepGear(StepGear... parents) {
       this.parents = Arrays.asList(parents);
-      setDependency(BaseDependency.builder().snapshots(drivers(parents)).writes(driver).build());
+      setDependency(BaseDependency.<Driver>builder().snapshots(drivers(parents)).writes(driver).build());
     }
 
     private static List<Driver> drivers(StepGear... parents) {
@@ -83,9 +82,9 @@ public class IntegrationTest extends BaseTestCase {
     }
 
     @Override
-    public Outcome check(Transaction transaction) {
+    public Outcome check(Context context) {
       for (StepGear parent : parents) {
-        if (!transaction.get(parent.driver.reference())) {
+        if (!context.read(parent.driver.reference())) {
           return Outcome.STANDBY;
         }
       }
@@ -93,9 +92,9 @@ public class IntegrationTest extends BaseTestCase {
     }
 
     @Override
-    public Outcome execute(Transaction transaction) {
+    public Outcome execute(Context context) {
       // no-op
-      transaction.write(driver.reference(), new InMemoryValue<Boolean>(true));
+      context.write(driver.reference(), true);
       return Outcome.ABANDON;
     }
   }
@@ -106,14 +105,14 @@ public class IntegrationTest extends BaseTestCase {
     private final Reference<Integer> dst;
 
     private TransferGear(Driver<Integer> src, Driver<Integer> dst) {
-      super(BaseDependency.builder().writes(src, dst).build());
+      super(BaseDependency.<Driver>builder().writes(src, dst).build());
       this.src = src.reference();
       this.dst = dst.reference();
     }
 
     @Override
-    public Outcome check(Transaction transaction) {
-      if (transaction.get(src) > 0 && transaction.get(dst) == 0) {
+    public Outcome check(Context context) {
+      if (context.read(src) > 0 && context.read(dst) == 0) {
         return Outcome.SUCCESS;
       } else {
         return Outcome.STANDBY;
@@ -121,65 +120,58 @@ public class IntegrationTest extends BaseTestCase {
     }
 
     @Override
-    public Outcome execute(Transaction transaction) {
-      Binding<Integer> source = transaction.binding(src);
-      Binding<Integer> destination = transaction.binding(dst);
+    public Outcome execute(Context context) {
+      Binding<Integer> source = context.binding(src);
+      Binding<Integer> destination = context.binding(dst);
       destination.write(source.read());
-      source.write(new InMemoryValue<Integer>(0));
+      source.write(0);
       return Outcome.ABANDON;
     }
   }
 
-  private void execute(Gear... gears) throws InterruptedException {
-    new NaiveWorker().complete(gears);
+  private Worker worker() {
+    return new NaiveWorker();
   }
 
-  private void execute(Procedure procedure) throws Exception {
-    new BaseExecutor().execute(procedure);
-  }
-
-  private <V> Value<V> execute(Function<V> function) throws Exception {
-    return new BaseExecutor().execute(function);
+  private Executor executor() {
+    return new BaseExecutor();
   }
 
   @Test
   public void testState() throws Exception {
 
-    Value<Integer> v0 = new InMemoryValue<Integer>(0);
-    Value<Integer> v1 = new InMemoryValue<Integer>(1);
-
-    final Driver<Integer> driverA = new InMemoryDriver<Integer>(v1);
-    final Driver<Integer> driverB = new InMemoryDriver<Integer>(v0);
-    final Driver<Integer> driverC = new InMemoryDriver<Integer>(v0);
-    final Driver<Integer> driverD = new InMemoryDriver<Integer>(v0);
+    final Driver<Integer> driverA = new InMemoryDriver<Integer>(1);
+    final Driver<Integer> driverB = new InMemoryDriver<Integer>(0);
+    final Driver<Integer> driverC = new InMemoryDriver<Integer>(0);
+    final Driver<Integer> driverD = new InMemoryDriver<Integer>(0);
 
     Gear gearA = new TransferGear(driverA, driverB);
     Gear gearB = new TransferGear(driverB, driverC);
     Gear gearC = new TransferGear(driverC, driverD);
 
-    execute(gearA, gearB, gearC);
+    worker().complete(gearA, gearB, gearC);
 
     // Check using a transaction
-    assertEquals(true, execute(new Function<Boolean>() {
+    assertEquals(true, executor().execute(new Transaction<Boolean>() {
 
       @Override
-      public Dependency dependency() {
-        return BaseDependency.builder().reads(driverA, driverB, driverC, driverD).build();
+      public Dependency<Driver> dependency() {
+        return BaseDependency.<Driver>builder().reads(driverA, driverB, driverC, driverD).build();
       }
 
       @Override
-      public Value<Boolean> call(Transaction transaction) throws Exception {
-        return new InMemoryValue<Boolean>(transaction.get(driverA.reference()) == 0
-                                              && transaction.get(driverB.reference()) == 0
-                                              && transaction.get(driverC.reference()) == 0
-                                              && transaction.get(driverD.reference()) == 1);
+      public Boolean run(Context context) throws Exception {
+        return context.read(driverA.reference()) == 0
+                   && context.read(driverB.reference()) == 0
+                   && context.read(driverC.reference()) == 0
+                   && context.read(driverD.reference()) == 1;
       }
-    }).get());
+    }));
 
-    assertEquals(Integer.valueOf(0), driverA.persistence().get());
-    assertEquals(Integer.valueOf(0), driverB.persistence().get());
-    assertEquals(Integer.valueOf(0), driverC.persistence().get());
-    assertEquals(Integer.valueOf(1), driverD.persistence().get());
+    assertEquals(Integer.valueOf(0), driverA.persistence().read());
+    assertEquals(Integer.valueOf(0), driverB.persistence().read());
+    assertEquals(Integer.valueOf(0), driverC.persistence().read());
+    assertEquals(Integer.valueOf(1), driverD.persistence().read());
   }
 
   @Test
@@ -189,34 +181,33 @@ public class IntegrationTest extends BaseTestCase {
     StepGear stepC = new StepGear(stepA);
     StepGear stepD = new StepGear(stepB, stepC);
 
-    execute(stepA, stepB, stepC, stepD);
+    worker().complete(stepA, stepB, stepC, stepD);
 
-    assertEquals(true, stepA.driver.persistence().get());
-    assertEquals(true, stepB.driver.persistence().get());
-    assertEquals(true, stepC.driver.persistence().get());
-    assertEquals(true, stepD.driver.persistence().get());
+    assertEquals(true, stepA.driver.persistence().read());
+    assertEquals(true, stepB.driver.persistence().read());
+    assertEquals(true, stepC.driver.persistence().read());
+    assertEquals(true, stepD.driver.persistence().read());
   }
 
   @Test
   public void testBatch() throws Exception {
-    final Value<Integer> v0 = new InMemoryValue<Integer>(0);
-    final Driver<Integer> driverA = new InMemoryDriver<Integer>(v0);
-    final Driver<Integer> driverB = new InMemoryDriver<Integer>(v0);
+    final Driver<Integer> driverA = new InMemoryDriver<Integer>(0);
+    final Driver<Integer> driverB = new InMemoryDriver<Integer>(0);
 
-    Alter<Integer> incrementA = new Alter<Integer>(driverA) {
+    Alter<Integer> increment = new Alter<Integer>() {
       @Override
-      public Value<Integer> alter(Value<Integer> value) {
-        return new InMemoryValue<Integer>(value.get() + 1);
+      public Integer alter(Integer value) {
+        return value + 1;
       }
     };
 
     // Increment A twice
-    execute(incrementA);
-    execute(incrementA);
+    executor().execute(increment, driverA);
+    executor().execute(increment, driverA);
     // Transfer A to B
-    execute(new TransferGear(driverA, driverB));
+    executor().execute(new TransferGear(driverA, driverB));
 
-    assertEquals(Integer.valueOf(0), driverA.persistence().get());
-    assertEquals(Integer.valueOf(2), driverB.persistence().get());
+    assertEquals(Integer.valueOf(0), driverA.persistence().read());
+    assertEquals(Integer.valueOf(2), driverB.persistence().read());
   }
 }

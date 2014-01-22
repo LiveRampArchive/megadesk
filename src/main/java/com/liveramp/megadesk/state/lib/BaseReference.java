@@ -16,27 +16,25 @@
 
 package com.liveramp.megadesk.state.lib;
 
-import java.util.UUID;
+import org.apache.commons.lang.builder.CompareToBuilder;
 
-import com.liveramp.megadesk.state.Value;
+import com.liveramp.megadesk.state.Reference;
 
-public class InMemoryValue<VALUE> implements Value<VALUE> {
+public class BaseReference<VALUE> implements Reference<VALUE> {
 
-  private final UUID uuid;
-  private final VALUE value;
+  private final String name;
 
-  public InMemoryValue(VALUE value) {
-    uuid = UUID.randomUUID();
-    this.value = value;
+  public BaseReference(String name) {
+    this.name = name;
   }
 
   @Override
-  public UUID uuid() {
-    return uuid;
+  public String name() {
+    return name;
   }
 
   @Override
-  public VALUE get() {
-    return value;
+  public int compareTo(Reference<VALUE> o) {
+    return new CompareToBuilder().append(name, o.name()).toComparison();
   }
 }

@@ -17,7 +17,6 @@
 package com.liveramp.megadesk.transaction;
 
 import com.liveramp.megadesk.state.Persistence;
-import com.liveramp.megadesk.state.Value;
 import com.liveramp.megadesk.state.lib.InMemoryPersistence;
 
 public class BaseBinding<VALUE> implements Binding<VALUE> {
@@ -25,23 +24,18 @@ public class BaseBinding<VALUE> implements Binding<VALUE> {
   private final Persistence<VALUE> persistence;
   private final boolean readOnly;
 
-  public BaseBinding(Value<VALUE> value, boolean readOnly) {
+  public BaseBinding(VALUE value, boolean readOnly) {
     this.readOnly = readOnly;
     persistence = new InMemoryPersistence<VALUE>(value);
   }
 
   @Override
-  public Value<VALUE> read() {
+  public VALUE read() {
     return persistence.read();
   }
 
   @Override
-  public VALUE get() {
-    return persistence.get();
-  }
-
-  @Override
-  public void write(Value<VALUE> value) {
+  public void write(VALUE value) {
     if (readOnly) {
       throw new IllegalStateException(); // TODO message
     }

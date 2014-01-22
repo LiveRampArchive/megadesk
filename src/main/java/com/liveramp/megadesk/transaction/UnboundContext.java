@@ -16,9 +16,11 @@
 
 package com.liveramp.megadesk.transaction;
 
-public interface Procedure {
+public interface UnboundContext {
 
-  Dependency dependency();
+  <VALUE> Binding<VALUE> binding(String reference);
 
-  void run(Transaction transaction) throws Exception;
+  <VALUE> VALUE read(String reference);
+
+  <VALUE> void write(String reference, VALUE value);
 }

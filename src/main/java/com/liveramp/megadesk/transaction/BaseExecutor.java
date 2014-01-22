@@ -16,65 +16,39 @@
 
 package com.liveramp.megadesk.transaction;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.Lists;
 
 import com.liveramp.megadesk.state.Driver;
-import com.liveramp.megadesk.state.Value;
 
 public class BaseExecutor implements Executor {
 
   @Override
-  public void execute(Procedure procedure) throws Exception {
+  public <V> V execute(UnboundTransaction<V> transaction, Driver... arguments) throws Exception {
+    return execute(new BoundTransaction<V>(new TransactionBinding<V>(transaction, Arrays.asList(arguments))));
+  }
+
+  @Override
+  public <V> V execute(Transaction<V> transaction) throws Exception {
+    return execute(transaction, null);
+  }
+
+  @Override
+  public <V> ExecutionResult<V> tryExecute(Transaction<V> transaction) throws Exception {
+    return tryExecute(transaction, null);
+  }
+
+  @Override
+  public <V> V execute(Transaction<V> transaction, Driver<V> result) throws Exception {
     TransactionExecution transactionExecution = new BaseTransactionExecution();
-    Transaction transaction = transactionExecution.begin(procedure.dependency());
+    Context context = transactionExecution.begin(buildResultDependency(transaction.dependency(), result));
     try {
-      procedure.run(transaction);
-      transactionExecution.commit();
-    } catch (Exception e) {
-      transactionExecution.abort();
-      throw e;
-    }
-  }
-
-  @Override
-  public boolean tryExecute(Procedure procedure) throws Exception {
-    TransactionExecution transactionExecution = new BaseTransactionExecution();
-    Transaction transaction = transactionExecution.tryBegin(procedure.dependency());
-    if (transaction != null) {
-      try {
-        procedure.run(transaction);
-        transactionExecution.commit();
-        return true;
-      } catch (Exception e) {
-        transactionExecution.abort();
-        throw e;
-      }
-    } else {
-      return false;
-    }
-  }
-
-  @Override
-  public <V> Value<V> execute(Function<V> function) throws Exception {
-    return execute(function, null);
-  }
-
-  @Override
-  public <V> ExecutionResult<Value<V>> tryExecute(Function<V> function) throws Exception {
-    return tryExecute(function, null);
-  }
-
-  @Override
-  public <V> Value<V> execute(Function<V> function, Driver<V> result) throws Exception {
-    TransactionExecution transactionExecution = new BaseTransactionExecution();
-    Transaction transaction = transactionExecution.begin(makeFunctionDependency(function.dependency(), result));
-    try {
-      Value<V> resultValue = function.call(transaction);
+      V resultValue = transaction.run(context);
       // Write result only if needed
       if (result != null) {
-        transaction.write(result.reference(), resultValue);
+        context.write(result.reference(), resultValue);
       }
       transactionExecution.commit();
       return resultValue;
@@ -85,36 +59,36 @@ public class BaseExecutor implements Executor {
   }
 
   @Override
-  public <V> ExecutionResult<Value<V>> tryExecute(Function<V> function, Driver<V> result) throws Exception {
+  public <V> ExecutionResult<V> tryExecute(Transaction<V> transaction, Driver<V> result) throws Exception {
     TransactionExecution transactionExecution = new BaseTransactionExecution();
-    Transaction transaction = transactionExecution.tryBegin(makeFunctionDependency(function.dependency(), result));
-    if (transaction != null) {
+    Context context = transactionExecution.tryBegin(buildResultDependency(transaction.dependency(), result));
+    if (context != null) {
       try {
-        Value<V> resultValue = function.call(transaction);
+        V resultValue = transaction.run(context);
         // Write result only if needed
         if (result != null) {
-          transaction.write(result.reference(), resultValue);
+          context.write(result.reference(), resultValue);
         }
         transactionExecution.commit();
-        return new ExecutionResult<Value<V>>(true, resultValue);
+        return new ExecutionResult<V>(true, resultValue);
       } catch (Exception e) {
         transactionExecution.abort();
         throw e;
       }
     } else {
-      return new ExecutionResult<Value<V>>(false, null);
+      return new ExecutionResult<V>(false, null);
     }
   }
 
-  private static Dependency makeFunctionDependency(Dependency dependency, Driver resultValue) {
+  private static Dependency<Driver> buildResultDependency(Dependency<Driver> dependency, Driver resultValue) {
     if (resultValue != null) {
-      Dependency result;
+      Dependency<Driver> result;
       // Original dependency, with result added as a write
       List<Driver> writes = Lists.newArrayList(dependency.writes());
       if (!writes.contains(resultValue)) {
         writes.add(resultValue);
       }
-      result = BaseDependency.builder()
+      result = BaseDependency.<Driver>builder()
                    .snapshots(dependency.snapshots())
                    .reads(dependency.reads())
                    .writes(writes)

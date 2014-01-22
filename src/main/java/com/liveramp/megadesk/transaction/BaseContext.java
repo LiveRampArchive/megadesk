@@ -24,13 +24,12 @@ import com.google.common.collect.Maps;
 
 import com.liveramp.megadesk.state.Driver;
 import com.liveramp.megadesk.state.Reference;
-import com.liveramp.megadesk.state.Value;
 
-public class BaseTransaction implements Transaction {
+public class BaseContext implements Context {
 
   private final Map<Reference, Binding> bindings;
 
-  public BaseTransaction(Dependency dependency) {
+  public BaseContext(Dependency<Driver> dependency) {
     bindings = Maps.newHashMap();
     for (Driver driver : readDrivers(dependency)) {
       addBinding(driver, true);
@@ -40,7 +39,7 @@ public class BaseTransaction implements Transaction {
     }
   }
 
-  private static List<Driver> readDrivers(Dependency dependency) {
+  private static List<Driver> readDrivers(Dependency<Driver> dependency) {
     List<Driver> result = Lists.newArrayList();
     // Snapshots
     for (Driver driver : dependency.snapshots()) {
@@ -53,7 +52,7 @@ public class BaseTransaction implements Transaction {
     return result;
   }
 
-  private static List<Driver> writeDrivers(Dependency dependency) {
+  private static List<Driver> writeDrivers(Dependency<Driver> dependency) {
     List<Driver> result = Lists.newArrayList();
     // Execution writes
     for (Driver driver : dependency.writes()) {
@@ -75,17 +74,12 @@ public class BaseTransaction implements Transaction {
   }
 
   @Override
-  public <VALUE> Value<VALUE> read(Reference<VALUE> reference) {
+  public <VALUE> VALUE read(Reference<VALUE> reference) {
     return binding(reference).read();
   }
 
   @Override
-  public <VALUE> VALUE get(Reference<VALUE> reference) {
-    return binding(reference).get();
-  }
-
-  @Override
-  public <VALUE> void write(Reference<VALUE> reference, Value<VALUE> value) {
+  public <VALUE> void write(Reference<VALUE> reference, VALUE value) {
     binding(reference).write(value);
   }
 }

@@ -18,9 +18,7 @@ package com.liveramp.megadesk.state;
 
 public interface Persistence<VALUE> {
 
-  Value<VALUE> read();
+  VALUE read();
 
-  VALUE get();
-
-  void write(Value<VALUE> value);
+  void write(VALUE value);
 }

@@ -17,32 +17,26 @@
 package com.liveramp.megadesk.state.lib;
 
 import com.liveramp.megadesk.state.Persistence;
-import com.liveramp.megadesk.state.Value;
 
 public class InMemoryPersistence<VALUE> implements Persistence<VALUE> {
 
-  private Value<VALUE> value;
+  private VALUE value;
 
   public InMemoryPersistence() {
     this.value = null;
   }
 
-  public InMemoryPersistence(Value<VALUE> value) {
+  public InMemoryPersistence(VALUE value) {
     this.value = value;
   }
 
   @Override
-  public Value<VALUE> read() {
+  public VALUE read() {
     return value;
   }
 
   @Override
-  public VALUE get() {
-    return read().get();
-  }
-
-  @Override
-  public void write(Value<VALUE> value) {
+  public void write(VALUE value) {
     this.value = value;
   }
 }
