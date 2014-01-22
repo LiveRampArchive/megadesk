@@ -27,7 +27,7 @@ public class BoundTransaction<V> implements Transaction<V> {
   private final TransactionBinding<V> call;
   private final Dependency<Driver> dependency;
 
-  public BoundTransaction(TransactionBinding call) {
+  public BoundTransaction(TransactionBinding<V> call) {
     this.call = call;
     this.dependency = BaseDependency.<Driver>builder()
                           .snapshots(unbind(call.transaction().dependency().snapshots()))
