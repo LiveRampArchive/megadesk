@@ -24,7 +24,6 @@ import org.apache.commons.lang.builder.CompareToBuilder;
 import com.liveramp.megadesk.state.Driver;
 import com.liveramp.megadesk.state.Persistence;
 import com.liveramp.megadesk.state.Reference;
-import com.liveramp.megadesk.state.Value;
 
 public class InMemoryDriver<VALUE> implements Driver<VALUE> {
 
@@ -37,7 +36,7 @@ public class InMemoryDriver<VALUE> implements Driver<VALUE> {
     persistence = new InMemoryPersistence<VALUE>();
   }
 
-  public InMemoryDriver(Value<VALUE> value) {
+  public InMemoryDriver(VALUE value) {
     persistence = new InMemoryPersistence<VALUE>(value);
   }
 

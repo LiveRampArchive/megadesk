@@ -26,7 +26,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import com.liveramp.megadesk.state.Driver;
-import com.liveramp.megadesk.state.Value;
 
 public class BaseTransactionExecution implements TransactionExecution {
 
@@ -89,7 +88,7 @@ public class BaseTransactionExecution implements TransactionExecution {
     try {
       // Write updates
       for (Driver driver : dependency.writes()) {
-        Value value = data.binding(driver.reference()).read();
+        Object value = data.binding(driver.reference()).read();
         driver.persistence().write(value);
       }
     } finally {

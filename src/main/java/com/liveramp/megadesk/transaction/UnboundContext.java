@@ -16,15 +16,11 @@
 
 package com.liveramp.megadesk.transaction;
 
-import com.liveramp.megadesk.state.Value;
-
 public interface UnboundContext {
 
   <VALUE> Binding<VALUE> binding(String reference);
 
-  <VALUE> Value<VALUE> read(String reference);
+  <VALUE> VALUE read(String reference);
 
-  <VALUE> VALUE get(String reference);
-
-  <VALUE> void write(String reference, Value<VALUE> value);
+  <VALUE> void write(String reference, VALUE value);
 }

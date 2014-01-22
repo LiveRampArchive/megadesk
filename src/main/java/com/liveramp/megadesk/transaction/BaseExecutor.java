@@ -22,7 +22,6 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import com.liveramp.megadesk.state.Driver;
-import com.liveramp.megadesk.state.lib.InMemoryValue;
 
 public class BaseExecutor implements Executor {
 
@@ -49,7 +48,7 @@ public class BaseExecutor implements Executor {
       V resultValue = transaction.run(context);
       // Write result only if needed
       if (result != null) {
-        context.write(result.reference(), new InMemoryValue<V>(resultValue));
+        context.write(result.reference(), resultValue);
       }
       transactionExecution.commit();
       return resultValue;
@@ -68,7 +67,7 @@ public class BaseExecutor implements Executor {
         V resultValue = transaction.run(context);
         // Write result only if needed
         if (result != null) {
-          context.write(result.reference(), new InMemoryValue<V>(resultValue));
+          context.write(result.reference(), resultValue);
         }
         transactionExecution.commit();
         return new ExecutionResult<V>(true, resultValue);

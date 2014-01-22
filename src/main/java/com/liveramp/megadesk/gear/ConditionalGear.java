@@ -16,6 +16,7 @@
 
 package com.liveramp.megadesk.gear;
 
+import com.liveramp.megadesk.state.Driver;
 import com.liveramp.megadesk.transaction.BaseDependency;
 import com.liveramp.megadesk.transaction.Context;
 
@@ -24,7 +25,7 @@ public abstract class ConditionalGear extends BaseGear implements Gear {
   public ConditionalGear() {
   }
 
-  public ConditionalGear(BaseDependency dependency) {
+  public ConditionalGear(BaseDependency<Driver> dependency) {
     super(dependency);
   }
 

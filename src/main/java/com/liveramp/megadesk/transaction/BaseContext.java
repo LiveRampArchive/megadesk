@@ -24,7 +24,6 @@ import com.google.common.collect.Maps;
 
 import com.liveramp.megadesk.state.Driver;
 import com.liveramp.megadesk.state.Reference;
-import com.liveramp.megadesk.state.Value;
 
 public class BaseContext implements Context {
 
@@ -75,17 +74,12 @@ public class BaseContext implements Context {
   }
 
   @Override
-  public <VALUE> Value<VALUE> read(Reference<VALUE> reference) {
+  public <VALUE> VALUE read(Reference<VALUE> reference) {
     return binding(reference).read();
   }
 
   @Override
-  public <VALUE> VALUE get(Reference<VALUE> reference) {
-    return binding(reference).get();
-  }
-
-  @Override
-  public <VALUE> void write(Reference<VALUE> reference, Value<VALUE> value) {
+  public <VALUE> void write(Reference<VALUE> reference, VALUE value) {
     binding(reference).write(value);
   }
 }

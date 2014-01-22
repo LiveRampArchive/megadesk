@@ -16,7 +16,7 @@
 
 package com.liveramp.megadesk.transaction;
 
-import com.liveramp.megadesk.state.Value;
+import com.liveramp.megadesk.state.Reference;
 
 public class BaseUnboundContext implements UnboundContext {
 
@@ -30,21 +30,16 @@ public class BaseUnboundContext implements UnboundContext {
 
   @Override
   public <VALUE> Binding<VALUE> binding(String reference) {
-    return context.binding(call.unbind(reference).reference());
+    return context.binding((Reference<VALUE>)call.unbind(reference).reference());
   }
 
   @Override
-  public <VALUE> Value<VALUE> read(String reference) {
-    return context.read(call.unbind(reference).reference());
+  public <VALUE> VALUE read(String reference) {
+    return context.read((Reference<VALUE>)call.unbind(reference).reference());
   }
 
   @Override
-  public <VALUE> VALUE get(String reference) {
-    return (VALUE)context.get(call.unbind(reference).reference());
-  }
-
-  @Override
-  public <VALUE> void write(String reference, Value<VALUE> value) {
+  public <VALUE> void write(String reference, VALUE value) {
     context.write(call.unbind(reference).reference(), value);
   }
 }

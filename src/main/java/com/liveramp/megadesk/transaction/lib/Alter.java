@@ -16,7 +16,6 @@
 
 package com.liveramp.megadesk.transaction.lib;
 
-import com.liveramp.megadesk.state.Value;
 import com.liveramp.megadesk.transaction.Arguments;
 import com.liveramp.megadesk.transaction.BaseDependency;
 import com.liveramp.megadesk.transaction.BaseUnboundTransaction;
@@ -32,10 +31,10 @@ public abstract class Alter<V> extends BaseUnboundTransaction<V> implements Unbo
 
   @Override
   public V run(UnboundContext transaction) throws Exception {
-    Value<V> result = alter(transaction.<V>read("input"));
+    V result = alter(transaction.<V>read("input"));
     transaction.write("input", result);
-    return result.get();
+    return result;
   }
 
-  public abstract Value<V> alter(Value<V> value);
+  public abstract V alter(V value);
 }
