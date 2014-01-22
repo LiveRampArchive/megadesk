@@ -18,6 +18,7 @@
   <modules>
     <module>megadesk-core</module>
     <module>megadesk-curator</module>
+    <module>megadesk-recipes</module>
   </modules>
 
   <scm>
