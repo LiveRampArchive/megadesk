@@ -17,17 +17,16 @@
 package com.liveramp.megadesk.transaction;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 
 public class Arguments {
 
   private final List<String> arguments;
 
   public Arguments(List<String> arguments) {
-    this.arguments = Collections.unmodifiableList(Lists.newArrayList(arguments));
+    this.arguments = ImmutableList.copyOf(arguments);
   }
 
   public Arguments(String arguments) {

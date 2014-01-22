@@ -40,11 +40,12 @@ import com.liveramp.megadesk.transaction.BaseDependency;
 import com.liveramp.megadesk.transaction.BaseExecutor;
 import com.liveramp.megadesk.transaction.Binding;
 import com.liveramp.megadesk.transaction.Dependency;
+import com.liveramp.megadesk.transaction.Executor;
 import com.liveramp.megadesk.transaction.Function;
-import com.liveramp.megadesk.transaction.Procedure;
 import com.liveramp.megadesk.transaction.Transaction;
-import com.liveramp.megadesk.transaction.lib.Alter;
+import com.liveramp.megadesk.transaction.lib.UnboundAlter;
 import com.liveramp.megadesk.worker.NaiveWorker;
+import com.liveramp.megadesk.worker.Worker;
 
 import static org.junit.Assert.assertEquals;
 
@@ -130,16 +131,12 @@ public class IntegrationTest extends BaseTestCase {
     }
   }
 
-  private void execute(Gear... gears) throws InterruptedException {
-    new NaiveWorker().complete(gears);
+  private Worker worker() {
+    return new NaiveWorker();
   }
 
-  private void execute(Procedure procedure) throws Exception {
-    new BaseExecutor().execute(procedure);
-  }
-
-  private <V> Value<V> execute(Function<V> function) throws Exception {
-    return new BaseExecutor().execute(function);
+  private Executor executor() {
+    return new BaseExecutor();
   }
 
   @Test
@@ -157,14 +154,14 @@ public class IntegrationTest extends BaseTestCase {
     Gear gearB = new TransferGear(driverB, driverC);
     Gear gearC = new TransferGear(driverC, driverD);
 
-    execute(gearA, gearB, gearC);
+    worker().complete(gearA, gearB, gearC);
 
     // Check using a transaction
-    assertEquals(true, execute(new Function<Boolean>() {
+    assertEquals(true, executor().execute(new Function<Boolean>() {
 
       @Override
-      public Dependency dependency() {
-        return BaseDependency.builder().reads(driverA, driverB, driverC, driverD).build();
+      public Dependency<Driver> dependency() {
+        return BaseDependency.<Driver>builder().reads(driverA, driverB, driverC, driverD).build();
       }
 
       @Override
@@ -189,7 +186,7 @@ public class IntegrationTest extends BaseTestCase {
     StepGear stepC = new StepGear(stepA);
     StepGear stepD = new StepGear(stepB, stepC);
 
-    execute(stepA, stepB, stepC, stepD);
+    worker().complete(stepA, stepB, stepC, stepD);
 
     assertEquals(true, stepA.driver.persistence().get());
     assertEquals(true, stepB.driver.persistence().get());
@@ -203,7 +200,7 @@ public class IntegrationTest extends BaseTestCase {
     final Driver<Integer> driverA = new InMemoryDriver<Integer>(v0);
     final Driver<Integer> driverB = new InMemoryDriver<Integer>(v0);
 
-    Alter<Integer> incrementA = new Alter<Integer>(driverA) {
+    UnboundAlter<Integer> increment = new UnboundAlter<Integer>() {
       @Override
       public Value<Integer> alter(Value<Integer> value) {
         return new InMemoryValue<Integer>(value.get() + 1);
@@ -211,10 +208,10 @@ public class IntegrationTest extends BaseTestCase {
     };
 
     // Increment A twice
-    execute(incrementA);
-    execute(incrementA);
+    executor().execute(increment, driverA);
+    executor().execute(increment, driverA);
     // Transfer A to B
-    execute(new TransferGear(driverA, driverB));
+    executor().execute(new TransferGear(driverA, driverB));
 
     assertEquals(Integer.valueOf(0), driverA.persistence().get());
     assertEquals(Integer.valueOf(2), driverB.persistence().get());

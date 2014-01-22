@@ -16,6 +16,7 @@
 
 package com.liveramp.megadesk.transaction;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -36,6 +37,11 @@ public class BaseExecutor implements Executor {
       transactionExecution.abort();
       throw e;
     }
+  }
+
+  @Override
+  public void execute(UnboundProcedure procedure, Driver... arguments) throws Exception {
+    execute(new BoundProcedure(new ProcedureCall(procedure, Arrays.asList(arguments))));
   }
 
   @Override

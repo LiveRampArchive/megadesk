@@ -23,6 +23,8 @@ public interface Executor {
 
   void execute(Procedure procedure) throws Exception;
 
+  void execute(UnboundProcedure procedure, Driver... arguments) throws Exception;
+
   boolean tryExecute(Procedure procedure) throws Exception;
 
   <V> Value<V> execute(Function<V> function) throws Exception;

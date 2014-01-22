@@ -21,4 +21,6 @@ public interface UnboundProcedure {
   Dependency<String> dependency();
 
   void run(UnboundTransaction transaction) throws Exception;
+
+  Arguments arguments();
 }

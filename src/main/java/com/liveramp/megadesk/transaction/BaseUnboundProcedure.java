@@ -28,6 +28,11 @@ public abstract class BaseUnboundProcedure implements UnboundProcedure {
   }
 
   @Override
+  public Arguments arguments() {
+    return arguments;
+  }
+
+  @Override
   public Dependency<String> dependency() {
     return dependency;
   }
