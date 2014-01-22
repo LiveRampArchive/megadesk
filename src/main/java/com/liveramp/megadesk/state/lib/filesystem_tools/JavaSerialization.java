@@ -1,4 +1,4 @@
-package com.liveramp.megadesk.state.lib.curator;
+package com.liveramp.megadesk.state.lib.filesystem_tools;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

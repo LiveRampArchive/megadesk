@@ -3,6 +3,7 @@ package com.liveramp.megadesk.state.lib.curator;
 import com.liveramp.megadesk.state.Driver;
 import com.liveramp.megadesk.state.Persistence;
 import com.liveramp.megadesk.state.Reference;
+import com.liveramp.megadesk.state.lib.filesystem_tools.JavaSerialization;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.locks.InterProcessReadWriteLock;
@@ -11,18 +12,14 @@ import java.util.concurrent.locks.ReadWriteLock;
 
 public class CuratorDriver<VALUE> implements Driver<VALUE> {
 
-  private static final String ROOT_PATH = "/megadesk/drivers";
-
-  private final CuratorFramework framework;
   private final CuratorReadWriteLock executionLock;
   private final CuratorReadWriteLock persistenceLock;
   private final CuratorPersistence<VALUE> persistence;
   private final CuratorReference<VALUE> reference;
 
-  public CuratorDriver(CuratorFramework framework, String name) {
-    this.framework = framework;
-
-    String basePath = ROOT_PATH + "/" + name;
+  public CuratorDriver(String name) {
+    CuratorFramework framework = CuratorConfiguration.INSTANCE.getFramework();
+    String basePath = CuratorConfiguration.INSTANCE.getPathMaker().makePath(name);
 
     this.executionLock = new CuratorReadWriteLock(new InterProcessReadWriteLock(framework, basePath + "/executionLock"));
     this.persistenceLock = new CuratorReadWriteLock(new InterProcessReadWriteLock(framework, basePath + "/persistenceLock"));

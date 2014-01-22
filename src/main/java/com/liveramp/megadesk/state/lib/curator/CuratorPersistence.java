@@ -3,6 +3,7 @@ package com.liveramp.megadesk.state.lib.curator;
 import com.liveramp.megadesk.state.Persistence;
 import com.liveramp.megadesk.state.Value;
 import com.liveramp.megadesk.state.lib.InMemoryValue;
+import com.liveramp.megadesk.state.lib.filesystem_tools.SerializationHandler;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.NodeCache;
 
