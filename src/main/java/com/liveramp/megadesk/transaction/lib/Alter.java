@@ -23,9 +23,9 @@ import com.liveramp.megadesk.transaction.BaseUnboundTransaction;
 import com.liveramp.megadesk.transaction.UnboundContext;
 import com.liveramp.megadesk.transaction.UnboundTransaction;
 
-public abstract class UnboundAlter<V> extends BaseUnboundTransaction<V> implements UnboundTransaction<V> {
+public abstract class Alter<V> extends BaseUnboundTransaction<V> implements UnboundTransaction<V> {
 
-  public UnboundAlter() {
+  public Alter() {
     super(new Arguments("input"),
              BaseDependency.<String>builder().writes("input").build());
   }

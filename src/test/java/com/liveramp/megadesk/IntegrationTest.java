@@ -43,7 +43,7 @@ import com.liveramp.megadesk.transaction.Dependency;
 import com.liveramp.megadesk.transaction.Executor;
 import com.liveramp.megadesk.transaction.Transaction;
 import com.liveramp.megadesk.transaction.Context;
-import com.liveramp.megadesk.transaction.lib.UnboundAlter;
+import com.liveramp.megadesk.transaction.lib.Alter;
 import com.liveramp.megadesk.worker.NaiveWorker;
 import com.liveramp.megadesk.worker.Worker;
 
@@ -200,7 +200,7 @@ public class IntegrationTest extends BaseTestCase {
     final Driver<Integer> driverA = new InMemoryDriver<Integer>(v0);
     final Driver<Integer> driverB = new InMemoryDriver<Integer>(v0);
 
-    UnboundAlter<Integer> increment = new UnboundAlter<Integer>() {
+    Alter<Integer> increment = new Alter<Integer>() {
       @Override
       public Value<Integer> alter(Value<Integer> value) {
         return new InMemoryValue<Integer>(value.get() + 1);
