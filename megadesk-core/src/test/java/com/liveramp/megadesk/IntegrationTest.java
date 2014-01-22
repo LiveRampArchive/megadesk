@@ -16,15 +16,11 @@
 
 package com.liveramp.megadesk;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import org.apache.curator.test.TestingServer;
 import org.apache.log4j.Logger;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.liveramp.megadesk.gear.ConditionalGear;
@@ -50,18 +46,6 @@ import static org.junit.Assert.assertEquals;
 public class IntegrationTest extends BaseTestCase {
 
   private static final Logger LOG = Logger.getLogger(IntegrationTest.class);
-
-  private TestingServer testingServer;
-
-  @Before
-  public void setUpDriver() throws Exception {
-    this.testingServer = new TestingServer(12000);
-  }
-
-  @After
-  public void tearDownDriver() throws IOException {
-    this.testingServer.close();
-  }
 
   private static class StepGear extends ConditionalGear implements Gear {
 
