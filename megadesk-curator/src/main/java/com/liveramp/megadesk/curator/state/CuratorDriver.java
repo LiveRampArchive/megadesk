@@ -12,15 +12,15 @@ import java.util.concurrent.locks.ReadWriteLock;
 
 public class CuratorDriver<VALUE> {
 
-  public static <VALUE> Driver<VALUE> build(String name, SerializationHandler<VALUE> serializer) {
+  public static <VALUE> Driver<VALUE> build(
+      String path,
+      CuratorFramework framework,
+      SerializationHandler<VALUE> serializer) {
 
-    CuratorFramework framework = CuratorConfiguration.INSTANCE.getFramework();
-    String basePath = CuratorConfiguration.INSTANCE.getPathMaker().makePath(name);
-
-    ReadWriteLock executionLock = new CuratorReadWriteLock(new InterProcessReadWriteLock(framework, basePath + "/executionLock"));
-    ReadWriteLock persistenceLock = new CuratorReadWriteLock(new InterProcessReadWriteLock(framework, basePath + "/persistenceLock"));
-    Persistence<VALUE> persistence = new CuratorPersistence<VALUE>(framework, basePath, serializer);
-    Reference<VALUE> reference = new CuratorReference<VALUE>(name);
+    ReadWriteLock executionLock = new CuratorReadWriteLock(new InterProcessReadWriteLock(framework, path + "/executionLock"));
+    ReadWriteLock persistenceLock = new CuratorReadWriteLock(new InterProcessReadWriteLock(framework, path + "/persistenceLock"));
+    Persistence<VALUE> persistence = new CuratorPersistence<VALUE>(framework, path, serializer);
+    Reference<VALUE> reference = new CuratorReference<VALUE>(path);
 
     return new BaseDriver<VALUE>(reference, persistence, persistenceLock, executionLock);
   }
