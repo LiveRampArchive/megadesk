@@ -16,34 +16,25 @@
 
 package com.liveramp.megadesk.transaction.lib;
 
-import com.liveramp.megadesk.state.Driver;
-import com.liveramp.megadesk.state.Reference;
-import com.liveramp.megadesk.state.Value;
+import com.liveramp.megadesk.transaction.Arguments;
 import com.liveramp.megadesk.transaction.BaseDependency;
-import com.liveramp.megadesk.transaction.Dependency;
-import com.liveramp.megadesk.transaction.Procedure;
-import com.liveramp.megadesk.transaction.Transaction;
+import com.liveramp.megadesk.transaction.BaseUnboundTransaction;
+import com.liveramp.megadesk.transaction.UnboundContext;
+import com.liveramp.megadesk.transaction.UnboundTransaction;
 
-public abstract class Alter<V> implements Procedure {
+public abstract class Alter<V> extends BaseUnboundTransaction<V> implements UnboundTransaction<V> {
 
-  private final Reference<V> reference;
-  private final BaseDependency dependency;
-
-  public Alter(Driver<V> driver) {
-    this.reference = driver.reference();
-    this.dependency = BaseDependency.builder().writes(driver).build();
+  public Alter() {
+    super(new Arguments("input"),
+             BaseDependency.<String>builder().writes("input").build());
   }
 
   @Override
-  public Dependency dependency() {
-    return dependency;
+  public V run(UnboundContext transaction) throws Exception {
+    V result = alter(transaction.<V>read("input"));
+    transaction.write("input", result);
+    return result;
   }
 
-  @Override
-  public void run(Transaction transaction) throws Exception {
-    Value<V> result = alter(transaction.read(reference));
-    transaction.write(reference, result);
-  }
-
-  public abstract Value<V> alter(Value<V> value);
+  public abstract V alter(V value);
 }

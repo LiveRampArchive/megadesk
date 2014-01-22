@@ -14,13 +14,15 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.state;
+package com.liveramp.megadesk.transaction;
 
-import java.util.UUID;
+import com.liveramp.megadesk.state.Reference;
 
-public interface Value<VALUE> {
+public interface Context {
 
-  UUID uuid();
+  <VALUE> Binding<VALUE> binding(Reference<VALUE> reference);
 
-  VALUE get();
+  <VALUE> VALUE read(Reference<VALUE> reference);
+
+  <VALUE> void write(Reference<VALUE> reference, VALUE value);
 }

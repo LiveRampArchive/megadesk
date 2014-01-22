@@ -16,11 +16,11 @@
 
 package com.liveramp.megadesk.transaction;
 
-import com.liveramp.megadesk.state.Value;
+public interface UnboundTransaction<V> {
 
-public interface Function<V> {
+  Dependency<String> dependency();
 
-  Dependency dependency();
+  V run(UnboundContext transaction) throws Exception;
 
-  Value<V> call(Transaction transaction) throws Exception;
+  Arguments arguments();
 }
