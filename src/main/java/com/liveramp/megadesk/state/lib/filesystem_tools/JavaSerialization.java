@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class JavaSerialization implements SerializationHandler {
+public class JavaSerialization<T> implements SerializationHandler<T> {
 
   @Override
   public byte[] serialize(Object o) throws IOException {
@@ -18,7 +18,7 @@ public class JavaSerialization implements SerializationHandler {
   }
 
   @Override
-  public Object deserialize(byte[] bytes) throws IOException {
+  public T deserialize(byte[] bytes) throws IOException {
     ByteArrayInputStream byteStream = new ByteArrayInputStream(bytes);
     ObjectInputStream ois = new ObjectInputStream(byteStream);
     Object o = null;
@@ -28,6 +28,6 @@ public class JavaSerialization implements SerializationHandler {
       throw new RuntimeException(e);
     }
     ois.close();
-    return o;
+    return (T) o;
   }
 }
