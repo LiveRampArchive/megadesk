@@ -1,4 +1,4 @@
-package com.liveramp.megadesk.state.lib.curator;
+package com.liveramp.megadesk.curator.state;
 
 import com.liveramp.megadesk.state.Persistence;
 import com.liveramp.megadesk.state.lib.filesystem_tools.SerializationHandler;

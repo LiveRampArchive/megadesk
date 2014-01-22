@@ -1,4 +1,4 @@
-package com.liveramp.megadesk.state.lib.curator;
+package com.liveramp.megadesk.curator.state;
 
 import org.apache.curator.framework.recipes.locks.InterProcessReadWriteLock;
 
