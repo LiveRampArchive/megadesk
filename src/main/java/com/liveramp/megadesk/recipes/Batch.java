@@ -1,21 +1,19 @@
 package com.liveramp.megadesk.recipes;
 
+import java.util.Map;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+
 import com.liveramp.megadesk.state.Driver;
 import com.liveramp.megadesk.state.Reference;
-import com.liveramp.megadesk.state.Value;
 import com.liveramp.megadesk.state.lib.InMemoryDriver;
-import com.liveramp.megadesk.state.lib.InMemoryValue;
 import com.liveramp.megadesk.transaction.BaseDependency;
 import com.liveramp.megadesk.transaction.BaseExecutor;
 import com.liveramp.megadesk.transaction.Binding;
+import com.liveramp.megadesk.transaction.Context;
 import com.liveramp.megadesk.transaction.Dependency;
-import com.liveramp.megadesk.transaction.Procedure;
 import com.liveramp.megadesk.transaction.Transaction;
-import com.liveramp.megadesk.utils.ValueWrapper;
-
-import java.util.Map;
 
 public class Batch<VALUE> {
 
@@ -23,7 +21,6 @@ public class Batch<VALUE> {
 
   private final Driver<ImmutableList> input;
   private final Driver<ImmutableList> output;
-  private static ValueWrapper wrapper = new InMemoryWrapper();
 
   public static <VALUE> Batch<VALUE> getByName(String name) {
     return new Batch<VALUE>(getDriver(name + "-input"), getDriver(name + "-output"));
@@ -42,7 +39,7 @@ public class Batch<VALUE> {
   }
 
   private static Driver<ImmutableList> makeDriver(String name) {
-    return new InMemoryDriver<ImmutableList>(wrapper.<ImmutableList>wrap(ImmutableList.of()));
+    return new InMemoryDriver<ImmutableList>(ImmutableList.of());
   }
 
   public void append(VALUE value) {
@@ -60,12 +57,11 @@ public class Batch<VALUE> {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    ImmutableList batch = read(output);
-    return batch;
+    return read(output);
   }
 
   private <T> T read(Driver<T> ref) {
-    return ref.persistence().get();
+    return ref.persistence().read();
   }
 
   public void popBatch() {
@@ -76,88 +72,81 @@ public class Batch<VALUE> {
     }
   }
 
-  private static class TransferBatch implements Procedure {
+  private static class TransferBatch implements Transaction<Void> {
 
-    private final Dependency dependency;
+    private final Dependency<Driver> dependency;
     private final Driver<ImmutableList> input;
     private final Driver<ImmutableList> output;
 
     public TransferBatch(Driver<ImmutableList> input, Driver<ImmutableList> output) {
       this.input = input;
       this.output = output;
-      this.dependency = BaseDependency.builder().writes(input, output).build();
+      this.dependency = BaseDependency.<Driver>builder().writes(input, output).build();
     }
 
     @Override
-    public Dependency dependency() {
+    public Dependency<Driver> dependency() {
       return dependency;
     }
 
     @Override
-    public void run(Transaction transaction) throws Exception {
-      Binding<ImmutableList> inputList = transaction.binding(input.reference());
-      Binding<ImmutableList> outputList = transaction.binding(output.reference());
-      if (outputList.get().isEmpty()) {
-        Value<ImmutableList> values = inputList.read();
+    public Void run(Context context) throws Exception {
+      Binding<ImmutableList> inputList = context.binding(input.reference());
+      Binding<ImmutableList> outputList = context.binding(output.reference());
+      if (outputList.read().isEmpty()) {
+        ImmutableList values = inputList.read();
         outputList.write(values);
-        inputList.write(wrapper.<ImmutableList>wrap(ImmutableList.of()));
+        inputList.write(ImmutableList.of());
       }
+      return null;
     }
   }
 
-  private static class Append<V> implements Procedure {
+  private static class Append<V> implements Transaction<Void> {
 
-    private final Dependency dependency;
+    private final Dependency<Driver> dependency;
     private final Reference<ImmutableList> reference;
     private final V value;
 
     private Append(Driver<ImmutableList> driver, V value) {
       this.value = value;
       this.reference = driver.reference();
-      this.dependency = BaseDependency.builder().writes(driver).build();
+      this.dependency = BaseDependency.<Driver>builder().writes(driver).build();
     }
 
     @Override
-    public Dependency dependency() {
+    public Dependency<Driver> dependency() {
       return dependency;
     }
 
     @Override
-    public void run(Transaction transaction) throws Exception {
-      Value<ImmutableList> originalValue = transaction.read(reference);
-      ImmutableList originalList = originalValue.get();
+    public Void run(Context context) throws Exception {
+      ImmutableList originalList = context.read(reference);
       ImmutableList newList = ImmutableList.<V>builder().addAll(originalList).add(value).build();
-      Value<ImmutableList> newValue = wrapper.wrap(newList);
-      transaction.write(reference, newValue);
+      context.write(reference, newList);
+      return null;
     }
   }
 
-  private static class Erase implements Procedure {
+  private static class Erase implements Transaction<Void> {
 
-    private final Dependency dependency;
+    private final Dependency<Driver> dependency;
     private final Reference<ImmutableList> reference;
 
     private Erase(Driver<ImmutableList> driver) {
       this.reference = driver.reference();
-      this.dependency = BaseDependency.builder().writes(driver).build();
+      this.dependency = BaseDependency.<Driver>builder().writes(driver).build();
     }
 
     @Override
-    public Dependency dependency() {
+    public Dependency<Driver> dependency() {
       return dependency;
     }
 
     @Override
-    public void run(Transaction transaction) throws Exception {
-      transaction.write(reference, wrapper.<ImmutableList>wrap(ImmutableList.of()));
-    }
-  }
-
-  private static class InMemoryWrapper implements ValueWrapper {
-
-    @Override
-    public <T> Value<T> wrap(T value) {
-      return new InMemoryValue<T>(value);
+    public Void run(Context context) throws Exception {
+      context.write(reference, ImmutableList.of());
+      return null;
     }
   }
 }
