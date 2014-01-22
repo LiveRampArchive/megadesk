@@ -16,7 +16,7 @@
 
 package com.liveramp.megadesk.transaction;
 
-public abstract class BaseUnboundProcedure implements UnboundProcedure {
+public abstract class BaseUnboundProcedure<V> implements UnboundProcedure<V> {
 
   private final Arguments arguments;
   private final BaseDependency<String> dependency;

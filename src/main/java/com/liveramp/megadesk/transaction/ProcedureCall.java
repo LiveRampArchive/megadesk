@@ -24,13 +24,13 @@ import com.google.common.collect.Maps;
 
 import com.liveramp.megadesk.state.Driver;
 
-public class ProcedureCall {
+public class ProcedureCall<V> {
 
-  private final UnboundProcedure procedure;
+  private final UnboundProcedure<V> procedure;
   private final List<Driver> arguments;
   private final Map<String, Driver> mapping;
 
-  public ProcedureCall(UnboundProcedure procedure, List<Driver> arguments) {
+  public ProcedureCall(UnboundProcedure<V> procedure, List<Driver> arguments) {
     this.procedure = procedure;
     this.arguments = ImmutableList.copyOf(arguments);
     this.mapping = Maps.newHashMap();
@@ -46,7 +46,7 @@ public class ProcedureCall {
     return mapping.get(reference);
   }
 
-  public UnboundProcedure procedure() {
+  public UnboundProcedure<V> procedure() {
     return procedure;
   }
 

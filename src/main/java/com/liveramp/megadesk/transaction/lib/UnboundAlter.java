@@ -23,7 +23,7 @@ import com.liveramp.megadesk.transaction.BaseUnboundProcedure;
 import com.liveramp.megadesk.transaction.UnboundProcedure;
 import com.liveramp.megadesk.transaction.UnboundTransaction;
 
-public abstract class UnboundAlter<V> extends BaseUnboundProcedure implements UnboundProcedure {
+public abstract class UnboundAlter<V> extends BaseUnboundProcedure<V> implements UnboundProcedure<V> {
 
   public UnboundAlter() {
     super(new Arguments("input"),
@@ -31,8 +31,10 @@ public abstract class UnboundAlter<V> extends BaseUnboundProcedure implements Un
   }
 
   @Override
-  public void run(UnboundTransaction transaction) throws Exception {
-    transaction.write("input", alter(transaction.<V>read("input")));
+  public V run(UnboundTransaction transaction) throws Exception {
+    Value<V> result = alter(transaction.<V>read("input"));
+    transaction.write("input", result);
+    return result.get();
   }
 
   public abstract Value<V> alter(Value<V> value);

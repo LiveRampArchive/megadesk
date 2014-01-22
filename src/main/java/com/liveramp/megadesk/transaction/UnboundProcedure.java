@@ -16,11 +16,11 @@
 
 package com.liveramp.megadesk.transaction;
 
-public interface UnboundProcedure {
+public interface UnboundProcedure<V> {
 
   Dependency<String> dependency();
 
-  void run(UnboundTransaction transaction) throws Exception;
+  V run(UnboundTransaction transaction) throws Exception;
 
   Arguments arguments();
 }

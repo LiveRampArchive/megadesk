@@ -22,9 +22,9 @@ import com.google.common.collect.Lists;
 
 import com.liveramp.megadesk.state.Driver;
 
-public class BoundProcedure implements Procedure {
+public class BoundProcedure<V> implements Procedure<V> {
 
-  private final ProcedureCall call;
+  private final ProcedureCall<V> call;
   private final Dependency<Driver> dependency;
 
   public BoundProcedure(ProcedureCall call) {
@@ -50,7 +50,7 @@ public class BoundProcedure implements Procedure {
   }
 
   @Override
-  public void run(Transaction transaction) throws Exception {
-    call.procedure().run(new BaseUnboundTransaction(transaction, call));
+  public V run(Transaction transaction) throws Exception {
+    return call.procedure().run(new BaseUnboundTransaction(transaction, call));
   }
 }
