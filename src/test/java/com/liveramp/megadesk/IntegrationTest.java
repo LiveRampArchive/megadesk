@@ -41,7 +41,7 @@ import com.liveramp.megadesk.transaction.BaseExecutor;
 import com.liveramp.megadesk.transaction.Binding;
 import com.liveramp.megadesk.transaction.Dependency;
 import com.liveramp.megadesk.transaction.Executor;
-import com.liveramp.megadesk.transaction.Function;
+import com.liveramp.megadesk.transaction.Procedure;
 import com.liveramp.megadesk.transaction.Transaction;
 import com.liveramp.megadesk.transaction.lib.UnboundAlter;
 import com.liveramp.megadesk.worker.NaiveWorker;
@@ -157,7 +157,7 @@ public class IntegrationTest extends BaseTestCase {
     worker().complete(gearA, gearB, gearC);
 
     // Check using a transaction
-    assertEquals(true, executor().execute(new Function<Boolean>() {
+    assertEquals(true, executor().execute(new Procedure<Boolean>() {
 
       @Override
       public Dependency<Driver> dependency() {
@@ -165,13 +165,13 @@ public class IntegrationTest extends BaseTestCase {
       }
 
       @Override
-      public Value<Boolean> call(Transaction transaction) throws Exception {
-        return new InMemoryValue<Boolean>(transaction.get(driverA.reference()) == 0
-                                              && transaction.get(driverB.reference()) == 0
-                                              && transaction.get(driverC.reference()) == 0
-                                              && transaction.get(driverD.reference()) == 1);
+      public Boolean run(Transaction transaction) throws Exception {
+        return transaction.get(driverA.reference()) == 0
+                   && transaction.get(driverB.reference()) == 0
+                   && transaction.get(driverC.reference()) == 0
+                   && transaction.get(driverD.reference()) == 1;
       }
-    }).get());
+    }));
 
     assertEquals(Integer.valueOf(0), driverA.persistence().get());
     assertEquals(Integer.valueOf(0), driverB.persistence().get());

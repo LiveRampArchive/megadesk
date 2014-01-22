@@ -22,65 +22,34 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import com.liveramp.megadesk.state.Driver;
-import com.liveramp.megadesk.state.Value;
+import com.liveramp.megadesk.state.lib.InMemoryValue;
 
 public class BaseExecutor implements Executor {
 
   @Override
-  public void execute(Procedure procedure) throws Exception {
+  public <V> V execute(UnboundProcedure<V> procedure, Driver... arguments) throws Exception {
+    return execute(new BoundProcedure<V>(new ProcedureCall<V>(procedure, Arrays.asList(arguments))));
+  }
+
+  @Override
+  public <V> V execute(Procedure<V> procedure) throws Exception {
+    return execute(procedure, null);
+  }
+
+  @Override
+  public <V> ExecutionResult<V> tryExecute(Procedure<V> procedure) throws Exception {
+    return tryExecute(procedure, null);
+  }
+
+  @Override
+  public <V> V execute(Procedure<V> procedure, Driver<V> result) throws Exception {
     TransactionExecution transactionExecution = new BaseTransactionExecution();
-    Transaction transaction = transactionExecution.begin(procedure.dependency());
+    Transaction transaction = transactionExecution.begin(makeFunctionDependency(procedure.dependency(), result));
     try {
-      procedure.run(transaction);
-      transactionExecution.commit();
-    } catch (Exception e) {
-      transactionExecution.abort();
-      throw e;
-    }
-  }
-
-  @Override
-  public void execute(UnboundProcedure procedure, Driver... arguments) throws Exception {
-    execute(new BoundProcedure(new ProcedureCall(procedure, Arrays.asList(arguments))));
-  }
-
-  @Override
-  public boolean tryExecute(Procedure procedure) throws Exception {
-    TransactionExecution transactionExecution = new BaseTransactionExecution();
-    Transaction transaction = transactionExecution.tryBegin(procedure.dependency());
-    if (transaction != null) {
-      try {
-        procedure.run(transaction);
-        transactionExecution.commit();
-        return true;
-      } catch (Exception e) {
-        transactionExecution.abort();
-        throw e;
-      }
-    } else {
-      return false;
-    }
-  }
-
-  @Override
-  public <V> Value<V> execute(Function<V> function) throws Exception {
-    return execute(function, null);
-  }
-
-  @Override
-  public <V> ExecutionResult<Value<V>> tryExecute(Function<V> function) throws Exception {
-    return tryExecute(function, null);
-  }
-
-  @Override
-  public <V> Value<V> execute(Function<V> function, Driver<V> result) throws Exception {
-    TransactionExecution transactionExecution = new BaseTransactionExecution();
-    Transaction transaction = transactionExecution.begin(makeFunctionDependency(function.dependency(), result));
-    try {
-      Value<V> resultValue = function.call(transaction);
+      V resultValue = procedure.run(transaction);
       // Write result only if needed
       if (result != null) {
-        transaction.write(result.reference(), resultValue);
+        transaction.write(result.reference(), new InMemoryValue<V>(resultValue));
       }
       transactionExecution.commit();
       return resultValue;
@@ -91,24 +60,24 @@ public class BaseExecutor implements Executor {
   }
 
   @Override
-  public <V> ExecutionResult<Value<V>> tryExecute(Function<V> function, Driver<V> result) throws Exception {
+  public <V> ExecutionResult<V> tryExecute(Procedure<V> procedure, Driver<V> result) throws Exception {
     TransactionExecution transactionExecution = new BaseTransactionExecution();
-    Transaction transaction = transactionExecution.tryBegin(makeFunctionDependency(function.dependency(), result));
+    Transaction transaction = transactionExecution.tryBegin(makeFunctionDependency(procedure.dependency(), result));
     if (transaction != null) {
       try {
-        Value<V> resultValue = function.call(transaction);
+        V resultValue = procedure.run(transaction);
         // Write result only if needed
         if (result != null) {
-          transaction.write(result.reference(), resultValue);
+          transaction.write(result.reference(), new InMemoryValue<V>(resultValue));
         }
         transactionExecution.commit();
-        return new ExecutionResult<Value<V>>(true, resultValue);
+        return new ExecutionResult<V>(true, resultValue);
       } catch (Exception e) {
         transactionExecution.abort();
         throw e;
       }
     } else {
-      return new ExecutionResult<Value<V>>(false, null);
+      return new ExecutionResult<V>(false, null);
     }
   }
 

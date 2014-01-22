@@ -17,21 +17,16 @@
 package com.liveramp.megadesk.transaction;
 
 import com.liveramp.megadesk.state.Driver;
-import com.liveramp.megadesk.state.Value;
 
 public interface Executor {
 
-  void execute(Procedure procedure) throws Exception;
+  <V> V execute(Procedure<V> function) throws Exception;
 
-  void execute(UnboundProcedure procedure, Driver... arguments) throws Exception;
+  <V> V execute(UnboundProcedure<V> procedure, Driver... arguments) throws Exception;
 
-  boolean tryExecute(Procedure procedure) throws Exception;
+  <V> V execute(Procedure<V> function, Driver<V> result) throws Exception;
 
-  <V> Value<V> execute(Function<V> function) throws Exception;
+  <V> ExecutionResult<V> tryExecute(Procedure<V> function) throws Exception;
 
-  <V> Value<V> execute(Function<V> function, Driver<V> result) throws Exception;
-
-  <V> ExecutionResult<Value<V>> tryExecute(Function<V> function) throws Exception;
-
-  <V> ExecutionResult<Value<V>> tryExecute(Function<V> function, Driver<V> result) throws Exception;
+  <V> ExecutionResult<V> tryExecute(Procedure<V> function, Driver<V> result) throws Exception;
 }
