@@ -162,9 +162,9 @@ public class IntegrationTest extends BaseTestCase {
       @Override
       public Boolean run(Context context) throws Exception {
         return context.read(driverA.reference()) == 0
-                   && context.read(driverB.reference()) == 0
-                   && context.read(driverC.reference()) == 0
-                   && context.read(driverD.reference()) == 1;
+            && context.read(driverB.reference()) == 0
+            && context.read(driverC.reference()) == 0
+            && context.read(driverD.reference()) == 1;
       }
     }));
 
