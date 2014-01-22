@@ -1,13 +1,12 @@
 package com.liveramp.megadesk.state.lib.curator;
 
-import com.liveramp.megadesk.state.Persistence;
-import com.liveramp.megadesk.state.Value;
-import com.liveramp.megadesk.state.lib.InMemoryValue;
-import com.liveramp.megadesk.state.lib.filesystem_tools.SerializationHandler;
+import java.io.IOException;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.NodeCache;
 
-import java.io.IOException;
+import com.liveramp.megadesk.state.Persistence;
+import com.liveramp.megadesk.state.lib.filesystem_tools.SerializationHandler;
 
 public class CuratorPersistence<VALUE> implements Persistence<VALUE> {
 
@@ -32,11 +31,10 @@ public class CuratorPersistence<VALUE> implements Persistence<VALUE> {
   }
 
   @Override
-  public Value<VALUE> read() {
-    return new InMemoryValue<VALUE>(this.get());
+  public VALUE read() {
+    return this.get();
   }
 
-  @Override
   public VALUE get() {
     byte[] data = cache.getCurrentData().getData();
     VALUE value;
@@ -49,9 +47,9 @@ public class CuratorPersistence<VALUE> implements Persistence<VALUE> {
   }
 
   @Override
-  public void write(Value<VALUE> value) {
+  public void write(VALUE value) {
     try {
-      curator.setData().forPath(path, serializer.serialize(value.get()));
+      curator.setData().forPath(path, serializer.serialize(value));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
