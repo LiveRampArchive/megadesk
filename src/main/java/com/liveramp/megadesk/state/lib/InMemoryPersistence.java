@@ -19,7 +19,7 @@ package com.liveramp.megadesk.state.lib;
 import com.liveramp.megadesk.state.Persistence;
 import com.liveramp.megadesk.state.Value;
 
-public class InMemoryPersistence<VALUE> implements Persistence<VALUE> {
+public class InMemoryPersistence<VALUE> extends BasePersistence<VALUE> implements Persistence<VALUE> {
 
   private Value<VALUE> value;
 
@@ -34,11 +34,6 @@ public class InMemoryPersistence<VALUE> implements Persistence<VALUE> {
   @Override
   public Value<VALUE> read() {
     return value;
-  }
-
-  @Override
-  public VALUE get() {
-    return read().get();
   }
 
   @Override
