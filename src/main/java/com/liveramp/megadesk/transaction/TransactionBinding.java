@@ -24,18 +24,18 @@ import com.google.common.collect.Maps;
 
 import com.liveramp.megadesk.state.Driver;
 
-public class ProcedureCall<V> {
+public class TransactionBinding<V> {
 
-  private final UnboundProcedure<V> procedure;
+  private final UnboundTransaction<V> transaction;
   private final List<Driver> arguments;
   private final Map<String, Driver> mapping;
 
-  public ProcedureCall(UnboundProcedure<V> procedure, List<Driver> arguments) {
-    this.procedure = procedure;
+  public TransactionBinding(UnboundTransaction<V> transaction, List<Driver> arguments) {
+    this.transaction = transaction;
     this.arguments = ImmutableList.copyOf(arguments);
     this.mapping = Maps.newHashMap();
     for (int i = 0; i < arguments.size(); ++i) {
-      mapping.put(procedure.arguments().get().get(i), arguments.get(i));
+      mapping.put(transaction.arguments().get().get(i), arguments.get(i));
     }
   }
 
@@ -46,8 +46,8 @@ public class ProcedureCall<V> {
     return mapping.get(reference);
   }
 
-  public UnboundProcedure<V> procedure() {
-    return procedure;
+  public UnboundTransaction<V> transaction() {
+    return transaction;
   }
 
   public List<Driver> arguments() {

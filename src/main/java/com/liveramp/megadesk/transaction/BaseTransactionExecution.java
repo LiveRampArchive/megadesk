@@ -38,7 +38,7 @@ public class BaseTransactionExecution implements TransactionExecution {
   }
 
   private Dependency<Driver> dependency;
-  private Transaction data;
+  private Context data;
   private State state = State.STANDBY;
   private final Set<Lock> executionLocksAcquired;
   private final Set<Lock> persistenceLocksAcquired;
@@ -49,14 +49,14 @@ public class BaseTransactionExecution implements TransactionExecution {
   }
 
   @Override
-  public Transaction begin(Dependency<Driver> dependency) {
+  public Context begin(Dependency<Driver> dependency) {
     ensureState(State.STANDBY);
     lock(dependency);
     return prepare(dependency);
   }
 
   @Override
-  public Transaction tryBegin(Dependency<Driver> dependency) {
+  public Context tryBegin(Dependency<Driver> dependency) {
     ensureState(State.STANDBY);
     boolean result = tryLock(dependency);
     if (result) {
@@ -66,11 +66,11 @@ public class BaseTransactionExecution implements TransactionExecution {
     }
   }
 
-  private Transaction prepare(Dependency<Driver> dependency) {
+  private Context prepare(Dependency<Driver> dependency) {
     // Acquire persistence read locks for snapshot
     lockAndRemember(persistenceReadLocks(dependency), persistenceLocksAcquired);
     try {
-      this.data = new BaseTransaction(dependency);
+      this.data = new BaseContext(dependency);
     } finally {
       // Always release persistence read locks
       unlock(persistenceLocksAcquired);

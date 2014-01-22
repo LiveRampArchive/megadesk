@@ -26,11 +26,11 @@ import com.liveramp.megadesk.state.Driver;
 import com.liveramp.megadesk.state.Reference;
 import com.liveramp.megadesk.state.Value;
 
-public class BaseTransaction implements Transaction {
+public class BaseContext implements Context {
 
   private final Map<Reference, Binding> bindings;
 
-  public BaseTransaction(Dependency<Driver> dependency) {
+  public BaseContext(Dependency<Driver> dependency) {
     bindings = Maps.newHashMap();
     for (Driver driver : readDrivers(dependency)) {
       addBinding(driver, true);

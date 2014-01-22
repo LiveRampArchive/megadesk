@@ -16,35 +16,24 @@
 
 package com.liveramp.megadesk.transaction;
 
-import com.liveramp.megadesk.state.Value;
+public abstract class BaseUnboundTransaction<V> implements UnboundTransaction<V> {
 
-public class BaseUnboundTransaction implements UnboundTransaction {
+  private final Arguments arguments;
+  private final BaseDependency<String> dependency;
 
-  private final Transaction transaction;
-  private final ProcedureCall call;
-
-  public BaseUnboundTransaction(Transaction transaction, ProcedureCall call) {
-    this.transaction = transaction;
-    this.call = call;
+  public BaseUnboundTransaction(Arguments arguments, BaseDependency<String> dependency) {
+    this.arguments = arguments;
+    this.dependency = dependency;
+    // TODO check consistency
   }
 
   @Override
-  public <VALUE> Binding<VALUE> binding(String reference) {
-    return transaction.binding(call.unbind(reference).reference());
+  public Arguments arguments() {
+    return arguments;
   }
 
   @Override
-  public <VALUE> Value<VALUE> read(String reference) {
-    return transaction.read(call.unbind(reference).reference());
-  }
-
-  @Override
-  public <VALUE> VALUE get(String reference) {
-    return (VALUE)transaction.get(call.unbind(reference).reference());
-  }
-
-  @Override
-  public <VALUE> void write(String reference, Value<VALUE> value) {
-    transaction.write(call.unbind(reference).reference(), value);
+  public Dependency<String> dependency() {
+    return dependency;
   }
 }

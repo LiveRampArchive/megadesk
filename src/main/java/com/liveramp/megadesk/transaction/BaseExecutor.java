@@ -27,29 +27,29 @@ import com.liveramp.megadesk.state.lib.InMemoryValue;
 public class BaseExecutor implements Executor {
 
   @Override
-  public <V> V execute(UnboundProcedure<V> procedure, Driver... arguments) throws Exception {
-    return execute(new BoundProcedure<V>(new ProcedureCall<V>(procedure, Arrays.asList(arguments))));
+  public <V> V execute(UnboundTransaction<V> transaction, Driver... arguments) throws Exception {
+    return execute(new BoundTransaction<V>(new TransactionBinding<V>(transaction, Arrays.asList(arguments))));
   }
 
   @Override
-  public <V> V execute(Procedure<V> procedure) throws Exception {
-    return execute(procedure, null);
+  public <V> V execute(Transaction<V> transaction) throws Exception {
+    return execute(transaction, null);
   }
 
   @Override
-  public <V> ExecutionResult<V> tryExecute(Procedure<V> procedure) throws Exception {
-    return tryExecute(procedure, null);
+  public <V> ExecutionResult<V> tryExecute(Transaction<V> transaction) throws Exception {
+    return tryExecute(transaction, null);
   }
 
   @Override
-  public <V> V execute(Procedure<V> procedure, Driver<V> result) throws Exception {
+  public <V> V execute(Transaction<V> transaction, Driver<V> result) throws Exception {
     TransactionExecution transactionExecution = new BaseTransactionExecution();
-    Transaction transaction = transactionExecution.begin(makeFunctionDependency(procedure.dependency(), result));
+    Context context = transactionExecution.begin(buildResultDependency(transaction.dependency(), result));
     try {
-      V resultValue = procedure.run(transaction);
+      V resultValue = transaction.run(context);
       // Write result only if needed
       if (result != null) {
-        transaction.write(result.reference(), new InMemoryValue<V>(resultValue));
+        context.write(result.reference(), new InMemoryValue<V>(resultValue));
       }
       transactionExecution.commit();
       return resultValue;
@@ -60,15 +60,15 @@ public class BaseExecutor implements Executor {
   }
 
   @Override
-  public <V> ExecutionResult<V> tryExecute(Procedure<V> procedure, Driver<V> result) throws Exception {
+  public <V> ExecutionResult<V> tryExecute(Transaction<V> transaction, Driver<V> result) throws Exception {
     TransactionExecution transactionExecution = new BaseTransactionExecution();
-    Transaction transaction = transactionExecution.tryBegin(makeFunctionDependency(procedure.dependency(), result));
-    if (transaction != null) {
+    Context context = transactionExecution.tryBegin(buildResultDependency(transaction.dependency(), result));
+    if (context != null) {
       try {
-        V resultValue = procedure.run(transaction);
+        V resultValue = transaction.run(context);
         // Write result only if needed
         if (result != null) {
-          transaction.write(result.reference(), new InMemoryValue<V>(resultValue));
+          context.write(result.reference(), new InMemoryValue<V>(resultValue));
         }
         transactionExecution.commit();
         return new ExecutionResult<V>(true, resultValue);
@@ -81,7 +81,7 @@ public class BaseExecutor implements Executor {
     }
   }
 
-  private static Dependency<Driver> makeFunctionDependency(Dependency<Driver> dependency, Driver resultValue) {
+  private static Dependency<Driver> buildResultDependency(Dependency<Driver> dependency, Driver resultValue) {
     if (resultValue != null) {
       Dependency<Driver> result;
       // Original dependency, with result added as a write

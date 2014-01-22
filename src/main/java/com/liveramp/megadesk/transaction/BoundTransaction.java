@@ -22,17 +22,17 @@ import com.google.common.collect.Lists;
 
 import com.liveramp.megadesk.state.Driver;
 
-public class BoundProcedure<V> implements Procedure<V> {
+public class BoundTransaction<V> implements Transaction<V> {
 
-  private final ProcedureCall<V> call;
+  private final TransactionBinding<V> call;
   private final Dependency<Driver> dependency;
 
-  public BoundProcedure(ProcedureCall call) {
+  public BoundTransaction(TransactionBinding call) {
     this.call = call;
     this.dependency = BaseDependency.<Driver>builder()
-                          .snapshots(unbind(call.procedure().dependency().snapshots()))
-                          .reads(unbind(call.procedure().dependency().reads()))
-                          .writes(unbind(call.procedure().dependency().writes()))
+                          .snapshots(unbind(call.transaction().dependency().snapshots()))
+                          .reads(unbind(call.transaction().dependency().reads()))
+                          .writes(unbind(call.transaction().dependency().writes()))
                           .build();
   }
 
@@ -50,7 +50,7 @@ public class BoundProcedure<V> implements Procedure<V> {
   }
 
   @Override
-  public V run(Transaction transaction) throws Exception {
-    return call.procedure().run(new BaseUnboundTransaction(transaction, call));
+  public V run(Context context) throws Exception {
+    return call.transaction().run(new BaseUnboundContext(context, call));
   }
 }

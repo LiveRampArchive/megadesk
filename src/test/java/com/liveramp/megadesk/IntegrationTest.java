@@ -41,8 +41,8 @@ import com.liveramp.megadesk.transaction.BaseExecutor;
 import com.liveramp.megadesk.transaction.Binding;
 import com.liveramp.megadesk.transaction.Dependency;
 import com.liveramp.megadesk.transaction.Executor;
-import com.liveramp.megadesk.transaction.Procedure;
 import com.liveramp.megadesk.transaction.Transaction;
+import com.liveramp.megadesk.transaction.Context;
 import com.liveramp.megadesk.transaction.lib.UnboundAlter;
 import com.liveramp.megadesk.worker.NaiveWorker;
 import com.liveramp.megadesk.worker.Worker;
@@ -84,9 +84,9 @@ public class IntegrationTest extends BaseTestCase {
     }
 
     @Override
-    public Outcome check(Transaction transaction) {
+    public Outcome check(Context context) {
       for (StepGear parent : parents) {
-        if (!transaction.get(parent.driver.reference())) {
+        if (!context.get(parent.driver.reference())) {
           return Outcome.STANDBY;
         }
       }
@@ -94,9 +94,9 @@ public class IntegrationTest extends BaseTestCase {
     }
 
     @Override
-    public Outcome execute(Transaction transaction) {
+    public Outcome execute(Context context) {
       // no-op
-      transaction.write(driver.reference(), new InMemoryValue<Boolean>(true));
+      context.write(driver.reference(), new InMemoryValue<Boolean>(true));
       return Outcome.ABANDON;
     }
   }
@@ -113,8 +113,8 @@ public class IntegrationTest extends BaseTestCase {
     }
 
     @Override
-    public Outcome check(Transaction transaction) {
-      if (transaction.get(src) > 0 && transaction.get(dst) == 0) {
+    public Outcome check(Context context) {
+      if (context.get(src) > 0 && context.get(dst) == 0) {
         return Outcome.SUCCESS;
       } else {
         return Outcome.STANDBY;
@@ -122,9 +122,9 @@ public class IntegrationTest extends BaseTestCase {
     }
 
     @Override
-    public Outcome execute(Transaction transaction) {
-      Binding<Integer> source = transaction.binding(src);
-      Binding<Integer> destination = transaction.binding(dst);
+    public Outcome execute(Context context) {
+      Binding<Integer> source = context.binding(src);
+      Binding<Integer> destination = context.binding(dst);
       destination.write(source.read());
       source.write(new InMemoryValue<Integer>(0));
       return Outcome.ABANDON;
@@ -157,7 +157,7 @@ public class IntegrationTest extends BaseTestCase {
     worker().complete(gearA, gearB, gearC);
 
     // Check using a transaction
-    assertEquals(true, executor().execute(new Procedure<Boolean>() {
+    assertEquals(true, executor().execute(new Transaction<Boolean>() {
 
       @Override
       public Dependency<Driver> dependency() {
@@ -165,11 +165,11 @@ public class IntegrationTest extends BaseTestCase {
       }
 
       @Override
-      public Boolean run(Transaction transaction) throws Exception {
-        return transaction.get(driverA.reference()) == 0
-                   && transaction.get(driverB.reference()) == 0
-                   && transaction.get(driverC.reference()) == 0
-                   && transaction.get(driverD.reference()) == 1;
+      public Boolean run(Context context) throws Exception {
+        return context.get(driverA.reference()) == 0
+                   && context.get(driverB.reference()) == 0
+                   && context.get(driverC.reference()) == 0
+                   && context.get(driverD.reference()) == 1;
       }
     }));
 

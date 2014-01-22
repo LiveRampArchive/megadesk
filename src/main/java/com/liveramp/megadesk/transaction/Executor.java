@@ -20,13 +20,13 @@ import com.liveramp.megadesk.state.Driver;
 
 public interface Executor {
 
-  <V> V execute(Procedure<V> function) throws Exception;
+  <V> V execute(Transaction<V> transaction) throws Exception;
 
-  <V> V execute(UnboundProcedure<V> procedure, Driver... arguments) throws Exception;
+  <V> V execute(UnboundTransaction<V> transaction, Driver... arguments) throws Exception;
 
-  <V> V execute(Procedure<V> function, Driver<V> result) throws Exception;
+  <V> V execute(Transaction<V> transaction, Driver<V> result) throws Exception;
 
-  <V> ExecutionResult<V> tryExecute(Procedure<V> function) throws Exception;
+  <V> ExecutionResult<V> tryExecute(Transaction<V> transaction) throws Exception;
 
-  <V> ExecutionResult<V> tryExecute(Procedure<V> function, Driver<V> result) throws Exception;
+  <V> ExecutionResult<V> tryExecute(Transaction<V> transaction, Driver<V> result) throws Exception;
 }

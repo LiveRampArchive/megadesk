@@ -16,24 +16,15 @@
 
 package com.liveramp.megadesk.transaction;
 
-public abstract class BaseUnboundProcedure<V> implements UnboundProcedure<V> {
+import com.liveramp.megadesk.state.Value;
 
-  private final Arguments arguments;
-  private final BaseDependency<String> dependency;
+public interface UnboundContext {
 
-  public BaseUnboundProcedure(Arguments arguments, BaseDependency<String> dependency) {
-    this.arguments = arguments;
-    this.dependency = dependency;
-    // TODO check consistency
-  }
+  <VALUE> Binding<VALUE> binding(String reference);
 
-  @Override
-  public Arguments arguments() {
-    return arguments;
-  }
+  <VALUE> Value<VALUE> read(String reference);
 
-  @Override
-  public Dependency<String> dependency() {
-    return dependency;
-  }
+  <VALUE> VALUE get(String reference);
+
+  <VALUE> void write(String reference, Value<VALUE> value);
 }

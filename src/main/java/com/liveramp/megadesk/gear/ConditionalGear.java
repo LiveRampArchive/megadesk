@@ -17,7 +17,7 @@
 package com.liveramp.megadesk.gear;
 
 import com.liveramp.megadesk.transaction.BaseDependency;
-import com.liveramp.megadesk.transaction.Transaction;
+import com.liveramp.megadesk.transaction.Context;
 
 public abstract class ConditionalGear extends BaseGear implements Gear {
 
@@ -28,15 +28,15 @@ public abstract class ConditionalGear extends BaseGear implements Gear {
     super(dependency);
   }
 
-  public abstract Outcome check(Transaction transaction);
+  public abstract Outcome check(Context context);
 
-  public abstract Outcome execute(Transaction transaction);
+  public abstract Outcome execute(Context context);
 
   @Override
-  public final Outcome run(Transaction transaction) throws Exception {
-    Outcome check = check(transaction);
+  public final Outcome run(Context context) throws Exception {
+    Outcome check = check(context);
     if (check == Outcome.SUCCESS) {
-      return execute(transaction);
+      return execute(context);
     } else {
       return check;
     }

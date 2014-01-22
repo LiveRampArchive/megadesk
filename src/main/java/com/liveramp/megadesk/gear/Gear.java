@@ -16,7 +16,7 @@
 
 package com.liveramp.megadesk.gear;
 
-import com.liveramp.megadesk.transaction.Procedure;
+import com.liveramp.megadesk.transaction.Transaction;
 
-public interface Gear extends Procedure<Outcome> {
+public interface Gear extends Transaction<Outcome> {
 }

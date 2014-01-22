@@ -20,9 +20,9 @@ import com.liveramp.megadesk.state.Driver;
 
 public interface TransactionExecution {
 
-  Transaction begin(Dependency<Driver> dependency);
+  Context begin(Dependency<Driver> dependency);
 
-  Transaction tryBegin(Dependency<Driver> dependency);
+  Context tryBegin(Dependency<Driver> dependency);
 
   void commit();
 

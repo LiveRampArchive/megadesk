@@ -19,11 +19,11 @@ package com.liveramp.megadesk.transaction.lib;
 import com.liveramp.megadesk.state.Value;
 import com.liveramp.megadesk.transaction.Arguments;
 import com.liveramp.megadesk.transaction.BaseDependency;
-import com.liveramp.megadesk.transaction.BaseUnboundProcedure;
-import com.liveramp.megadesk.transaction.UnboundProcedure;
+import com.liveramp.megadesk.transaction.BaseUnboundTransaction;
+import com.liveramp.megadesk.transaction.UnboundContext;
 import com.liveramp.megadesk.transaction.UnboundTransaction;
 
-public abstract class UnboundAlter<V> extends BaseUnboundProcedure<V> implements UnboundProcedure<V> {
+public abstract class UnboundAlter<V> extends BaseUnboundTransaction<V> implements UnboundTransaction<V> {
 
   public UnboundAlter() {
     super(new Arguments("input"),
@@ -31,7 +31,7 @@ public abstract class UnboundAlter<V> extends BaseUnboundProcedure<V> implements
   }
 
   @Override
-  public V run(UnboundTransaction transaction) throws Exception {
+  public V run(UnboundContext transaction) throws Exception {
     Value<V> result = alter(transaction.<V>read("input"));
     transaction.write("input", result);
     return result.get();
