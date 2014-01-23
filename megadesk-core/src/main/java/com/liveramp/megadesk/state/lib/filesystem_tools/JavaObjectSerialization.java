@@ -22,28 +22,27 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class JavaSerialization<T> implements SerializationHandler<T> {
+public class JavaObjectSerialization<T> implements SerializationHandler<T> {
 
   @Override
   public byte[] serialize(Object o) throws IOException {
-    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-    ObjectOutputStream oos = new ObjectOutputStream(bytes);
-    oos.writeObject(o);
-    oos.close();
-    return bytes.toByteArray();
+    ByteArrayOutputStream bytesOutputStream = new ByteArrayOutputStream();
+    ObjectOutputStream objectOutputStream = new ObjectOutputStream(bytesOutputStream);
+    objectOutputStream.writeObject(o);
+    objectOutputStream.close();
+    return bytesOutputStream.toByteArray();
   }
 
   @Override
-  public T deserialize(byte[] bytes) throws IOException {
-    ByteArrayInputStream byteStream = new ByteArrayInputStream(bytes);
-    ObjectInputStream ois = new ObjectInputStream(byteStream);
-    Object o = null;
+  public T deserialize(byte[] bytes) throws IOException, ClassNotFoundException {
+    ByteArrayInputStream bytesInputStream = new ByteArrayInputStream(bytes);
+    ObjectInputStream objectInputStream = new ObjectInputStream(bytesInputStream);
+    Object o;
     try {
-      o = ois.readObject();
-    } catch (ClassNotFoundException e) {
-      throw new RuntimeException(e);
+      o = objectInputStream.readObject();
+    } finally {
+      objectInputStream.close();
     }
-    ois.close();
     return (T)o;
   }
 }

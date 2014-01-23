@@ -22,5 +22,5 @@ public interface SerializationHandler<T> {
 
   public byte[] serialize(T o) throws IOException;
 
-  public T deserialize(byte[] bytes) throws IOException;
+  public T deserialize(byte[] bytes) throws IOException, ClassNotFoundException;
 }
