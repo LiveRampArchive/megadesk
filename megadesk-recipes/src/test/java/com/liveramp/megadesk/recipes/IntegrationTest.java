@@ -39,7 +39,7 @@ import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.Executor;
 import com.liveramp.megadesk.core.transaction.Transaction;
-import com.liveramp.megadesk.recipes.state.transaction.Alter;
+import com.liveramp.megadesk.recipes.transaction.Alter;
 
 import static org.junit.Assert.assertEquals;
 

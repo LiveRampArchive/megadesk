@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes.state.transaction;
+package com.liveramp.megadesk.recipes.transaction;
 
 import com.liveramp.megadesk.base.transaction.Arguments;
 import com.liveramp.megadesk.base.transaction.BaseDependency;
