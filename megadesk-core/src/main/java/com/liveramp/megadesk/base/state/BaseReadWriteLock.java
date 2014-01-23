@@ -14,17 +14,29 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.curator.state;
+package com.liveramp.megadesk.base.state;
 
-import org.apache.curator.framework.recipes.locks.InterProcessReadWriteLock;
-
-import com.liveramp.megadesk.base.state.BaseReadWriteLock;
+import com.liveramp.megadesk.core.state.Lock;
 import com.liveramp.megadesk.core.state.ReadWriteLock;
 
-public class CuratorReadWriteLock extends BaseReadWriteLock implements ReadWriteLock {
+public class BaseReadWriteLock implements ReadWriteLock {
 
-  public CuratorReadWriteLock(InterProcessReadWriteLock readWriteLock) {
-    super(new CuratorLock(readWriteLock.readLock()),
-             new CuratorLock(readWriteLock.writeLock()));
+  private final Lock readLock;
+  private final Lock writeLock;
+
+  public BaseReadWriteLock(Lock readLock, Lock writeLock) {
+    this.readLock = readLock;
+    this.writeLock = writeLock;
+  }
+
+
+  @Override
+  public Lock readLock() {
+    return readLock;
+  }
+
+  @Override
+  public Lock writeLock() {
+    return writeLock;
   }
 }
