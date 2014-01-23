@@ -15,11 +15,13 @@
   </parent>
 
   <dependencies>
+
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>megadesk-core</artifactId>
       <version>${project.version}</version>
     </dependency>
+
     <dependency>
       <groupId>com.liveramp.megadesk</groupId>
       <artifactId>megadesk-core</artifactId>
@@ -27,5 +29,6 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
+
   </dependencies>
 </project>

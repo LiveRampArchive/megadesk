@@ -14,11 +14,20 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes.pipeline;
+package com.liveramp.megadesk.core.transaction;
 
+import com.liveramp.megadesk.base.transaction.ExecutionResult;
 import com.liveramp.megadesk.core.state.Driver;
 
-public interface DriverFactory {
+public interface Executor {
 
-  public <T> Driver<T> get(String referenceName);
+  <V> V execute(Transaction<V> transaction) throws Exception;
+
+  <V> V execute(UnboundTransaction<V> transaction, Driver... arguments) throws Exception;
+
+  <V> V execute(Transaction<V> transaction, Driver<V> result) throws Exception;
+
+  <V> ExecutionResult<V> tryExecute(Transaction<V> transaction) throws Exception;
+
+  <V> ExecutionResult<V> tryExecute(Transaction<V> transaction, Driver<V> result) throws Exception;
 }

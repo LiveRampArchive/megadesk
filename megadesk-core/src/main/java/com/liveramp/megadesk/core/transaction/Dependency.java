@@ -14,11 +14,15 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes.pipeline;
+package com.liveramp.megadesk.core.transaction;
 
-import com.liveramp.megadesk.core.state.Driver;
+import java.util.List;
 
-public interface DriverFactory {
+public interface Dependency<V> {
 
-  public <T> Driver<T> get(String referenceName);
+  List<V> snapshots();
+
+  List<V> reads();
+
+  List<V> writes();
 }

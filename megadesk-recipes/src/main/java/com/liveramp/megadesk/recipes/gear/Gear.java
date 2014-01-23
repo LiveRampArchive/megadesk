@@ -14,11 +14,9 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes.pipeline;
+package com.liveramp.megadesk.recipes.gear;
 
-import com.liveramp.megadesk.core.state.Driver;
+import com.liveramp.megadesk.core.transaction.Transaction;
 
-public interface DriverFactory {
-
-  public <T> Driver<T> get(String referenceName);
+public interface Gear extends Transaction<Outcome> {
 }

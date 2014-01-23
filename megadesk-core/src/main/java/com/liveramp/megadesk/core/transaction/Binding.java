@@ -14,11 +14,10 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes.pipeline;
+package com.liveramp.megadesk.core.transaction;
 
-import com.liveramp.megadesk.core.state.Driver;
+import com.liveramp.megadesk.core.state.Persistence;
 
-public interface DriverFactory {
+public interface Binding<VALUE> extends Persistence<VALUE> {
 
-  public <T> Driver<T> get(String referenceName);
 }

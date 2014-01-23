@@ -14,11 +14,15 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes.pipeline;
+package com.liveramp.megadesk.core.transaction;
 
-import com.liveramp.megadesk.core.state.Driver;
+import com.liveramp.megadesk.base.transaction.Arguments;
 
-public interface DriverFactory {
+public interface UnboundTransaction<V> {
 
-  public <T> Driver<T> get(String referenceName);
+  Dependency<String> dependency();
+
+  V run(UnboundContext transaction) throws Exception;
+
+  Arguments arguments();
 }

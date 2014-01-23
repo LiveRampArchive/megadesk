@@ -14,11 +14,9 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes.pipeline;
+package com.liveramp.megadesk.core.state;
 
-import com.liveramp.megadesk.core.state.Driver;
+public interface Reference<VALUE> extends Comparable<Reference<VALUE>> {
 
-public interface DriverFactory {
-
-  public <T> Driver<T> get(String referenceName);
+  String name();
 }

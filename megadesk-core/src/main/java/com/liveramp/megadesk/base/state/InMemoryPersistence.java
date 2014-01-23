@@ -14,11 +14,29 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes.pipeline;
+package com.liveramp.megadesk.base.state;
 
-import com.liveramp.megadesk.core.state.Driver;
+import com.liveramp.megadesk.core.state.Persistence;
 
-public interface DriverFactory {
+public class InMemoryPersistence<VALUE> implements Persistence<VALUE> {
 
-  public <T> Driver<T> get(String referenceName);
+  private VALUE value;
+
+  public InMemoryPersistence() {
+    this.value = null;
+  }
+
+  public InMemoryPersistence(VALUE value) {
+    this.value = value;
+  }
+
+  @Override
+  public VALUE read() {
+    return value;
+  }
+
+  @Override
+  public void write(VALUE value) {
+    this.value = value;
+  }
 }

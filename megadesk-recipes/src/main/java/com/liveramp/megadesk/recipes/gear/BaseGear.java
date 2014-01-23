@@ -14,11 +14,31 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes.pipeline;
+package com.liveramp.megadesk.recipes.gear;
 
 import com.liveramp.megadesk.core.state.Driver;
+import com.liveramp.megadesk.core.transaction.Dependency;
 
-public interface DriverFactory {
+public abstract class BaseGear implements Gear {
 
-  public <T> Driver<T> get(String referenceName);
+  private Dependency<Driver> dependency;
+
+  public BaseGear() {
+  }
+
+  public BaseGear(Dependency<Driver> dependency) {
+    this.dependency = dependency;
+  }
+
+  @Override
+  public final Dependency<Driver> dependency() {
+    if (dependency == null) {
+      throw new IllegalStateException(); // TODO message
+    }
+    return dependency;
+  }
+
+  protected void setDependency(Dependency<Driver> dependency) {
+    this.dependency = dependency;
+  }
 }

@@ -14,11 +14,13 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes.pipeline;
+package com.liveramp.megadesk.recipes.state.persistence;
 
-import com.liveramp.megadesk.core.state.Driver;
+import java.io.IOException;
 
-public interface DriverFactory {
+public interface SerializationHandler<T> {
 
-  public <T> Driver<T> get(String referenceName);
+  public byte[] serialize(T o) throws IOException;
+
+  public T deserialize(byte[] bytes) throws IOException, ClassNotFoundException;
 }

@@ -14,15 +14,17 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.curator.state;
+package com.liveramp.megadesk.base.state;
+
+import org.apache.commons.lang.builder.CompareToBuilder;
 
 import com.liveramp.megadesk.core.state.Reference;
 
-public class CuratorReference<VALUE> implements Reference<VALUE> {
+public class BaseReference<VALUE> implements Reference<VALUE> {
 
   private final String name;
 
-  public CuratorReference(String name) {
+  public BaseReference(String name) {
     this.name = name;
   }
 
@@ -32,21 +34,7 @@ public class CuratorReference<VALUE> implements Reference<VALUE> {
   }
 
   @Override
-  public int compareTo(Reference<VALUE> valueReference) {
-    return this.name().compareTo(valueReference.name());
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (o instanceof Reference) {
-      return this.name().equals(((Reference) o).name());
-    } else {
-      return false;
-    }
-  }
-
-  @Override
-  public int hashCode() {
-    return name().hashCode();
+  public int compareTo(Reference<VALUE> o) {
+    return new CompareToBuilder().append(name, o.name()).toComparison();
   }
 }

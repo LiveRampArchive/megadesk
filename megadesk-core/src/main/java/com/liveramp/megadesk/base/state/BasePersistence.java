@@ -14,11 +14,9 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes.pipeline;
+package com.liveramp.megadesk.base.state;
 
-import com.liveramp.megadesk.core.state.Driver;
+import com.liveramp.megadesk.core.state.Persistence;
 
-public interface DriverFactory {
-
-  public <T> Driver<T> get(String referenceName);
+public abstract class BasePersistence<VALUE> implements Persistence<VALUE> {
 }

@@ -16,11 +16,12 @@
 
 package com.liveramp.megadesk.curator.state;
 
-import com.liveramp.megadesk.state.Persistence;
-import com.liveramp.megadesk.state.lib.filesystem_tools.SerializationHandler;
-import com.liveramp.megadesk.state.lib.filesystem_tools.SerializedPersistence;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.NodeCache;
+
+import com.liveramp.megadesk.core.state.Persistence;
+import com.liveramp.megadesk.recipes.state.persistence.SerializationHandler;
+import com.liveramp.megadesk.recipes.state.persistence.SerializedPersistence;
 
 public class CuratorPersistence<VALUE> extends SerializedPersistence<VALUE> implements Persistence<VALUE> {
 

@@ -18,13 +18,13 @@ package com.liveramp.megadesk.recipes.pipeline;
 
 import java.util.List;
 
-import com.liveramp.megadesk.gear.ConditionalGear;
-import com.liveramp.megadesk.gear.Gear;
-import com.liveramp.megadesk.gear.Outcome;
-import com.liveramp.megadesk.state.Driver;
-import com.liveramp.megadesk.state.Reference;
-import com.liveramp.megadesk.transaction.BaseDependency;
-import com.liveramp.megadesk.transaction.Context;
+import com.liveramp.megadesk.recipes.gear.ConditionalGear;
+import com.liveramp.megadesk.recipes.gear.Gear;
+import com.liveramp.megadesk.recipes.gear.Outcome;
+import com.liveramp.megadesk.core.state.Driver;
+import com.liveramp.megadesk.core.state.Reference;
+import com.liveramp.megadesk.base.transaction.BaseDependency;
+import com.liveramp.megadesk.core.transaction.Context;
 
 public abstract class Operation extends ConditionalGear implements Gear {
 

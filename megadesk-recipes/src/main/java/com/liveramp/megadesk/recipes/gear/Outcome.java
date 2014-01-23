@@ -14,11 +14,11 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes.pipeline;
+package com.liveramp.megadesk.recipes.gear;
 
-import com.liveramp.megadesk.core.state.Driver;
-
-public interface DriverFactory {
-
-  public <T> Driver<T> get(String referenceName);
+public enum Outcome {
+  SUCCESS,
+  FAILURE,
+  STANDBY,
+  ABANDON
 }

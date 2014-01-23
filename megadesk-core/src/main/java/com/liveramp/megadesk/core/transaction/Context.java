@@ -14,39 +14,15 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.curator.state;
+package com.liveramp.megadesk.core.transaction;
 
 import com.liveramp.megadesk.core.state.Reference;
 
-public class CuratorReference<VALUE> implements Reference<VALUE> {
+public interface Context {
 
-  private final String name;
+  <VALUE> Binding<VALUE> binding(Reference<VALUE> reference);
 
-  public CuratorReference(String name) {
-    this.name = name;
-  }
+  <VALUE> VALUE read(Reference<VALUE> reference);
 
-  @Override
-  public String name() {
-    return name;
-  }
-
-  @Override
-  public int compareTo(Reference<VALUE> valueReference) {
-    return this.name().compareTo(valueReference.name());
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (o instanceof Reference) {
-      return this.name().equals(((Reference) o).name());
-    } else {
-      return false;
-    }
-  }
-
-  @Override
-  public int hashCode() {
-    return name().hashCode();
-  }
+  <VALUE> void write(Reference<VALUE> reference, VALUE value);
 }

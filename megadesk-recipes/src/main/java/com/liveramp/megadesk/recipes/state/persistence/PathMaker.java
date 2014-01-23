@@ -14,11 +14,22 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes.pipeline;
+package com.liveramp.megadesk.recipes.state.persistence;
 
-import com.liveramp.megadesk.core.state.Driver;
+public interface PathMaker {
 
-public interface DriverFactory {
+  public String makePath(String name);
 
-  public <T> Driver<T> get(String referenceName);
+  public static class Default implements PathMaker {
+    private final String root;
+
+    public Default(String root) {
+      this.root = root;
+    }
+
+    @Override
+    public String makePath(String name) {
+      return root + "/" + name;
+    }
+  }
 }

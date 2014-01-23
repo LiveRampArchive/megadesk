@@ -14,29 +14,32 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes.pipeline;
+package com.liveramp.megadesk.recipes.gear;
 
-import com.liveramp.megadesk.base.transaction.BaseDependency;
 import com.liveramp.megadesk.core.state.Driver;
+import com.liveramp.megadesk.base.transaction.BaseDependency;
 import com.liveramp.megadesk.core.transaction.Context;
-import com.liveramp.megadesk.recipes.gear.ConditionalGear;
-import com.liveramp.megadesk.recipes.gear.Outcome;
 
-public abstract class Operator extends ConditionalGear {
+public abstract class ConditionalGear extends BaseGear implements Gear {
 
-  private Pipeline pipeline;
-
-  protected Operator(BaseDependency<Driver> dependency, Pipeline pipeline) {
-    super(dependency);
-    this.pipeline = pipeline;
+  public ConditionalGear() {
   }
 
+  public ConditionalGear(BaseDependency<Driver> dependency) {
+    super(dependency);
+  }
+
+  public abstract Outcome check(Context context);
+
+  public abstract Outcome execute(Context context) throws Exception;
+
   @Override
-  public Outcome check(Context context) {
-    if (pipeline.shouldShutdown()) {
-      return Outcome.ABANDON;
+  public final Outcome run(Context context) throws Exception {
+    Outcome check = check(context);
+    if (check == Outcome.SUCCESS) {
+      return execute(context);
     } else {
-      return Outcome.SUCCESS;
+      return check;
     }
   }
 }

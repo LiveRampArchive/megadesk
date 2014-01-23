@@ -1,5 +1,5 @@
 /**
- *  Copyright 2014 LiveRamp
+ *  Copyright 2013 LiveRamp
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,11 +14,27 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes.pipeline;
+package com.liveramp.megadesk.recipes.gear.worker;
 
-import com.liveramp.megadesk.core.state.Driver;
+import java.util.List;
 
-public interface DriverFactory {
+import com.liveramp.megadesk.recipes.gear.Gear;
 
-  public <T> Driver<T> get(String referenceName);
+public interface Worker {
+
+  void run(Gear gear);
+
+  void run(Gear... gears);
+
+  void run(List<Gear> gears);
+
+  void complete(Gear gear) throws InterruptedException;
+
+  void complete(Gear... gears) throws InterruptedException;
+
+  void complete(List<Gear> gears) throws InterruptedException;
+
+  void stop();
+
+  void join() throws InterruptedException;
 }

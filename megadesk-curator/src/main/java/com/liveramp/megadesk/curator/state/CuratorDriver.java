@@ -16,22 +16,22 @@
 
 package com.liveramp.megadesk.curator.state;
 
-import com.liveramp.megadesk.state.Driver;
-import com.liveramp.megadesk.state.Persistence;
-import com.liveramp.megadesk.state.Reference;
-import com.liveramp.megadesk.state.lib.BaseDriver;
-import com.liveramp.megadesk.state.lib.filesystem_tools.SerializationHandler;
+import java.util.concurrent.locks.ReadWriteLock;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.locks.InterProcessReadWriteLock;
 
-import java.util.concurrent.locks.ReadWriteLock;
+import com.liveramp.megadesk.base.state.BaseDriver;
+import com.liveramp.megadesk.core.state.Driver;
+import com.liveramp.megadesk.core.state.Persistence;
+import com.liveramp.megadesk.core.state.Reference;
+import com.liveramp.megadesk.recipes.state.persistence.SerializationHandler;
 
 public class CuratorDriver<VALUE> {
 
-  public static <VALUE> Driver<VALUE> build(
-      String path,
-      CuratorFramework framework,
-      SerializationHandler<VALUE> serializer) {
+  public static <VALUE> Driver<VALUE> build(String path,
+                                            CuratorFramework framework,
+                                            SerializationHandler<VALUE> serializer) {
 
     ReadWriteLock executionLock = new CuratorReadWriteLock(new InterProcessReadWriteLock(framework, path + "/executionLock"));
     ReadWriteLock persistenceLock = new CuratorReadWriteLock(new InterProcessReadWriteLock(framework, path + "/persistenceLock"));

@@ -14,11 +14,17 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes.pipeline;
+package com.liveramp.megadesk.core.state;
 
-import com.liveramp.megadesk.core.state.Driver;
+import java.util.concurrent.locks.ReadWriteLock;
 
-public interface DriverFactory {
+public interface Driver<VALUE> extends Comparable<Driver<VALUE>> {
 
-  public <T> Driver<T> get(String referenceName);
+  Reference<VALUE> reference();
+
+  ReadWriteLock executionLock();
+
+  ReadWriteLock persistenceLock();
+
+  Persistence<VALUE> persistence();
 }

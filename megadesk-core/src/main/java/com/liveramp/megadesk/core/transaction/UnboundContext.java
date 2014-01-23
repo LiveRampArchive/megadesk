@@ -14,11 +14,13 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes.pipeline;
+package com.liveramp.megadesk.core.transaction;
 
-import com.liveramp.megadesk.core.state.Driver;
+public interface UnboundContext {
 
-public interface DriverFactory {
+  <VALUE> Binding<VALUE> binding(String reference);
 
-  public <T> Driver<T> get(String referenceName);
+  <VALUE> VALUE read(String reference);
+
+  <VALUE> void write(String reference, VALUE value);
 }

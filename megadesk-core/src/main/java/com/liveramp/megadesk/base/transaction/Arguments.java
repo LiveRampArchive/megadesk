@@ -14,11 +14,26 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes.pipeline;
+package com.liveramp.megadesk.base.transaction;
 
-import com.liveramp.megadesk.core.state.Driver;
+import java.util.Arrays;
+import java.util.List;
 
-public interface DriverFactory {
+import com.google.common.collect.ImmutableList;
 
-  public <T> Driver<T> get(String referenceName);
+public class Arguments {
+
+  private final List<String> arguments;
+
+  public Arguments(List<String> arguments) {
+    this.arguments = ImmutableList.copyOf(arguments);
+  }
+
+  public Arguments(String arguments) {
+    this(Arrays.asList(arguments));
+  }
+
+  public List<String> get() {
+    return arguments;
+  }
 }

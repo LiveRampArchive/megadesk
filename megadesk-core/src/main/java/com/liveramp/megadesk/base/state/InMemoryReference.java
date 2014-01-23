@@ -14,11 +14,15 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes.pipeline;
+package com.liveramp.megadesk.base.state;
 
-import com.liveramp.megadesk.core.state.Driver;
+import java.util.UUID;
 
-public interface DriverFactory {
+import com.liveramp.megadesk.core.state.Reference;
 
-  public <T> Driver<T> get(String referenceName);
+public class InMemoryReference<VALUE> extends BaseReference<VALUE> implements Reference<VALUE> {
+
+  public InMemoryReference() {
+    super(UUID.randomUUID().toString());
+  }
 }

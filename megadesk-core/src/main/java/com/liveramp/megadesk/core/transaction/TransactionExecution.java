@@ -14,11 +14,17 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes.pipeline;
+package com.liveramp.megadesk.core.transaction;
 
 import com.liveramp.megadesk.core.state.Driver;
 
-public interface DriverFactory {
+public interface TransactionExecution {
 
-  public <T> Driver<T> get(String referenceName);
+  Context begin(Dependency<Driver> dependency);
+
+  Context tryBegin(Dependency<Driver> dependency);
+
+  void commit();
+
+  void abort();
 }

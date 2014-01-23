@@ -14,11 +14,26 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes.pipeline;
+package com.liveramp.megadesk.base.transaction;
 
-import com.liveramp.megadesk.core.state.Driver;
+public class ExecutionResult<V> {
 
-public interface DriverFactory {
+  private final boolean executed;
+  private final V result;
 
-  public <T> Driver<T> get(String referenceName);
+  public ExecutionResult(boolean executed, V result) {
+    this.executed = executed;
+    this.result = result;
+  }
+
+  public boolean executed() {
+    return executed;
+  }
+
+  public V result() {
+    if (!executed) {
+      throw new IllegalStateException(); // TODO message
+    }
+    return result;
+  }
 }
