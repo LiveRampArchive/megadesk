@@ -31,7 +31,7 @@ public abstract class ConditionalGear extends BaseGear implements Gear {
 
   public abstract Outcome check(Context context);
 
-  public abstract Outcome execute(Context context);
+  public abstract Outcome execute(Context context) throws Exception;
 
   @Override
   public final Outcome run(Context context) throws Exception {
