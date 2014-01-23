@@ -16,11 +16,7 @@
 
 package com.liveramp.megadesk.recipes.pipeline;
 
-import java.util.Set;
+public interface Pipeline {
 
-public class Pipeline {
-
-  private Set<Operation> operations;
-
-
+  public boolean shouldShutdown();
 }

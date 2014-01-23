@@ -16,11 +16,7 @@
 
 package com.liveramp.megadesk.recipes;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.google.common.collect.ImmutableList;
-
 import com.liveramp.megadesk.state.Driver;
 import com.liveramp.megadesk.state.Reference;
 import com.liveramp.megadesk.state.lib.InMemoryDriver;
@@ -30,6 +26,9 @@ import com.liveramp.megadesk.transaction.Binding;
 import com.liveramp.megadesk.transaction.Context;
 import com.liveramp.megadesk.transaction.Dependency;
 import com.liveramp.megadesk.transaction.Transaction;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Batch<VALUE> {
 
@@ -84,6 +83,14 @@ public class Batch<VALUE> {
   public void popBatch() {
     try {
       new BaseExecutor().execute(new Erase(output));
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public boolean batchAvailable() {
+    try {
+      return new BaseExecutor().execute(new CheckForData(input, output));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -164,6 +171,28 @@ public class Batch<VALUE> {
     public Void run(Context context) throws Exception {
       context.write(reference, ImmutableList.of());
       return null;
+    }
+  }
+
+  private class CheckForData implements Transaction<Boolean> {
+    private final Reference<ImmutableList> input;
+    private final Reference<ImmutableList> output;
+    private final Dependency<Driver> dependency;
+
+    public CheckForData(Driver<ImmutableList> input, Driver<ImmutableList> output) {
+      this.input = input.reference();
+      this.output = output.reference();
+      this.dependency = BaseDependency.<Driver>builder().reads(input, output).build();
+    }
+
+    @Override
+    public Dependency<Driver> dependency() {
+      return dependency;
+    }
+
+    @Override
+    public Boolean run(Context context) throws Exception {
+      return !context.read(input).isEmpty() || context.read(output).isEmpty();
     }
   }
 }

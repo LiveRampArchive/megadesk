@@ -16,8 +16,27 @@
 
 package com.liveramp.megadesk.recipes.pipeline;
 
-import com.liveramp.megadesk.gear.Gear;
+import com.liveramp.megadesk.gear.ConditionalGear;
+import com.liveramp.megadesk.gear.Outcome;
+import com.liveramp.megadesk.state.Driver;
+import com.liveramp.megadesk.transaction.BaseDependency;
+import com.liveramp.megadesk.transaction.Context;
 
-public interface Operator extends Gear {
+public abstract class Operator extends ConditionalGear {
 
+  private Pipeline pipeline;
+
+  protected Operator(BaseDependency<Driver> dependency, Pipeline pipeline) {
+    super(dependency);
+    this.pipeline = pipeline;
+  }
+
+  @Override
+  public Outcome check(Context context) {
+    if (pipeline.shouldShutdown()) {
+      return Outcome.ABANDON;
+    } else {
+      return Outcome.SUCCESS;d
+    }
+  }
 }
