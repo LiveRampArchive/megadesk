@@ -29,7 +29,6 @@ public class BaseReadWriteLock implements ReadWriteLock {
     this.writeLock = writeLock;
   }
 
-
   @Override
   public Lock readLock() {
     return readLock;
