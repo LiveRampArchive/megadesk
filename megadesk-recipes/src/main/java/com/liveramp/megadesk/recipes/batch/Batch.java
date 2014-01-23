@@ -16,14 +16,8 @@
 
 package com.liveramp.megadesk.recipes.batch;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.google.common.collect.ImmutableList;
-
-import com.liveramp.megadesk.base.state.InMemoryDriver;
 import com.liveramp.megadesk.base.transaction.BaseDependency;
-import com.liveramp.megadesk.base.transaction.BaseExecutor;
 import com.liveramp.megadesk.core.state.Driver;
 import com.liveramp.megadesk.core.state.Reference;
 import com.liveramp.megadesk.core.transaction.Binding;
@@ -33,68 +27,74 @@ import com.liveramp.megadesk.core.transaction.Transaction;
 
 public class Batch<VALUE> {
 
-  private static Map<String, Driver<ImmutableList>> drivers = new ConcurrentHashMap<String, Driver<ImmutableList>>();
-
   private final Driver<ImmutableList> input;
   private final Driver<ImmutableList> output;
-
-  public static <VALUE> Batch<VALUE> getByName(String name) {
-    return new Batch<VALUE>(getDriver(name + "-input"), getDriver(name + "-output"));
-  }
 
   public Batch(Driver<ImmutableList> input, Driver<ImmutableList> output) {
     this.input = input;
     this.output = output;
   }
 
-  private static Driver<ImmutableList> getDriver(String name) {
-    if (!drivers.containsKey(name)) {
-      drivers.put(name, makeDriver(name));
-    }
-    return drivers.get(name);
-  }
-
-  private static Driver<ImmutableList> makeDriver(String name) {
-    return new InMemoryDriver<ImmutableList>(ImmutableList.of());
-  }
-
-  public void append(VALUE value) {
-    Append<VALUE> append = new Append<VALUE>(input, value);
+  public void append(Context context, VALUE value) {
+    Append<VALUE> append = getAppendTransaction(value);
     try {
-      new BaseExecutor().execute(append);
+      append.run(context);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  public ImmutableList<VALUE> readBatch() {
+  public Driver<ImmutableList> getInput() {
+    return input;
+  }
+
+  public Driver<ImmutableList> getOutput() {
+    return output;
+  }
+
+  protected Append<VALUE> getAppendTransaction(VALUE value) {
+    return new Append<VALUE>(input, value);
+  }
+
+  public ImmutableList<VALUE> readBatch(Context context) {
+    TransferBatch transferBatch = getTransferTransaction();
     try {
-      new BaseExecutor().execute(new TransferBatch(input, output));
+      transferBatch.run(context);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    ImmutableList batch = read(output);
+    ImmutableList batch = context.read(output.reference());
     return batch;
   }
 
-  private <T> T read(Driver<T> ref) {
-    return ref.persistence().read();
+  protected TransferBatch getTransferTransaction() {
+    return new TransferBatch(input, output);
   }
 
-  public void popBatch() {
+  public void popBatch(Context context) {
+    Erase erase = getEraseTransaction();
     try {
-      new BaseExecutor().execute(new Erase(output));
+      erase.run(context);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  public boolean batchAvailable() {
+  protected Erase getEraseTransaction() {
+    return new Erase(output);
+  }
+
+  public boolean batchAvailable(Context context) {
+    CheckForData checkForData = getCheckForDataTransaction();
     try {
-      return new BaseExecutor().execute(new CheckForData(input, output));
+      return checkForData.run(context);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  protected CheckForData getCheckForDataTransaction() {
+    return new CheckForData(input, output);
   }
 
   private static class TransferBatch implements Transaction<Void> {
