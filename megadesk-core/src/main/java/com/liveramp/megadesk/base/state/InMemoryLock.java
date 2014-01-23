@@ -14,15 +14,30 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.core.state;
+package com.liveramp.megadesk.base.state;
 
-public interface Driver<VALUE> extends Comparable<Driver<VALUE>> {
+import com.liveramp.megadesk.core.state.Lock;
 
-  Reference<VALUE> reference();
+public class InMemoryLock implements Lock {
 
-  ReadWriteLock executionLock();
+  private final java.util.concurrent.locks.Lock lock;
 
-  ReadWriteLock persistenceLock();
+  public InMemoryLock(java.util.concurrent.locks.Lock lock) {
+    this.lock = lock;
+  }
 
-  Persistence<VALUE> persistence();
+  @Override
+  public void lock() {
+    lock.lock();
+  }
+
+  @Override
+  public boolean tryLock() {
+    return lock.tryLock();
+  }
+
+  @Override
+  public void unlock() {
+    lock.unlock();
+  }
 }

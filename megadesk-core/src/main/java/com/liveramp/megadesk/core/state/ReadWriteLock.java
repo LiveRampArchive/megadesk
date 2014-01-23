@@ -16,13 +16,9 @@
 
 package com.liveramp.megadesk.core.state;
 
-public interface Driver<VALUE> extends Comparable<Driver<VALUE>> {
+public interface ReadWriteLock {
 
-  Reference<VALUE> reference();
+  Lock readLock();
 
-  ReadWriteLock executionLock();
-
-  ReadWriteLock persistenceLock();
-
-  Persistence<VALUE> persistence();
+  Lock writeLock();
 }

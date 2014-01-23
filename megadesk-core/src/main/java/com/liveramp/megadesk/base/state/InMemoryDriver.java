@@ -16,20 +16,18 @@
 
 package com.liveramp.megadesk.base.state;
 
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import org.apache.commons.lang.builder.CompareToBuilder;
 
 import com.liveramp.megadesk.core.state.Driver;
 import com.liveramp.megadesk.core.state.Persistence;
+import com.liveramp.megadesk.core.state.ReadWriteLock;
 import com.liveramp.megadesk.core.state.Reference;
 
 public class InMemoryDriver<VALUE> implements Driver<VALUE> {
 
   private final Reference<VALUE> reference = new InMemoryReference<VALUE>();
-  private final ReadWriteLock executionLock = new ReentrantReadWriteLock();
-  private final ReadWriteLock persistenceLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock executionLock = new InMemoryReadWriteLock();
+  private final ReadWriteLock persistenceLock = new InMemoryReadWriteLock();
   private final Persistence<VALUE> persistence;
 
   public InMemoryDriver() {

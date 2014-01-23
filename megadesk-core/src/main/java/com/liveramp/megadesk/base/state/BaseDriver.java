@@ -16,12 +16,11 @@
 
 package com.liveramp.megadesk.base.state;
 
-import java.util.concurrent.locks.ReadWriteLock;
-
 import org.apache.commons.lang.builder.CompareToBuilder;
 
 import com.liveramp.megadesk.core.state.Driver;
 import com.liveramp.megadesk.core.state.Persistence;
+import com.liveramp.megadesk.core.state.ReadWriteLock;
 import com.liveramp.megadesk.core.state.Reference;
 
 public class BaseDriver<VALUE> implements Driver<VALUE> {

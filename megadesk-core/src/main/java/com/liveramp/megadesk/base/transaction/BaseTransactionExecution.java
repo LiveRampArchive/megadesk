@@ -20,12 +20,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.locks.Lock;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import com.liveramp.megadesk.core.state.Driver;
+import com.liveramp.megadesk.core.state.Lock;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.TransactionExecution;
