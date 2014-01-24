@@ -22,6 +22,6 @@ import com.liveramp.megadesk.core.state.Variable;
 public class Local<VALUE> extends BaseVariable<VALUE> implements Variable<VALUE> {
 
   public Local(Driver<VALUE> driver) {
-    super(new InMemoryReference<VALUE>(), driver);
+    super(new UniqueName<VALUE>(), driver);
   }
 }

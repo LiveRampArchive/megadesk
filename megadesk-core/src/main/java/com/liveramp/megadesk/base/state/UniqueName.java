@@ -16,15 +16,13 @@
 
 package com.liveramp.megadesk.base.state;
 
-import com.liveramp.megadesk.core.state.Variable;
+import java.util.UUID;
 
-public class InMemoryVariable<VALUE> extends BaseVariable<VALUE> implements Variable<VALUE> {
+import com.liveramp.megadesk.core.state.Reference;
 
-  public InMemoryVariable() {
-    super(new InMemoryReference<VALUE>(), new InMemoryDriver<VALUE>());
-  }
+public class UniqueName<VALUE> extends Name<VALUE> implements Reference<VALUE> {
 
-  public InMemoryVariable(VALUE value) {
-    super(new InMemoryReference<VALUE>(), new InMemoryDriver<VALUE>(value));
+  public UniqueName() {
+    super(UUID.randomUUID().toString());
   }
 }

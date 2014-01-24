@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
-import com.liveramp.megadesk.base.state.InMemoryVariable;
+import com.liveramp.megadesk.base.state.InMemoryLocal;
 import com.liveramp.megadesk.base.transaction.BaseBinding;
 import com.liveramp.megadesk.base.transaction.BaseDependency;
 import com.liveramp.megadesk.base.transaction.BaseExecutor;
@@ -50,7 +50,7 @@ public class IntegrationTest extends BaseTestCase {
   private static class StepGear extends ConditionalGear implements Gear {
 
     private final List<StepGear> parents;
-    private final Variable<Boolean> variable = new InMemoryVariable<Boolean>(false);
+    private final Variable<Boolean> variable = new InMemoryLocal<Boolean>(false);
 
     public StepGear(StepGear... parents) {
       this.parents = Arrays.asList(parents);
@@ -124,10 +124,10 @@ public class IntegrationTest extends BaseTestCase {
   @Test
   public void testState() throws Exception {
 
-    final Variable<Integer> A = new InMemoryVariable<Integer>(1);
-    final Variable<Integer> B = new InMemoryVariable<Integer>(0);
-    final Variable<Integer> C = new InMemoryVariable<Integer>(0);
-    final Variable<Integer> D = new InMemoryVariable<Integer>(0);
+    final Variable<Integer> A = new InMemoryLocal<Integer>(1);
+    final Variable<Integer> B = new InMemoryLocal<Integer>(0);
+    final Variable<Integer> C = new InMemoryLocal<Integer>(0);
+    final Variable<Integer> D = new InMemoryLocal<Integer>(0);
 
     Gear gearA = new TransferGear(A, B);
     Gear gearB = new TransferGear(B, C);
@@ -176,8 +176,8 @@ public class IntegrationTest extends BaseTestCase {
 
   @Test
   public void testBatch() throws Exception {
-    final Variable<Integer> A = new InMemoryVariable<Integer>(0);
-    final Variable<Integer> B = new InMemoryVariable<Integer>(0);
+    final Variable<Integer> A = new InMemoryLocal<Integer>(0);
+    final Variable<Integer> B = new InMemoryLocal<Integer>(0);
 
     Alter<Integer> increment = new Alter<Integer>() {
 
