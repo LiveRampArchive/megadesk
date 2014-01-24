@@ -17,7 +17,7 @@
 package com.liveramp.megadesk.base.transaction;
 
 import com.liveramp.megadesk.core.state.Reference;
-import com.liveramp.megadesk.core.transaction.Binding;
+import com.liveramp.megadesk.core.transaction.Accessor;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.UnboundContext;
 
@@ -32,8 +32,8 @@ public class BaseUnboundContext implements UnboundContext {
   }
 
   @Override
-  public <VALUE> Binding<VALUE> binding(String reference) {
-    return context.binding((Reference<VALUE>)call.unbind(reference).reference());
+  public <VALUE> Accessor<VALUE> binding(String reference) {
+    return context.accessor((Reference<VALUE>)call.unbind(reference).reference());
   }
 
   @Override

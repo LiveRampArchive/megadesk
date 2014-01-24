@@ -18,14 +18,14 @@ package com.liveramp.megadesk.base.transaction;
 
 import com.liveramp.megadesk.core.state.Persistence;
 import com.liveramp.megadesk.base.state.InMemoryPersistence;
-import com.liveramp.megadesk.core.transaction.Binding;
+import com.liveramp.megadesk.core.transaction.Accessor;
 
-public class BaseBinding<VALUE> implements Binding<VALUE> {
+public class BaseAccessor<VALUE> implements Accessor<VALUE> {
 
   private final Persistence<VALUE> persistence;
   private final boolean readOnly;
 
-  public BaseBinding(VALUE value, boolean readOnly) {
+  public BaseAccessor(VALUE value, boolean readOnly) {
     this.readOnly = readOnly;
     persistence = new InMemoryPersistence<VALUE>(value);
   }

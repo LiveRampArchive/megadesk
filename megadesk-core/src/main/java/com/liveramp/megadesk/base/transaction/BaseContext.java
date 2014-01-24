@@ -24,13 +24,13 @@ import com.google.common.collect.Maps;
 
 import com.liveramp.megadesk.core.state.Driver;
 import com.liveramp.megadesk.core.state.Reference;
-import com.liveramp.megadesk.core.transaction.Binding;
+import com.liveramp.megadesk.core.transaction.Accessor;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
 
 public class BaseContext implements Context {
 
-  private final Map<Reference, Binding> bindings;
+  private final Map<Reference, Accessor> bindings;
 
   public BaseContext(Dependency<Driver> dependency) {
     bindings = Maps.newHashMap();
@@ -65,11 +65,11 @@ public class BaseContext implements Context {
   }
 
   private void addBinding(Driver driver, boolean readOnly) {
-    bindings.put(driver.reference(), new BaseBinding(driver.persistence().read(), readOnly));
+    bindings.put(driver.reference(), new BaseAccessor(driver.persistence().read(), readOnly));
   }
 
   @Override
-  public <VALUE> Binding<VALUE> binding(Reference<VALUE> reference) {
+  public <VALUE> Accessor<VALUE> accessor(Reference<VALUE> reference) {
     if (!bindings.containsKey(reference)) {
       throw new IllegalStateException(); // TODO message
     }
@@ -78,11 +78,11 @@ public class BaseContext implements Context {
 
   @Override
   public <VALUE> VALUE read(Reference<VALUE> reference) {
-    return binding(reference).read();
+    return accessor(reference).read();
   }
 
   @Override
   public <VALUE> void write(Reference<VALUE> reference, VALUE value) {
-    binding(reference).write(value);
+    accessor(reference).write(value);
   }
 }

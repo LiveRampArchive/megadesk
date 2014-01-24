@@ -18,6 +18,6 @@ package com.liveramp.megadesk.core.transaction;
 
 import com.liveramp.megadesk.core.state.Persistence;
 
-public interface Binding<VALUE> extends Persistence<VALUE> {
+public interface Accessor<VALUE> extends Persistence<VALUE> {
 
 }

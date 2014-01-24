@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
+import com.liveramp.megadesk.core.transaction.Accessor;
 import com.liveramp.megadesk.recipes.gear.ConditionalGear;
 import com.liveramp.megadesk.recipes.gear.Gear;
 import com.liveramp.megadesk.recipes.gear.Outcome;
@@ -34,7 +35,6 @@ import com.liveramp.megadesk.base.state.InMemoryDriver;
 import com.liveramp.megadesk.test.BaseTestCase;
 import com.liveramp.megadesk.base.transaction.BaseDependency;
 import com.liveramp.megadesk.base.transaction.BaseExecutor;
-import com.liveramp.megadesk.core.transaction.Binding;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.Executor;
@@ -105,8 +105,8 @@ public class IntegrationTest extends BaseTestCase {
 
     @Override
     public Outcome execute(Context context) {
-      Binding<Integer> source = context.binding(src);
-      Binding<Integer> destination = context.binding(dst);
+      Accessor<Integer> source = context.accessor(src);
+      Accessor<Integer> destination = context.accessor(dst);
       destination.write(source.read());
       source.write(0);
       return Outcome.ABANDON;

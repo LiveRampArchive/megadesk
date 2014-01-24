@@ -91,7 +91,7 @@ public class BaseTransactionExecution implements TransactionExecution {
     try {
       // Write updates
       for (Driver driver : dependency.writes()) {
-        Object value = data.binding(driver.reference()).read();
+        Object value = data.accessor(driver.reference()).read();
         driver.persistence().write(value);
       }
     } finally {

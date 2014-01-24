@@ -19,7 +19,7 @@ package com.liveramp.megadesk.recipes.queue;
 import com.google.common.collect.ImmutableList;
 import com.liveramp.megadesk.base.transaction.BaseDependency;
 import com.liveramp.megadesk.core.state.Driver;
-import com.liveramp.megadesk.core.transaction.Binding;
+import com.liveramp.megadesk.core.transaction.Accessor;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.Transaction;
@@ -45,9 +45,9 @@ class TransferBatch implements Transaction<Void> {
 
   @Override
   public Void run(Context context) throws Exception {
-    Binding<ImmutableList> inputList = context.binding(input.reference());
-    Binding<ImmutableList> outputList = context.binding(output.reference());
-    Binding<Boolean> frozenFlag = context.binding(frozen.reference());
+    Accessor<ImmutableList> inputList = context.accessor(input.reference());
+    Accessor<ImmutableList> outputList = context.accessor(output.reference());
+    Accessor<Boolean> frozenFlag = context.accessor(frozen.reference());
     if (!frozenFlag.read()) {
       if (!outputList.read().isEmpty()) {
         throw new IllegalStateException("Batch should not be unfrozen when output still remains!");

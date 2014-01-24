@@ -20,7 +20,7 @@ import com.liveramp.megadesk.core.state.Reference;
 
 public interface Context {
 
-  <VALUE> Binding<VALUE> binding(Reference<VALUE> reference);
+  <VALUE> Accessor<VALUE> accessor(Reference<VALUE> reference);
 
   <VALUE> VALUE read(Reference<VALUE> reference);
 

@@ -18,7 +18,7 @@ package com.liveramp.megadesk.core.transaction;
 
 public interface UnboundContext {
 
-  <VALUE> Binding<VALUE> binding(String reference);
+  <VALUE> Accessor<VALUE> binding(String reference);
 
   <VALUE> VALUE read(String reference);
 
