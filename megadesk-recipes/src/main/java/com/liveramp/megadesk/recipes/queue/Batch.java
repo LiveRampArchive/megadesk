@@ -17,13 +17,8 @@
 package com.liveramp.megadesk.recipes.queue;
 
 import com.google.common.collect.ImmutableList;
-import com.liveramp.megadesk.base.transaction.BaseDependency;
 import com.liveramp.megadesk.core.state.Driver;
-import com.liveramp.megadesk.core.state.Reference;
-import com.liveramp.megadesk.core.transaction.Binding;
 import com.liveramp.megadesk.core.transaction.Context;
-import com.liveramp.megadesk.core.transaction.Dependency;
-import com.liveramp.megadesk.core.transaction.Transaction;
 
 public class Batch<VALUE> {
 
@@ -84,94 +79,6 @@ public class Batch<VALUE> {
 
   protected Erase getEraseTransaction() {
     return new Erase(output, frozen);
-  }
-
-  private static class TransferBatch implements Transaction<Void> {
-
-    private final Dependency dependency;
-    private final Driver<ImmutableList> input;
-    private final Driver<ImmutableList> output;
-    private final Driver<Boolean> frozen;
-
-    public TransferBatch(Driver<ImmutableList> input, Driver<ImmutableList> output, Driver<Boolean> frozen) {
-      this.input = input;
-      this.output = output;
-      this.frozen = frozen;
-      this.dependency = BaseDependency.builder().writes(input, output, frozen).build();
-    }
-
-    @Override
-    public Dependency dependency() {
-      return dependency;
-    }
-
-    @Override
-    public Void run(Context context) throws Exception {
-      Binding<ImmutableList> inputList = context.binding(input.reference());
-      Binding<ImmutableList> outputList = context.binding(output.reference());
-      Binding<Boolean> frozenFlag = context.binding(frozen.reference());
-      if (!frozenFlag.read()) {
-        if (!outputList.read().isEmpty()) {
-          throw new IllegalStateException("Batch should not be unfrozen when output still remains!");
-        }
-        ImmutableList values = inputList.read();
-        outputList.write(values);
-        inputList.write(ImmutableList.of());
-        frozenFlag.write(true);
-      }
-      return null;
-    }
-  }
-
-  private static class Append<V> implements Transaction<Void> {
-
-    private final Dependency dependency;
-    private final Reference<ImmutableList> reference;
-    private final V value;
-
-    private Append(Driver<ImmutableList> driver, V value) {
-      this.value = value;
-      this.reference = driver.reference();
-      this.dependency = BaseDependency.builder().writes(driver).build();
-    }
-
-    @Override
-    public Dependency dependency() {
-      return dependency;
-    }
-
-    @Override
-    public Void run(Context context) throws Exception {
-      ImmutableList originalValue = context.read(reference);
-      ImmutableList newValue = ImmutableList.builder().addAll(originalValue).add(value).build();
-      context.write(reference, newValue);
-      return null;
-    }
-  }
-
-  private static class Erase implements Transaction<Void> {
-
-    private final Dependency dependency;
-    private final Reference<ImmutableList> listReference;
-    private final Reference<Boolean> frozen;
-
-    private Erase(Driver<ImmutableList> listDriver, Driver<Boolean> frozen) {
-      this.frozen = frozen.reference();
-      this.listReference = listDriver.reference();
-      this.dependency = BaseDependency.builder().writes(listDriver, frozen).build();
-    }
-
-    @Override
-    public Dependency dependency() {
-      return dependency;
-    }
-
-    @Override
-    public Void run(Context context) throws Exception {
-      context.write(listReference, ImmutableList.of());
-      context.write(frozen, false);
-      return null;
-    }
   }
 }
 
