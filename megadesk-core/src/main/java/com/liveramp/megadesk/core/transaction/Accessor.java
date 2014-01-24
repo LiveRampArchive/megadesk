@@ -16,8 +16,9 @@
 
 package com.liveramp.megadesk.core.transaction;
 
-import com.liveramp.megadesk.core.state.Persistence;
+public interface Accessor<VALUE> {
 
-public interface Accessor<VALUE> extends Persistence<VALUE> {
+  VALUE read();
 
+  void write(VALUE value);
 }
