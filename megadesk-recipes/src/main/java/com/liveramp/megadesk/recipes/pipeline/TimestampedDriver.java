@@ -20,5 +20,7 @@ import com.liveramp.megadesk.core.state.Driver;
 
 public interface TimestampedDriver<T> extends Driver<T> {
 
+  public TimestampedPersistence<T> persistence();
+
   public long modified();
 }
