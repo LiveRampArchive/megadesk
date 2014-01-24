@@ -1,4 +1,4 @@
-package com.liveramp.megadesk.recipes.batch;
+package com.liveramp.megadesk.recipes.queue;
 
 import com.google.common.collect.ImmutableList;
 import com.liveramp.megadesk.core.transaction.Executor;

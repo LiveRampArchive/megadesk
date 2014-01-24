@@ -19,7 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.liveramp.megadesk.base.transaction.BaseDependency;
 import com.liveramp.megadesk.core.state.Driver;
 import com.liveramp.megadesk.core.transaction.Context;
-import com.liveramp.megadesk.recipes.batch.Batch;
+import com.liveramp.megadesk.recipes.queue.Batch;
 import com.liveramp.megadesk.recipes.gear.Outcome;
 
 import java.util.List;
