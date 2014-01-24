@@ -3,8 +3,6 @@ package com.liveramp.megadesk.recipes.pipeline;
 import com.google.common.collect.Lists;
 import com.liveramp.megadesk.base.state.InMemoryDriver;
 import com.liveramp.megadesk.base.state.Local;
-import com.liveramp.megadesk.base.transaction.BaseContext;
-import com.liveramp.megadesk.core.state.Driver;
 import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.recipes.gear.Outcome;
@@ -20,12 +18,12 @@ public class TestPipeline extends BaseTestCase {
   @Test
   public void testTimeBasedPipeline() throws InterruptedException {
 
-    Driver<TimestampedInteger> step1 = new InMemoryDriver<TimestampedInteger>(new TimestampedInteger(0));
-    Driver<TimestampedInteger> step2 = new InMemoryDriver<TimestampedInteger>(new TimestampedInteger(0));
-    Driver<TimestampedInteger> step3 = new InMemoryDriver<TimestampedInteger>(new TimestampedInteger(0));
-    Driver<TimestampedInteger> step4 = new InMemoryDriver<TimestampedInteger>(new TimestampedInteger(0));
+    Variable<TimestampedInteger> step1 = getTimestampedInt(0);
+    Variable<TimestampedInteger> step2 = getTimestampedInt(0);
+    Variable<TimestampedInteger> step3 = getTimestampedInt(0);
+    Variable<TimestampedInteger> step4 = getTimestampedInt(0);
 
-    step1.persistence().write(new TimestampedInteger(1));
+    step1.driver().persistence().write(new TimestampedInteger(1));
 
     Pipeline pipeline = new Pipeline() {
       @Override
@@ -43,19 +41,23 @@ public class TestPipeline extends BaseTestCase {
 
     Thread.sleep(1000);
 
-    Assert.assertEquals(Integer.valueOf(1), step1.persistence().read().getInteger());
-    Assert.assertEquals(Integer.valueOf(2), step2.persistence().read().getInteger());
-    Assert.assertEquals(Integer.valueOf(3), step3.persistence().read().getInteger());
-    Assert.assertEquals(Integer.valueOf(4), step4.persistence().read().getInteger());
+    Assert.assertEquals(Integer.valueOf(1), step1.driver().persistence().read().getInteger());
+    Assert.assertEquals(Integer.valueOf(2), step2.driver().persistence().read().getInteger());
+    Assert.assertEquals(Integer.valueOf(3), step3.driver().persistence().read().getInteger());
+    Assert.assertEquals(Integer.valueOf(4), step4.driver().persistence().read().getInteger());
 
-    step1.persistence().write(new TimestampedInteger(10));
+    step1.driver().persistence().write(new TimestampedInteger(10));
 
     Thread.sleep(1000);
 
-    Assert.assertEquals(Integer.valueOf(10), step1.persistence().read().getInteger());
-    Assert.assertEquals(Integer.valueOf(11), step2.persistence().read().getInteger());
-    Assert.assertEquals(Integer.valueOf(12), step3.persistence().read().getInteger());
-    Assert.assertEquals(Integer.valueOf(13), step4.persistence().read().getInteger());
+    Assert.assertEquals(Integer.valueOf(10), step1.driver().persistence().read().getInteger());
+    Assert.assertEquals(Integer.valueOf(11), step2.driver().persistence().read().getInteger());
+    Assert.assertEquals(Integer.valueOf(12), step3.driver().persistence().read().getInteger());
+    Assert.assertEquals(Integer.valueOf(13), step4.driver().persistence().read().getInteger());
+  }
+
+  private Local<TimestampedInteger> getTimestampedInt(int i) {
+    return new Local<TimestampedInteger>(new InMemoryDriver<TimestampedInteger>(new TimestampedInteger(i)));
   }
 
   private static class AddOne extends TimeBasedOperator {
@@ -63,10 +65,10 @@ public class TestPipeline extends BaseTestCase {
     private final Variable<TimestampedInteger> input;
     private final Variable<TimestampedInteger> output;
 
-    protected AddOne(Driver<TimestampedInteger> input, Driver<TimestampedInteger> output, Pipeline pipeline) {
-      super((List) Lists.newArrayList(new Local<TimestampedInteger>(input)), (List) Lists.newArrayList(new Local<TimestampedInteger>(output)), pipeline);
-      this.input = new Local<TimestampedInteger>(input);
-      this.output = new Local<TimestampedInteger>(output);
+    protected AddOne(Variable<TimestampedInteger> input, Variable<TimestampedInteger> output, Pipeline pipeline) {
+      super((List) Lists.newArrayList(input), (List) Lists.newArrayList(output), pipeline);
+      this.input = input;
+      this.output = output;
     }
 
     @Override
