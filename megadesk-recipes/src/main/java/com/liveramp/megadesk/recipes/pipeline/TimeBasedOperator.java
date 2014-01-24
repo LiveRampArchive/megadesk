@@ -26,7 +26,7 @@ import java.util.List;
 
 public abstract class TimeBasedOperator extends Operator implements Gear {
 
-  protected TimeBasedOperator(List<TimestampedDriver> reads, List<TimestampedDriver> writes, Pipeline pipeline) {
+  protected TimeBasedOperator(List<Driver<? extends TimestampedValue>> reads, List<Driver<? extends TimestampedValue>> writes, Pipeline pipeline) {
     super(BaseDependency.<Driver>builder().reads((List) reads).writes((List) writes).build(), pipeline);
   }
 
@@ -35,16 +35,12 @@ public abstract class TimeBasedOperator extends Operator implements Gear {
     Outcome check = super.check(context);
     if (check == Outcome.SUCCESS) {
       long oldestRead = Long.MAX_VALUE;
-      for (Driver driver : this.dependency().reads()) {
-        if (driver instanceof TimestampedDriver) {
-          oldestRead = Math.min(((TimestampedDriver) driver).modified(), oldestRead);
-        }
+      for (Driver<TimestampedValue> driver : this.dependency().reads()) {
+        oldestRead = Math.min(context.read(driver.reference()).timestamp(), oldestRead);
       }
       long youngestWrite = 0;
-      for (Driver driver : this.dependency().writes()) {
-        if (driver instanceof TimestampedDriver) {
-          youngestWrite = Math.max(((TimestampedDriver) driver).modified(), youngestWrite);
-        }
+      for (Driver<TimestampedValue> driver : this.dependency().writes()) {
+        youngestWrite = Math.max(context.read(driver.reference()).timestamp(), youngestWrite);
       }
       if (oldestRead >= youngestWrite) {
         return Outcome.SUCCESS;
