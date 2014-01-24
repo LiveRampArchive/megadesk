@@ -16,7 +16,6 @@
 
 package com.liveramp.megadesk.base.transaction;
 
-import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -27,14 +26,8 @@ import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.Executor;
 import com.liveramp.megadesk.core.transaction.Transaction;
 import com.liveramp.megadesk.core.transaction.TransactionExecution;
-import com.liveramp.megadesk.core.transaction.UnboundTransaction;
 
 public class BaseExecutor implements Executor {
-
-  @Override
-  public <V> V execute(UnboundTransaction<V> transaction, Driver... arguments) throws Exception {
-    return execute(new BoundTransaction<V>(new TransactionBinding<V>(transaction, Arrays.asList(arguments))));
-  }
 
   @Override
   public <V> V execute(Transaction<V> transaction) throws Exception {

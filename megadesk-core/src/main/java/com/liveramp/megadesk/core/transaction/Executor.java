@@ -23,8 +23,6 @@ public interface Executor {
 
   <V> V execute(Transaction<V> transaction) throws Exception;
 
-  <V> V execute(UnboundTransaction<V> transaction, Driver... arguments) throws Exception;
-
   <V> V execute(Transaction<V> transaction, Driver<V> result) throws Exception;
 
   <V> ExecutionResult<V> tryExecute(Transaction<V> transaction) throws Exception;
