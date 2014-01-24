@@ -39,7 +39,7 @@ public class TestPipeline extends BaseTestCase {
     NaiveWorker worker = new NaiveWorker();
     worker.run(addOne1, addOne2, addOne3);
 
-    Thread.sleep(1000);
+    waitUntilValueEqual(step4, 4, 1000);
 
     Assert.assertEquals(Integer.valueOf(1), step1.driver().persistence().read().getInteger());
     Assert.assertEquals(Integer.valueOf(2), step2.driver().persistence().read().getInteger());
@@ -48,12 +48,19 @@ public class TestPipeline extends BaseTestCase {
 
     step1.driver().persistence().write(new TimestampedInteger(10));
 
-    Thread.sleep(1000);
+    waitUntilValueEqual(step4, 13, 1000);
 
     Assert.assertEquals(Integer.valueOf(10), step1.driver().persistence().read().getInteger());
     Assert.assertEquals(Integer.valueOf(11), step2.driver().persistence().read().getInteger());
     Assert.assertEquals(Integer.valueOf(12), step3.driver().persistence().read().getInteger());
     Assert.assertEquals(Integer.valueOf(13), step4.driver().persistence().read().getInteger());
+  }
+
+  private void waitUntilValueEqual(Variable variable, Object value, int timeout) throws InterruptedException {
+    long start = System.currentTimeMillis();
+    while (!variable.driver().persistence().read().equals(value) && System.currentTimeMillis() - start < timeout) {
+      Thread.sleep(10);
+    }
   }
 
   private Local<TimestampedInteger> getTimestampedInt(int i) {
