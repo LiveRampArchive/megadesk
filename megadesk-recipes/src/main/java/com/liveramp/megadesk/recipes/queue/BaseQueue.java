@@ -17,17 +17,17 @@
 package com.liveramp.megadesk.recipes.queue;
 
 import com.google.common.collect.ImmutableList;
-import com.liveramp.megadesk.core.state.Driver;
+import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Transaction;
 
-public abstract class BaseQueue<VALUE> {
+public abstract class BaseQueue<VALUE, OUTPUT> {
 
-  private final Driver<ImmutableList> input;
-  private final Driver<ImmutableList> output;
-  private Driver<Boolean> frozen;
+  private final Variable<ImmutableList> input;
+  private final Variable<ImmutableList> output;
+  private final Variable<Boolean> frozen;
 
-  public BaseQueue(Driver<ImmutableList> input, Driver<ImmutableList> output, Driver<Boolean> frozen) {
+  public BaseQueue(Variable<ImmutableList> input, Variable<ImmutableList> output, Variable<Boolean> frozen) {
     this.input = input;
     this.output = output;
     this.frozen = frozen;
@@ -42,15 +42,15 @@ public abstract class BaseQueue<VALUE> {
     }
   }
 
-  public Driver<ImmutableList> getInput() {
+  public Variable<ImmutableList> getInput() {
     return input;
   }
 
-  public Driver<ImmutableList> getOutput() {
+  public Variable<ImmutableList> getOutput() {
     return output;
   }
 
-  public Driver<Boolean> getFrozen() {
+  public Variable<Boolean> getFrozen() {
     return frozen;
   }
 
@@ -79,6 +79,13 @@ public abstract class BaseQueue<VALUE> {
       throw new RuntimeException(e);
     }
   }
+
+  public OUTPUT read(Context context) {
+    ImmutableList<VALUE> transfer = transfer(context);
+    return internalRead(transfer);
+  }
+
+  protected abstract OUTPUT internalRead(ImmutableList<VALUE> transfer);
 
   protected abstract Transaction getPopTransaction();
 }

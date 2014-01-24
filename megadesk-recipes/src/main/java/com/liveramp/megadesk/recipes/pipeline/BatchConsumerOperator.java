@@ -33,7 +33,7 @@ public abstract class BatchConsumerOperator<VALUE> extends Operator {
     super(BaseDependency.<Variable>builder()
         .reads((List) dependency.reads())
         .writes((List) dependency.writes())
-        .writes(new Local(batch.getInput()), new Local(batch.getOutput()))
+        .writes(batch.getInput(), batch.getOutput())
         .build(),
         pipeline);
     this.batch = batch;
@@ -43,7 +43,7 @@ public abstract class BatchConsumerOperator<VALUE> extends Operator {
   public Outcome check(Context context) {
     Outcome check = super.check(context);
     if (check == Outcome.SUCCESS) {
-      ImmutableList currentBatch = batch.readBatch(context);
+      ImmutableList currentBatch = (ImmutableList) batch.read(context);
       if (!currentBatch.isEmpty()) {
         return Outcome.SUCCESS;
       } else {
@@ -57,7 +57,7 @@ public abstract class BatchConsumerOperator<VALUE> extends Operator {
 
   @Override
   public Outcome execute(Context context) throws Exception {
-    ImmutableList currentBatch = batch.readBatch(context);
+    ImmutableList currentBatch = (ImmutableList) batch.read(context);
     Outcome outcome = this.consume(context, currentBatch);
     if (outcome == Outcome.SUCCESS) {
       batch.pop(context);

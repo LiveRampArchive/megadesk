@@ -15,49 +15,43 @@
  */
 package com.liveramp.megadesk.recipes.queue;
 
-import com.google.common.collect.ImmutableList;
 import com.liveramp.megadesk.core.transaction.Executor;
-import com.liveramp.megadesk.recipes.pipeline.DriverFactory;
 
-public class BatchStructure<VALUE> {
+public abstract class BaseQueueExecutable<VALUE, OUTPUT> {
 
-  private final BaseQueue<VALUE> batch;
+  private final BaseQueue<VALUE, OUTPUT> queue;
   private Executor executor;
 
-  public BatchStructure(Batch<VALUE> batch, Executor executor) {
-    this.batch = batch;
+  public BaseQueueExecutable(BaseQueue<VALUE, OUTPUT> queue, Executor executor) {
+    this.queue = queue;
     this.executor = executor;
-  }
-
-  public static <VALUE> BatchStructure<VALUE> getByName(String name, DriverFactory factory, Executor executor) {
-    return new BatchStructure<VALUE>(
-        new Batch<VALUE>(factory.<ImmutableList>get(name + "-input", ImmutableList.of()),
-            factory.<ImmutableList>get(name + "-output", ImmutableList.of()),
-            factory.<Boolean>get(name + "-frozen", false)), executor);
   }
 
   public void append(VALUE value) {
     try {
-      executor.execute(batch.getAppendTransaction(value));
+      executor.execute(queue.getAppendTransaction(value));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  public ImmutableList<VALUE> readBatch() {
+  public OUTPUT read() {
     try {
-      executor.execute(batch.getTransferTransaction());
+      return queue.internalRead(executor.execute(queue.getTransferTransaction()));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    return batch.getOutput().persistence().read();
   }
 
-  public void popBatch() {
+  public void pop() {
     try {
-      executor.execute(batch.getPopTransaction());
+      executor.execute(queue.getPopTransaction());
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public BaseQueue<VALUE, OUTPUT> getQueue() {
+    return queue;
   }
 }

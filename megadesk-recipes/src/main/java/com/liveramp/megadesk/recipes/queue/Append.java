@@ -15,9 +15,9 @@ class Append<V> implements Transaction<Void> {
   private final Variable<ImmutableList> list;
   private final V value;
 
-  Append(Driver<ImmutableList> driver, V value) {
+  Append(Variable<ImmutableList> driver, V value) {
     this.value = value;
-    this.list = new Local<ImmutableList>(driver);
+    this.list = driver;
     this.dependency = BaseDependency.builder().writes(list).build();
   }
 

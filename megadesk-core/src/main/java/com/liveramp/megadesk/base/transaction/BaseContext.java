@@ -71,7 +71,7 @@ public class BaseContext implements Context {
   @Override
   public <VALUE> Accessor<VALUE> accessor(Reference<VALUE> reference) {
     if (!bindings.containsKey(reference)) {
-      throw new IllegalStateException(reference.toString()); // TODO message
+      throw new IllegalStateException("Couldnt find "+reference.name()); // TODO message
     }
     return bindings.get(reference);
   }

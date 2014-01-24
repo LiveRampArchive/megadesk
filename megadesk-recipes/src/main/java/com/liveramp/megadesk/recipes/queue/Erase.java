@@ -16,9 +16,7 @@
 package com.liveramp.megadesk.recipes.queue;
 
 import com.google.common.collect.ImmutableList;
-import com.liveramp.megadesk.base.state.Local;
 import com.liveramp.megadesk.base.transaction.BaseDependency;
-import com.liveramp.megadesk.core.state.Driver;
 import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
@@ -30,10 +28,10 @@ class Erase implements Transaction<Void> {
   private final Variable<ImmutableList> list;
   private final Variable<Boolean> frozen;
 
-  Erase(Driver<ImmutableList> listDriver, Driver<Boolean> frozenDriver) {
-    this.frozen = new Local<Boolean>(frozenDriver);
-    this.list = new Local<ImmutableList>(listDriver);
-    this.dependency = BaseDependency.builder().writes(list, frozen).build();
+  Erase(Variable<ImmutableList> list, Variable<Boolean> frozen) {
+    this.frozen = frozen;
+    this.list = list;
+    this.dependency = BaseDependency.builder().writes(this.list, this.frozen).build();
   }
 
   @Override

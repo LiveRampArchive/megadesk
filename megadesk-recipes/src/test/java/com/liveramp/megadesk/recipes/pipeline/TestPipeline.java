@@ -1,8 +1,10 @@
 package com.liveramp.megadesk.recipes.pipeline;
 
 import com.google.common.collect.Lists;
+import com.liveramp.megadesk.base.state.Arg;
 import com.liveramp.megadesk.base.state.InMemoryDriver;
 import com.liveramp.megadesk.base.state.Local;
+import com.liveramp.megadesk.base.transaction.Bind;
 import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.recipes.gear.Outcome;
@@ -32,12 +34,13 @@ public class TestPipeline extends BaseTestCase {
       }
     };
 
-    AddOne addOne1 = new AddOne(step1, step2, pipeline);
-    AddOne addOne2 = new AddOne(step2, step3, pipeline);
-    AddOne addOne3 = new AddOne(step3, step4, pipeline);
+    AddOne addOne = new AddOne(pipeline);
 
     NaiveWorker worker = new NaiveWorker();
-    worker.run(addOne1, addOne2, addOne3);
+    worker.run(addOne, new Bind(step1, step2));
+    worker.run(addOne, new Bind(step2, step3));
+    worker.run(addOne, new Bind(step3, step4));
+
 
     waitUntilValueEqual(step4, 4, 1000);
 
@@ -71,6 +74,10 @@ public class TestPipeline extends BaseTestCase {
 
     private final Variable<TimestampedInteger> input;
     private final Variable<TimestampedInteger> output;
+
+    protected AddOne(Pipeline pipeline) {
+      this(new Arg<TimestampedInteger>(0), new Arg<TimestampedInteger>(1), pipeline);
+    }
 
     protected AddOne(Variable<TimestampedInteger> input, Variable<TimestampedInteger> output, Pipeline pipeline) {
       super((List) Lists.newArrayList(input), (List) Lists.newArrayList(output), pipeline);
