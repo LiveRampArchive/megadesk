@@ -17,15 +17,10 @@
 package com.liveramp.megadesk.core.transaction;
 
 import com.liveramp.megadesk.base.transaction.ExecutionResult;
-import com.liveramp.megadesk.core.state.Driver;
 
 public interface Executor {
 
   <V> V execute(Transaction<V> transaction) throws Exception;
 
-  <V> V execute(Transaction<V> transaction, Driver<V> result) throws Exception;
-
   <V> ExecutionResult<V> tryExecute(Transaction<V> transaction) throws Exception;
-
-  <V> ExecutionResult<V> tryExecute(Transaction<V> transaction, Driver<V> result) throws Exception;
 }

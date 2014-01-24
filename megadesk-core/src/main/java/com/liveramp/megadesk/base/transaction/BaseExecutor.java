@@ -16,13 +16,7 @@
 
 package com.liveramp.megadesk.base.transaction;
 
-import java.util.List;
-
-import com.google.common.collect.Lists;
-
-import com.liveramp.megadesk.core.state.Driver;
 import com.liveramp.megadesk.core.transaction.Context;
-import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.Executor;
 import com.liveramp.megadesk.core.transaction.Transaction;
 import com.liveramp.megadesk.core.transaction.TransactionExecution;
@@ -31,24 +25,10 @@ public class BaseExecutor implements Executor {
 
   @Override
   public <V> V execute(Transaction<V> transaction) throws Exception {
-    return execute(transaction, null);
-  }
-
-  @Override
-  public <V> ExecutionResult<V> tryExecute(Transaction<V> transaction) throws Exception {
-    return tryExecute(transaction, null);
-  }
-
-  @Override
-  public <V> V execute(Transaction<V> transaction, Driver<V> result) throws Exception {
     TransactionExecution transactionExecution = new BaseTransactionExecution();
-    Context context = transactionExecution.begin(buildResultDependency(transaction.dependency(), result));
+    Context context = transactionExecution.begin(transaction.dependency());
     try {
       V resultValue = transaction.run(context);
-      // Write result only if needed
-      if (result != null) {
-        context.write(result.reference(), resultValue);
-      }
       transactionExecution.commit();
       return resultValue;
     } catch (Exception e) {
@@ -58,16 +38,12 @@ public class BaseExecutor implements Executor {
   }
 
   @Override
-  public <V> ExecutionResult<V> tryExecute(Transaction<V> transaction, Driver<V> result) throws Exception {
+  public <V> ExecutionResult<V> tryExecute(Transaction<V> transaction) throws Exception {
     TransactionExecution transactionExecution = new BaseTransactionExecution();
-    Context context = transactionExecution.tryBegin(buildResultDependency(transaction.dependency(), result));
+    Context context = transactionExecution.tryBegin(transaction.dependency());
     if (context != null) {
       try {
         V resultValue = transaction.run(context);
-        // Write result only if needed
-        if (result != null) {
-          context.write(result.reference(), resultValue);
-        }
         transactionExecution.commit();
         return new ExecutionResult<V>(true, resultValue);
       } catch (Exception e) {
@@ -76,26 +52,6 @@ public class BaseExecutor implements Executor {
       }
     } else {
       return new ExecutionResult<V>(false, null);
-    }
-  }
-
-  private static Dependency<Driver> buildResultDependency(Dependency<Driver> dependency, Driver resultValue) {
-    if (resultValue != null) {
-      Dependency<Driver> result;
-      // Original dependency, with result added as a write
-      List<Driver> writes = Lists.newArrayList(dependency.writes());
-      if (!writes.contains(resultValue)) {
-        writes.add(resultValue);
-      }
-      result = BaseDependency.<Driver>builder()
-                   .snapshots(dependency.snapshots())
-                   .reads(dependency.reads())
-                   .writes(writes)
-                   .build();
-      return result;
-    } else {
-      // If not writing the return value, no change to the dependency
-      return dependency;
     }
   }
 }
