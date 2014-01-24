@@ -44,4 +44,9 @@ public class BaseVariable<VALUE> implements Variable<VALUE> {
   public int compareTo(Variable<VALUE> o) {
     return reference.compareTo(o.reference());
   }
+
+  @Override
+  public String toString() {
+    return this.reference().name();
+  }
 }

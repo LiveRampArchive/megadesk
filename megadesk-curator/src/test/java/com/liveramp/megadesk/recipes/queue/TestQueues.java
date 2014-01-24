@@ -112,7 +112,6 @@ public class TestQueues extends BaseTestCase {
     input.append(30);
     input.append(-1);
 
-
     Thread.sleep(1000);
 
     assertEquals(Integer.valueOf(100), output.read());
