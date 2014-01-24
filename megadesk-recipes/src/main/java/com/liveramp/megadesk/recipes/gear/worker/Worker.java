@@ -18,6 +18,7 @@ package com.liveramp.megadesk.recipes.gear.worker;
 
 import java.util.List;
 
+import com.liveramp.megadesk.core.transaction.Binding;
 import com.liveramp.megadesk.recipes.gear.Gear;
 
 public interface Worker {
@@ -28,11 +29,23 @@ public interface Worker {
 
   void run(List<Gear> gears);
 
+  void run(Gear gear, Binding binding);
+
+  void run(Binding binding, Gear... gears);
+
+  void run(List<Gear> gears, Binding binding);
+
   void complete(Gear gear) throws InterruptedException;
 
   void complete(Gear... gears) throws InterruptedException;
 
   void complete(List<Gear> gears) throws InterruptedException;
+
+  void complete(Gear gear, Binding binding) throws InterruptedException;
+
+  void complete(Binding binding, Gear... gears) throws InterruptedException;
+
+  void complete(List<Gear> gears, Binding binding) throws InterruptedException;
 
   void stop();
 

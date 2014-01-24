@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 
 import com.liveramp.megadesk.base.transaction.BaseExecutor;
 import com.liveramp.megadesk.base.transaction.ExecutionResult;
+import com.liveramp.megadesk.core.transaction.Binding;
 import com.liveramp.megadesk.core.transaction.Executor;
 
 public class BaseGearExecutor implements GearExecutor {
@@ -30,8 +31,13 @@ public class BaseGearExecutor implements GearExecutor {
 
   @Override
   public Outcome execute(Gear gear) {
+    return execute(gear, null);
+  }
+
+  @Override
+  public Outcome execute(Gear gear, Binding binding) {
     try {
-      ExecutionResult<Outcome> executionResult = executor.tryExecute(gear);
+      ExecutionResult<Outcome> executionResult = executor.tryExecute(gear, binding);
       if (executionResult.executed()) {
         return executionResult.result();
       } else {

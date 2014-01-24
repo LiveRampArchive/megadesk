@@ -16,12 +16,13 @@
 
 package com.liveramp.megadesk.recipes.gear.worker;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import org.apache.log4j.Logger;
 
+import com.liveramp.megadesk.core.transaction.Binding;
 import com.liveramp.megadesk.recipes.gear.BaseGearExecutor;
 import com.liveramp.megadesk.recipes.gear.Gear;
 import com.liveramp.megadesk.recipes.gear.GearExecutor;
@@ -31,20 +32,20 @@ public class NaiveWorker extends BaseWorker implements Worker {
 
   private static final Logger LOG = Logger.getLogger(NaiveWorker.class);
 
-  private final List<Gear> gears;
+  private final List<BoundGear> gears;
   private final Thread executor;
   private boolean stopping = false;
 
   public NaiveWorker() {
-    gears = new ArrayList<Gear>();
+    gears = Lists.newArrayList();
     executor = new Thread(new ExecutorRunnable(), this + " executor");
     executor.start();
   }
 
   @Override
-  public void run(Gear gear) {
+  public void run(Gear gear, Binding binding) {
     synchronized (gears) {
-      gears.add(gear);
+      gears.add(new BoundGear(gear, binding));
     }
   }
 
@@ -71,11 +72,11 @@ public class NaiveWorker extends BaseWorker implements Worker {
           if (stopping && gears.isEmpty()) {
             return;
           }
-          Iterator<Gear> it = gears.iterator();
+          Iterator<BoundGear> it = gears.iterator();
           while (it.hasNext()) {
-            Gear gear = it.next();
+            BoundGear gear = it.next();
             try {
-              Outcome outcome = gearExecutor.execute(gear);
+              Outcome outcome = gearExecutor.execute(gear.gear(), gear.binding());
               if (outcome == Outcome.ABANDON) {
                 it.remove();
               }

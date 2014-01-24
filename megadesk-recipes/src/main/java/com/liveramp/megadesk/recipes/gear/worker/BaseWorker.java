@@ -19,37 +19,66 @@ package com.liveramp.megadesk.recipes.gear.worker;
 import java.util.Arrays;
 import java.util.List;
 
+import com.liveramp.megadesk.core.transaction.Binding;
 import com.liveramp.megadesk.recipes.gear.Gear;
 
 public abstract class BaseWorker implements Worker {
 
   @Override
+  public void run(Gear gear) {
+    run(Arrays.asList(gear), null);
+  }
+
+  @Override
   public void run(Gear... gears) {
-    for (Gear gear : gears) {
-      run(gear);
-    }
+    run(Arrays.asList(gears), null);
   }
 
   @Override
   public void run(List<Gear> gears) {
+    run(gears, null);
+  }
+
+  @Override
+  public void run(Binding binding, Gear... gears) {
+    run(Arrays.asList(gears), binding);
+  }
+
+  @Override
+  public void run(List<Gear> gears, Binding binding) {
     for (Gear gear : gears) {
-      run(gear);
+      run(gear, binding);
     }
   }
 
   @Override
   public void complete(Gear gear) throws InterruptedException {
-    complete(Arrays.asList(gear));
+    complete(Arrays.asList(gear), null);
   }
 
   @Override
   public void complete(Gear... gears) throws InterruptedException {
-    complete(Arrays.asList(gears));
+    complete(Arrays.asList(gears), null);
   }
 
   @Override
   public void complete(List<Gear> gears) throws InterruptedException {
-    run(gears);
+    complete(gears, null);
+  }
+
+  @Override
+  public void complete(Gear gear, Binding binding) throws InterruptedException {
+    complete(Arrays.asList(gear), binding);
+  }
+
+  @Override
+  public void complete(Binding binding, Gear... gears) throws InterruptedException {
+    complete(Arrays.asList(gears), binding);
+  }
+
+  @Override
+  public void complete(List<Gear> gears, Binding binding) throws InterruptedException {
+    run(gears, binding);
     stop();
     join();
   }

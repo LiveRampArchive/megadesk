@@ -14,13 +14,26 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes.gear;
+package com.liveramp.megadesk.recipes.gear.worker;
 
 import com.liveramp.megadesk.core.transaction.Binding;
+import com.liveramp.megadesk.recipes.gear.Gear;
 
-public interface GearExecutor {
+public class BoundGear {
 
-  public Outcome execute(Gear gear);
+  private final Gear gear;
+  private final Binding binding;
 
-  public Outcome execute(Gear gear, Binding binding);
+  public BoundGear(Gear gear, Binding binding) {
+    this.gear = gear;
+    this.binding = binding;
+  }
+
+  public Gear gear() {
+    return gear;
+  }
+
+  public Binding binding() {
+    return binding;
+  }
 }
