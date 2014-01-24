@@ -19,64 +19,22 @@ package com.liveramp.megadesk.recipes.queue;
 import com.google.common.collect.ImmutableList;
 import com.liveramp.megadesk.core.state.Driver;
 import com.liveramp.megadesk.core.transaction.Context;
+import com.liveramp.megadesk.core.transaction.Transaction;
 
-public class Batch<VALUE> {
-
-  private final Driver<ImmutableList> input;
-  private final Driver<ImmutableList> output;
-  private Driver<Boolean> frozen;
+public class Batch<VALUE> extends BaseQueue<VALUE> {
 
   public Batch(Driver<ImmutableList> input, Driver<ImmutableList> output, Driver<Boolean> frozen) {
-    this.input = input;
-    this.output = output;
-    this.frozen = frozen;
-  }
-
-  public void append(Context context, VALUE value) {
-    Append<VALUE> append = getAppendTransaction(value);
-    try {
-      append.run(context);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public Driver<ImmutableList> getInput() {
-    return input;
-  }
-
-  public Driver<ImmutableList> getOutput() {
-    return output;
-  }
-
-  protected Append<VALUE> getAppendTransaction(VALUE value) {
-    return new Append<VALUE>(input, value);
+    super(input, output, frozen);
   }
 
   public ImmutableList<VALUE> readBatch(Context context) {
-    TransferBatch transferBatch = getTransferTransaction();
-    try {
-      return transferBatch.run(context);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    ImmutableList<VALUE> transfer = transfer(context);
+    return transfer;
   }
 
-  protected TransferBatch getTransferTransaction() {
-    return new TransferBatch(input, output, frozen);
-  }
-
-  public void popBatch(Context context) {
-    Erase erase = getEraseTransaction();
-    try {
-      erase.run(context);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  protected Erase getEraseTransaction() {
-    return new Erase(output, frozen);
+  @Override
+  protected Transaction getPopTransaction() {
+    return new Erase(getOutput(), getFrozen());
   }
 }
 

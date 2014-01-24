@@ -31,7 +31,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class TestBatch extends BaseTestCase {
+public class TestQueues extends BaseTestCase {
 
   @Test
   public void testBatching() {
@@ -67,6 +67,11 @@ public class TestBatch extends BaseTestCase {
     assertTrue(sameBatchNewName.readBatch().isEmpty());
     sameBatchNewName.append(10);
     assertTrue(sameBatchNewName.readBatch().isEmpty());
+  }
+
+  @Test
+  public void testQueue() {
+
   }
 
   private static class BasicFactory implements DriverFactory {

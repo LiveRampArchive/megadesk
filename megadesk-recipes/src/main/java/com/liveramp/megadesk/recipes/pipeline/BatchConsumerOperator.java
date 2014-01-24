@@ -47,7 +47,7 @@ public abstract class BatchConsumerOperator<VALUE> extends Operator {
       if (!currentBatch.isEmpty()) {
         return Outcome.SUCCESS;
       } else {
-        batch.popBatch(context);
+        batch.pop(context);
         return Outcome.STANDBY;
       }
     } else {
@@ -60,7 +60,7 @@ public abstract class BatchConsumerOperator<VALUE> extends Operator {
     ImmutableList currentBatch = batch.readBatch(context);
     Outcome outcome = this.consume(context, currentBatch);
     if (outcome == Outcome.SUCCESS) {
-      batch.popBatch(context);
+      batch.pop(context);
       return outcome;
     } else {
       return outcome;

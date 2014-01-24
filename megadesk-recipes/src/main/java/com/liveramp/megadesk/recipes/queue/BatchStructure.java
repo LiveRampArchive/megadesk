@@ -21,7 +21,7 @@ import com.liveramp.megadesk.recipes.pipeline.DriverFactory;
 
 public class BatchStructure<VALUE> {
 
-  private final Batch<VALUE> batch;
+  private final BaseQueue<VALUE> batch;
   private Executor executor;
 
   public BatchStructure(Batch<VALUE> batch, Executor executor) {
@@ -55,7 +55,7 @@ public class BatchStructure<VALUE> {
 
   public void popBatch() {
     try {
-      executor.execute(batch.getEraseTransaction());
+      executor.execute(batch.getPopTransaction());
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
