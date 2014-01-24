@@ -16,13 +16,17 @@
 
 package com.liveramp.megadesk.recipes.batch;
 
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
+import com.liveramp.megadesk.base.state.InMemoryDriver;
+import com.liveramp.megadesk.base.transaction.BaseExecutor;
+import com.liveramp.megadesk.core.state.Driver;
+import com.liveramp.megadesk.recipes.pipeline.DriverFactory;
+import com.liveramp.megadesk.test.BaseTestCase;
 import org.junit.Test;
 
-import com.liveramp.megadesk.recipes.batch.Batch;
-import com.liveramp.megadesk.test.BaseTestCase;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -31,7 +35,9 @@ public class TestBatch extends BaseTestCase {
   @Test
   public void testBatching() {
 
-    Batch<Integer> batch = Batch.getByName("summed-integers");
+    DriverFactory factory = new BasicFactory();
+    BaseExecutor executor = new BaseExecutor();
+    BatchStructure<Integer> batch = BatchStructure.getByName("summed-integers", factory, executor);
 
     //basic batching
     batch.append(3);
@@ -50,9 +56,22 @@ public class TestBatch extends BaseTestCase {
     assertEquals(ImmutableList.of(10), list);
 
     //Batches with the same name are the same
-    Batch<Integer> sameBatchNewName = Batch.getByName("summed-integers");
+    BatchStructure<Integer> sameBatchNewName = BatchStructure.getByName("summed-integers", factory, executor);
     List<Integer> newSum = sameBatchNewName.readBatch();
     assertEquals(ImmutableList.of(10), newSum);
+  }
+
+  private static class BasicFactory implements DriverFactory {
+
+    private static Map<String, Driver> drivers = Maps.newHashMap();
+
+    @Override
+    public <T> Driver<T> get(String referenceName, T intialValue) {
+      if (!drivers.containsKey(referenceName)) {
+        drivers.put(referenceName, new InMemoryDriver(intialValue));
+      }
+      return drivers.get(referenceName);
+    }
   }
 }
 

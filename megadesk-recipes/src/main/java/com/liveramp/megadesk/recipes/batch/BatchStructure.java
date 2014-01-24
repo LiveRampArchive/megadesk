@@ -16,7 +16,8 @@ public class BatchStructure<VALUE> {
 
   public static <VALUE> BatchStructure<VALUE> getByName(String name, DriverFactory factory, Executor executor) {
     return new BatchStructure<VALUE>(
-        new Batch<VALUE>(factory.<ImmutableList>get(name + "-input"), factory.<ImmutableList>get(name + "-output")), executor);
+        new Batch<VALUE>(factory.<ImmutableList>get(name + "-input", ImmutableList.of()),
+            factory.<ImmutableList>get(name + "-output", ImmutableList.of())), executor);
   }
 
   public void append(VALUE value) {
@@ -36,7 +37,7 @@ public class BatchStructure<VALUE> {
     return batch.getOutput().persistence().read();
   }
 
-  public void popBatch(){
+  public void popBatch() {
     try {
       executor.execute(batch.getEraseTransaction());
     } catch (Exception e) {
@@ -44,7 +45,7 @@ public class BatchStructure<VALUE> {
     }
   }
 
-  public boolean batchAvailable(){
+  public boolean batchAvailable() {
     try {
       return executor.execute(batch.getCheckForDataTransaction());
     } catch (Exception e) {
