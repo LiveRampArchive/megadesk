@@ -16,11 +16,12 @@
 package com.liveramp.megadesk.recipes.pipeline;
 
 import com.google.common.collect.ImmutableList;
+import com.liveramp.megadesk.base.state.Local;
 import com.liveramp.megadesk.base.transaction.BaseDependency;
-import com.liveramp.megadesk.core.state.Driver;
+import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Context;
-import com.liveramp.megadesk.recipes.queue.Batch;
 import com.liveramp.megadesk.recipes.gear.Outcome;
+import com.liveramp.megadesk.recipes.queue.Batch;
 
 import java.util.List;
 
@@ -28,11 +29,11 @@ public abstract class BatchConsumerOperator<VALUE> extends Operator {
 
   private final Batch batch;
 
-  public BatchConsumerOperator(Batch batch, BaseDependency<Driver> dependency, Pipeline pipeline) {
-    super(BaseDependency.<Driver>builder()
+  public BatchConsumerOperator(Batch batch, BaseDependency<Variable> dependency, Pipeline pipeline) {
+    super(BaseDependency.<Variable>builder()
         .reads((List) dependency.reads())
         .writes((List) dependency.writes())
-        .writes(batch.getInput(), batch.getOutput())
+        .writes(new Local(batch.getInput()), new Local(batch.getOutput()))
         .build(),
         pipeline);
     this.batch = batch;

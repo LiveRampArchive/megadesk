@@ -56,12 +56,10 @@ public class Batch<VALUE> {
   public ImmutableList<VALUE> readBatch(Context context) {
     TransferBatch transferBatch = getTransferTransaction();
     try {
-      transferBatch.run(context);
+      return transferBatch.run(context);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    ImmutableList batch = context.read(output.reference());
-    return batch;
   }
 
   protected TransferBatch getTransferTransaction() {

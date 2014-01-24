@@ -17,24 +17,26 @@
 package com.liveramp.megadesk.recipes.queue;
 
 import com.google.common.collect.ImmutableList;
+import com.liveramp.megadesk.base.state.Local;
 import com.liveramp.megadesk.base.transaction.BaseDependency;
 import com.liveramp.megadesk.core.state.Driver;
+import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Accessor;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.Transaction;
 
-class TransferBatch implements Transaction<Void> {
+class TransferBatch implements Transaction<ImmutableList> {
 
   private final Dependency dependency;
-  private final Driver<ImmutableList> input;
-  private final Driver<ImmutableList> output;
-  private final Driver<Boolean> frozen;
+  private final Variable<ImmutableList> input;
+  private final Variable<ImmutableList> output;
+  private final Variable<Boolean> frozen;
 
-  public TransferBatch(Driver<ImmutableList> input, Driver<ImmutableList> output, Driver<Boolean> frozen) {
-    this.input = input;
-    this.output = output;
-    this.frozen = frozen;
+  public TransferBatch(Driver<ImmutableList> inputDriver, Driver<ImmutableList> outputDriver, Driver<Boolean> frozenDriver) {
+    this.input = new Local<ImmutableList>(inputDriver);
+    this.output = new Local<ImmutableList>(outputDriver);
+    this.frozen = new Local<Boolean>(frozenDriver);
     this.dependency = BaseDependency.builder().writes(input, output, frozen).build();
   }
 
@@ -44,7 +46,7 @@ class TransferBatch implements Transaction<Void> {
   }
 
   @Override
-  public Void run(Context context) throws Exception {
+  public ImmutableList run(Context context) throws Exception {
     Accessor<ImmutableList> inputList = context.accessor(input.reference());
     Accessor<ImmutableList> outputList = context.accessor(output.reference());
     Accessor<Boolean> frozenFlag = context.accessor(frozen.reference());
@@ -57,6 +59,6 @@ class TransferBatch implements Transaction<Void> {
       inputList.write(ImmutableList.of());
       frozenFlag.write(true);
     }
-    return null;
+    return outputList.read();
   }
 }

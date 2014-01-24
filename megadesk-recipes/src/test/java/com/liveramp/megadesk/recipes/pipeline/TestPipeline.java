@@ -2,8 +2,10 @@ package com.liveramp.megadesk.recipes.pipeline;
 
 import com.google.common.collect.Lists;
 import com.liveramp.megadesk.base.state.InMemoryDriver;
+import com.liveramp.megadesk.base.state.Local;
+import com.liveramp.megadesk.base.transaction.BaseContext;
 import com.liveramp.megadesk.core.state.Driver;
-import com.liveramp.megadesk.core.state.Reference;
+import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.recipes.gear.Outcome;
 import com.liveramp.megadesk.recipes.gear.worker.NaiveWorker;
@@ -32,9 +34,9 @@ public class TestPipeline extends BaseTestCase {
       }
     };
 
-    AddOne addOne1 = new AddOne(step1, step2, pipeline, "one");
-    AddOne addOne2 = new AddOne(step2, step3, pipeline, "two");
-    AddOne addOne3 = new AddOne(step3, step4, pipeline, "three");
+    AddOne addOne1 = new AddOne(step1, step2, pipeline);
+    AddOne addOne2 = new AddOne(step2, step3, pipeline);
+    AddOne addOne3 = new AddOne(step3, step4, pipeline);
 
     NaiveWorker worker = new NaiveWorker();
     worker.run(addOne1, addOne2, addOne3);
@@ -54,26 +56,23 @@ public class TestPipeline extends BaseTestCase {
     Assert.assertEquals(Integer.valueOf(11), step2.persistence().read().getInteger());
     Assert.assertEquals(Integer.valueOf(12), step3.persistence().read().getInteger());
     Assert.assertEquals(Integer.valueOf(13), step4.persistence().read().getInteger());
-
   }
 
   private static class AddOne extends TimeBasedOperator {
 
-    private final Reference<TimestampedInteger> input;
-    private final Reference<TimestampedInteger> output;
-    private final String name;
+    private final Variable<TimestampedInteger> input;
+    private final Variable<TimestampedInteger> output;
 
-    protected AddOne(Driver<TimestampedInteger> input, Driver<TimestampedInteger> output, Pipeline pipeline, String name) {
-      super((List) Lists.newArrayList(input), (List) Lists.<Driver<TimestampedInteger>>newArrayList(output), pipeline);
-      this.name = name;
-      this.input = input.reference();
-      this.output = output.reference();
+    protected AddOne(Driver<TimestampedInteger> input, Driver<TimestampedInteger> output, Pipeline pipeline) {
+      super((List) Lists.newArrayList(new Local<TimestampedInteger>(input)), (List) Lists.newArrayList(new Local<TimestampedInteger>(output)), pipeline);
+      this.input = new Local<TimestampedInteger>(input);
+      this.output = new Local<TimestampedInteger>(output);
     }
 
     @Override
     public Outcome execute(Context context) throws Exception {
-      context.write(output, new TimestampedInteger(context.read(input).getInteger() + 1));
-      System.out.println(name + " Added one!");
+      Integer integer = context.read(input).getInteger();
+      context.write(output, new TimestampedInteger(integer + 1));
       return Outcome.SUCCESS;
     }
   }
