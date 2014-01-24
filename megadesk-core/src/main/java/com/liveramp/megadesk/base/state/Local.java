@@ -14,15 +14,14 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.core.transaction;
+package com.liveramp.megadesk.base.state;
 
-import com.liveramp.megadesk.base.transaction.Arguments;
+import com.liveramp.megadesk.core.state.Driver;
+import com.liveramp.megadesk.core.state.Variable;
 
-public interface UnboundTransaction<V> {
+public class Local<VALUE> extends BaseVariable<VALUE> implements Variable<VALUE> {
 
-  Dependency<String> dependency();
-
-  V run(UnboundContext transaction) throws Exception;
-
-  Arguments arguments();
+  public Local(Driver<VALUE> driver) {
+    super(new InMemoryReference<VALUE>(), driver);
+  }
 }

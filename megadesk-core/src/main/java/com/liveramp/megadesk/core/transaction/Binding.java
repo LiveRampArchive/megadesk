@@ -16,11 +16,10 @@
 
 package com.liveramp.megadesk.core.transaction;
 
-public interface UnboundContext {
+import com.liveramp.megadesk.core.state.Driver;
+import com.liveramp.megadesk.core.state.Reference;
 
-  <VALUE> Accessor<VALUE> binding(String reference);
+public interface Binding {
 
-  <VALUE> VALUE read(String reference);
-
-  <VALUE> void write(String reference, VALUE value);
+  Driver get(Reference reference);
 }

@@ -22,8 +22,8 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import com.liveramp.megadesk.core.state.Driver;
 import com.liveramp.megadesk.core.state.Reference;
+import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Accessor;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
@@ -32,40 +32,40 @@ public class BaseContext implements Context {
 
   private final Map<Reference, Accessor> bindings;
 
-  public BaseContext(Dependency<Driver> dependency) {
+  public BaseContext(Dependency<Variable> dependency) {
     bindings = Maps.newHashMap();
-    for (Driver driver : readDrivers(dependency)) {
-      addBinding(driver, true);
+    for (Variable variable : readDrivers(dependency)) {
+      addBinding(variable, true);
     }
-    for (Driver driver : writeDrivers(dependency)) {
-      addBinding(driver, false);
+    for (Variable variable : writeDrivers(dependency)) {
+      addBinding(variable, false);
     }
   }
 
-  private static List<Driver> readDrivers(Dependency<Driver> dependency) {
-    List<Driver> result = Lists.newArrayList();
+  private static List<Variable> readDrivers(Dependency<Variable> dependency) {
+    List<Variable> result = Lists.newArrayList();
     // Snapshots
-    for (Driver driver : dependency.snapshots()) {
-      result.add(driver);
+    for (Variable variable : dependency.snapshots()) {
+      result.add(variable);
     }
     // Execution reads
-    for (Driver driver : dependency.reads()) {
-      result.add(driver);
+    for (Variable variable : dependency.reads()) {
+      result.add(variable);
     }
     return result;
   }
 
-  private static List<Driver> writeDrivers(Dependency<Driver> dependency) {
-    List<Driver> result = Lists.newArrayList();
+  private static List<Variable> writeDrivers(Dependency<Variable> dependency) {
+    List<Variable> result = Lists.newArrayList();
     // Execution writes
-    for (Driver driver : dependency.writes()) {
-      result.add(driver);
+    for (Variable variable : dependency.writes()) {
+      result.add(variable);
     }
     return result;
   }
 
-  private void addBinding(Driver driver, boolean readOnly) {
-    bindings.put(driver.reference(), new BaseAccessor(driver.persistence().read(), readOnly));
+  private void addBinding(Variable variable, boolean readOnly) {
+    bindings.put(variable.reference(), new BaseAccessor(variable.driver().persistence().read(), readOnly));
   }
 
   @Override
@@ -84,5 +84,20 @@ public class BaseContext implements Context {
   @Override
   public <VALUE> void write(Reference<VALUE> reference, VALUE value) {
     accessor(reference).write(value);
+  }
+
+  @Override
+  public <VALUE> Accessor<VALUE> accessor(Variable<VALUE> variable) {
+    return accessor(variable.reference());
+  }
+
+  @Override
+  public <VALUE> VALUE read(Variable<VALUE> variable) {
+    return read(variable.reference());
+  }
+
+  @Override
+  public <VALUE> void write(Variable<VALUE> variable, VALUE value) {
+    write(variable.reference(), value);
   }
 }

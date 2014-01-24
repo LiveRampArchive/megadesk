@@ -23,7 +23,6 @@ import com.liveramp.megadesk.base.state.BaseDriver;
 import com.liveramp.megadesk.core.state.Driver;
 import com.liveramp.megadesk.core.state.Persistence;
 import com.liveramp.megadesk.core.state.ReadWriteLock;
-import com.liveramp.megadesk.core.state.Reference;
 import com.liveramp.megadesk.recipes.state.persistence.SerializationHandler;
 
 public class CuratorDriver<VALUE> {
@@ -35,8 +34,7 @@ public class CuratorDriver<VALUE> {
     ReadWriteLock executionLock = new CuratorReadWriteLock(new InterProcessReadWriteLock(framework, path + "/executionLock"));
     ReadWriteLock persistenceLock = new CuratorReadWriteLock(new InterProcessReadWriteLock(framework, path + "/persistenceLock"));
     Persistence<VALUE> persistence = new CuratorPersistence<VALUE>(framework, path, serializer);
-    Reference<VALUE> reference = new CuratorReference<VALUE>(path);
 
-    return new BaseDriver<VALUE>(reference, persistence, persistenceLock, executionLock);
+    return new BaseDriver<VALUE>(persistence, persistenceLock, executionLock);
   }
 }

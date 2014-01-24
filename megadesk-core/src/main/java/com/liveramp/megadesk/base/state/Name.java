@@ -14,17 +14,13 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.core.transaction;
+package com.liveramp.megadesk.base.state;
 
-import com.liveramp.megadesk.base.transaction.ExecutionResult;
+import com.liveramp.megadesk.core.state.Reference;
 
-public interface Executor {
+public class Name<VALUE> extends BaseReference<VALUE> implements Reference<VALUE> {
 
-  <V> V execute(Transaction<V> transaction) throws Exception;
-
-  <V> ExecutionResult<V> tryExecute(Transaction<V> transaction) throws Exception;
-
-  <V> V execute(Transaction<V> transaction, Binding binding) throws Exception;
-
-  <V> ExecutionResult<V> tryExecute(Transaction<V> transaction, Binding binding) throws Exception;
+  public Name(String name) {
+    super(name);
+  }
 }

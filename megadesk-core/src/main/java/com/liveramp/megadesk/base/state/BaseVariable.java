@@ -14,39 +14,34 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.curator.state;
+package com.liveramp.megadesk.base.state;
 
+import com.liveramp.megadesk.core.state.Driver;
 import com.liveramp.megadesk.core.state.Reference;
+import com.liveramp.megadesk.core.state.Variable;
 
-public class CuratorReference<VALUE> implements Reference<VALUE> {
+public class BaseVariable<VALUE> implements Variable<VALUE> {
 
-  private final String name;
+  private final Reference<VALUE> reference;
+  private final Driver<VALUE> driver;
 
-  public CuratorReference(String name) {
-    this.name = name;
+  public BaseVariable(Reference<VALUE> reference, Driver<VALUE> driver) {
+    this.reference = reference;
+    this.driver = driver;
   }
 
   @Override
-  public String name() {
-    return name;
+  public Reference<VALUE> reference() {
+    return reference;
   }
 
   @Override
-  public int compareTo(Reference<VALUE> valueReference) {
-    return this.name().compareTo(valueReference.name());
+  public Driver<VALUE> driver() {
+    return driver;
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (o instanceof Reference) {
-      return this.name().equals(((Reference) o).name());
-    } else {
-      return false;
-    }
-  }
-
-  @Override
-  public int hashCode() {
-    return name().hashCode();
+  public int compareTo(Variable<VALUE> o) {
+    return reference.compareTo(o.reference());
   }
 }

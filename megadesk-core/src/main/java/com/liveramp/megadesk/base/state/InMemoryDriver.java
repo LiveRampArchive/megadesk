@@ -16,16 +16,12 @@
 
 package com.liveramp.megadesk.base.state;
 
-import org.apache.commons.lang.builder.CompareToBuilder;
-
 import com.liveramp.megadesk.core.state.Driver;
 import com.liveramp.megadesk.core.state.Persistence;
 import com.liveramp.megadesk.core.state.ReadWriteLock;
-import com.liveramp.megadesk.core.state.Reference;
 
 public class InMemoryDriver<VALUE> implements Driver<VALUE> {
 
-  private final Reference<VALUE> reference = new InMemoryReference<VALUE>();
   private final ReadWriteLock executionLock = new InMemoryReadWriteLock();
   private final ReadWriteLock persistenceLock = new InMemoryReadWriteLock();
   private final Persistence<VALUE> persistence;
@@ -36,11 +32,6 @@ public class InMemoryDriver<VALUE> implements Driver<VALUE> {
 
   public InMemoryDriver(VALUE value) {
     persistence = new InMemoryPersistence<VALUE>(value);
-  }
-
-  @Override
-  public Reference<VALUE> reference() {
-    return reference;
   }
 
   @Override
@@ -56,10 +47,5 @@ public class InMemoryDriver<VALUE> implements Driver<VALUE> {
   @Override
   public Persistence<VALUE> persistence() {
     return persistence;
-  }
-
-  @Override
-  public int compareTo(Driver<VALUE> other) {
-    return new CompareToBuilder().append(reference, other.reference()).toComparison();
   }
 }

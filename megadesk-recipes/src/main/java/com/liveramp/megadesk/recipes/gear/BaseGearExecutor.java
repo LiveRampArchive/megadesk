@@ -16,11 +16,15 @@
 
 package com.liveramp.megadesk.recipes.gear;
 
+import org.apache.log4j.Logger;
+
 import com.liveramp.megadesk.base.transaction.BaseExecutor;
 import com.liveramp.megadesk.base.transaction.ExecutionResult;
 import com.liveramp.megadesk.core.transaction.Executor;
 
 public class BaseGearExecutor implements GearExecutor {
+
+  private static final Logger LOG = Logger.getLogger(BaseGearExecutor.class);
 
   private final Executor executor = new BaseExecutor();
 
@@ -34,7 +38,9 @@ public class BaseGearExecutor implements GearExecutor {
         return Outcome.STANDBY;
       }
     } catch (Exception e) {
-      return Outcome.FAILURE;
+      LOG.error(e);
+      throw new RuntimeException(e); // TODO
+      // return Outcome.FAILURE;
     }
   }
 }

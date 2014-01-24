@@ -16,29 +16,29 @@
 
 package com.liveramp.megadesk.recipes.gear;
 
-import com.liveramp.megadesk.core.state.Driver;
+import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Dependency;
 
 public abstract class BaseGear implements Gear {
 
-  private Dependency<Driver> dependency;
+  private Dependency<Variable> dependency;
 
   public BaseGear() {
   }
 
-  public BaseGear(Dependency<Driver> dependency) {
+  public BaseGear(Dependency<Variable> dependency) {
     this.dependency = dependency;
   }
 
   @Override
-  public final Dependency<Driver> dependency() {
+  public final Dependency<Variable> dependency() {
     if (dependency == null) {
       throw new IllegalStateException(); // TODO message
     }
     return dependency;
   }
 
-  protected void setDependency(Dependency<Driver> dependency) {
+  protected void setDependency(Dependency<Variable> dependency) {
     this.dependency = dependency;
   }
 }

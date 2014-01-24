@@ -14,17 +14,13 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.core.transaction;
+package com.liveramp.megadesk.base.state;
 
-import com.liveramp.megadesk.base.transaction.ExecutionResult;
+import com.liveramp.megadesk.core.state.Variable;
 
-public interface Executor {
+public class Var<VALUE> extends BaseVariable<VALUE> implements Variable<VALUE> {
 
-  <V> V execute(Transaction<V> transaction) throws Exception;
-
-  <V> ExecutionResult<V> tryExecute(Transaction<V> transaction) throws Exception;
-
-  <V> V execute(Transaction<V> transaction, Binding binding) throws Exception;
-
-  <V> ExecutionResult<V> tryExecute(Transaction<V> transaction, Binding binding) throws Exception;
+  public Var(String name) {
+    super(new Name<VALUE>(name), null);
+  }
 }

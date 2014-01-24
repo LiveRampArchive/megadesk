@@ -16,30 +16,20 @@
 
 package com.liveramp.megadesk.base.state;
 
-import org.apache.commons.lang.builder.CompareToBuilder;
-
 import com.liveramp.megadesk.core.state.Driver;
 import com.liveramp.megadesk.core.state.Persistence;
 import com.liveramp.megadesk.core.state.ReadWriteLock;
-import com.liveramp.megadesk.core.state.Reference;
 
 public class BaseDriver<VALUE> implements Driver<VALUE> {
 
   private final ReadWriteLock executionLock;
   private final ReadWriteLock persistenceLock;
   private final Persistence<VALUE> persistence;
-  private final Reference<VALUE> reference;
 
-  public BaseDriver(Reference<VALUE> reference, Persistence<VALUE> persistence, ReadWriteLock persistenceLock, ReadWriteLock executionLock) {
-    this.reference = reference;
+  public BaseDriver(Persistence<VALUE> persistence, ReadWriteLock persistenceLock, ReadWriteLock executionLock) {
     this.persistence = persistence;
     this.persistenceLock = persistenceLock;
     this.executionLock = executionLock;
-  }
-
-  @Override
-  public Reference<VALUE> reference() {
-    return reference;
   }
 
   @Override
@@ -55,10 +45,5 @@ public class BaseDriver<VALUE> implements Driver<VALUE> {
   @Override
   public Persistence<VALUE> persistence() {
     return persistence;
-  }
-
-  @Override
-  public int compareTo(Driver<VALUE> valueDriver) {
-    return new CompareToBuilder().append(reference, valueDriver.reference()).toComparison();
   }
 }

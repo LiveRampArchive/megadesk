@@ -14,17 +14,11 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.core.transaction;
+package com.liveramp.megadesk.core.state;
 
-import com.liveramp.megadesk.base.transaction.ExecutionResult;
+public interface Variable<VALUE> extends Comparable<Variable<VALUE>> {
 
-public interface Executor {
+  Reference<VALUE> reference();
 
-  <V> V execute(Transaction<V> transaction) throws Exception;
-
-  <V> ExecutionResult<V> tryExecute(Transaction<V> transaction) throws Exception;
-
-  <V> V execute(Transaction<V> transaction, Binding binding) throws Exception;
-
-  <V> ExecutionResult<V> tryExecute(Transaction<V> transaction, Binding binding) throws Exception;
+  Driver<VALUE> driver();
 }

@@ -17,6 +17,7 @@
 package com.liveramp.megadesk.core.transaction;
 
 import com.liveramp.megadesk.core.state.Reference;
+import com.liveramp.megadesk.core.state.Variable;
 
 public interface Context {
 
@@ -25,4 +26,10 @@ public interface Context {
   <VALUE> VALUE read(Reference<VALUE> reference);
 
   <VALUE> void write(Reference<VALUE> reference, VALUE value);
+
+  <VALUE> Accessor<VALUE> accessor(Variable<VALUE> variable);
+
+  <VALUE> VALUE read(Variable<VALUE> variable);
+
+  <VALUE> void write(Variable<VALUE> variable, VALUE value);
 }

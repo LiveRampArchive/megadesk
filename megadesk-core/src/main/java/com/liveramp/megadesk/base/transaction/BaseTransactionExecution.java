@@ -24,8 +24,8 @@ import java.util.Set;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import com.liveramp.megadesk.core.state.Driver;
 import com.liveramp.megadesk.core.state.Lock;
+import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.TransactionExecution;
@@ -39,7 +39,7 @@ public class BaseTransactionExecution implements TransactionExecution {
     ABORTED
   }
 
-  private Dependency<Driver> dependency;
+  private Dependency<Variable> dependency;
   private Context data;
   private State state = State.STANDBY;
   private final Set<Lock> executionLocksAcquired;
@@ -51,14 +51,14 @@ public class BaseTransactionExecution implements TransactionExecution {
   }
 
   @Override
-  public Context begin(Dependency<Driver> dependency) {
+  public Context begin(Dependency<Variable> dependency) {
     ensureState(State.STANDBY);
     lock(dependency);
     return prepare(dependency);
   }
 
   @Override
-  public Context tryBegin(Dependency<Driver> dependency) {
+  public Context tryBegin(Dependency<Variable> dependency) {
     ensureState(State.STANDBY);
     boolean result = tryLock(dependency);
     if (result) {
@@ -68,7 +68,7 @@ public class BaseTransactionExecution implements TransactionExecution {
     }
   }
 
-  private Context prepare(Dependency<Driver> dependency) {
+  private Context prepare(Dependency<Variable> dependency) {
     // Acquire persistence read locks for snapshot
     lockAndRemember(persistenceReadLocks(dependency), persistenceLocksAcquired);
     try {
@@ -90,9 +90,9 @@ public class BaseTransactionExecution implements TransactionExecution {
     lockAndRemember(persistenceWriteLocks(dependency), persistenceLocksAcquired);
     try {
       // Write updates
-      for (Driver driver : dependency.writes()) {
-        Object value = data.accessor(driver.reference()).read();
-        driver.persistence().write(value);
+      for (Variable variable : dependency.writes()) {
+        Object value = data.read(variable.reference());
+        variable.driver().persistence().write(value);
       }
     } finally {
       // Always release persistence write locks
@@ -110,54 +110,54 @@ public class BaseTransactionExecution implements TransactionExecution {
     state = State.ABORTED;
   }
 
-  private boolean tryLock(Dependency<Driver> dependency) {
+  private boolean tryLock(Dependency<Variable> dependency) {
     return tryLockAndRemember(executionReadLocks(dependency), executionLocksAcquired)
                && tryLockAndRemember(executionWriteLocks(dependency), executionLocksAcquired);
   }
 
-  private void lock(Dependency<Driver> dependency) {
+  private void lock(Dependency<Variable> dependency) {
     lockAndRemember(executionReadLocks(dependency), executionLocksAcquired);
     lockAndRemember(executionWriteLocks(dependency), executionLocksAcquired);
   }
 
-  private static List<Lock> executionReadLocks(Dependency<Driver> dependency) {
+  private static List<Lock> executionReadLocks(Dependency<Variable> dependency) {
     List<Lock> result = Lists.newArrayList();
-    for (Driver driver : dependency.reads()) {
-      result.add(driver.executionLock().readLock());
+    for (Variable variable : dependency.reads()) {
+      result.add(variable.driver().executionLock().readLock());
     }
     return result;
   }
 
-  private static List<Lock> executionWriteLocks(Dependency<Driver> dependency) {
+  private static List<Lock> executionWriteLocks(Dependency<Variable> dependency) {
     List<Lock> result = Lists.newArrayList();
-    for (Driver driver : dependency.writes()) {
-      result.add(driver.executionLock().writeLock());
+    for (Variable variable : dependency.writes()) {
+      result.add(variable.driver().executionLock().writeLock());
     }
     return result;
   }
 
-  private static List<Lock> persistenceReadLocks(Dependency<Driver> dependency) {
+  private static List<Lock> persistenceReadLocks(Dependency<Variable> dependency) {
     List<Lock> result = Lists.newArrayList();
     // Snapshots
-    for (Driver driver : dependency.snapshots()) {
-      result.add(driver.persistenceLock().readLock());
+    for (Variable variable : dependency.snapshots()) {
+      result.add(variable.driver().persistenceLock().readLock());
     }
     // Execution reads
-    for (Driver driver : dependency.reads()) {
-      result.add(driver.persistenceLock().readLock());
+    for (Variable variable : dependency.reads()) {
+      result.add(variable.driver().persistenceLock().readLock());
     }
     // Execution writes
-    for (Driver driver : dependency.writes()) {
-      result.add(driver.persistenceLock().readLock());
+    for (Variable variable : dependency.writes()) {
+      result.add(variable.driver().persistenceLock().readLock());
     }
     return result;
   }
 
-  private static List<Lock> persistenceWriteLocks(Dependency<Driver> dependency) {
+  private static List<Lock> persistenceWriteLocks(Dependency<Variable> dependency) {
     List<Lock> result = Lists.newArrayList();
     // Execution writes only
-    for (Driver driver : dependency.writes()) {
-      result.add(driver.persistenceLock().writeLock());
+    for (Variable variable : dependency.writes()) {
+      result.add(variable.driver().persistenceLock().writeLock());
     }
     return result;
   }
