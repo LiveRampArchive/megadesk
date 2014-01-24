@@ -18,9 +18,9 @@ package com.liveramp.megadesk.base.state;
 
 import com.liveramp.megadesk.core.state.Variable;
 
-public class Var<VALUE> extends BaseVariable<VALUE> implements Variable<VALUE> {
+public class Arg<VALUE> extends BaseVariable<VALUE> implements Variable<VALUE> {
 
-  public Var(String name) {
+  public Arg(String name) {
     super(new Name<VALUE>(name), null);
   }
 }
