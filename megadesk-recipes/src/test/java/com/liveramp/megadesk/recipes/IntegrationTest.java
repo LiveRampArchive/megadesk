@@ -37,6 +37,7 @@ import com.liveramp.megadesk.recipes.gear.Gear;
 import com.liveramp.megadesk.recipes.gear.Outcome;
 import com.liveramp.megadesk.recipes.gear.worker.NaiveWorker;
 import com.liveramp.megadesk.recipes.gear.worker.Worker;
+import com.liveramp.megadesk.recipes.state.transaction.Alter;
 import com.liveramp.megadesk.test.BaseTestCase;
 
 import static org.junit.Assert.assertEquals;
@@ -157,42 +158,41 @@ public class IntegrationTest extends BaseTestCase {
     assertEquals(Integer.valueOf(1), D.driver().persistence().read());
   }
 
-  //  @Test
-  //  public void testSteps() throws Exception {
-  //    StepGear stepA = new StepGear();
-  //    StepGear stepB = new StepGear(stepA);
-  //    StepGear stepC = new StepGear(stepA);
-  //    StepGear stepD = new StepGear(stepB, stepC);
-  //
-  //    worker().complete(stepA, stepB, stepC, stepD);
-  //
-  //    BaseBinding binding = new BaseBinding();
-  //
-  //    assertEquals(true, stepA.variable.persistence().read());
-  //    assertEquals(true, stepB.variable.persistence().read());
-  //    assertEquals(true, stepC.variable.persistence().read());
-  //    assertEquals(true, stepD.variable.persistence().read());
-  //  }
+  @Test
+  public void testSteps() throws Exception {
+    StepGear stepA = new StepGear();
+    StepGear stepB = new StepGear(stepA);
+    StepGear stepC = new StepGear(stepA);
+    StepGear stepD = new StepGear(stepB, stepC);
 
-  //  @Test
-  //  public void testBatch() throws Exception {
-  //    final Driver<Integer> driverA = new InMemoryDriver<Integer>(0);
-  //    final Driver<Integer> driverB = new InMemoryDriver<Integer>(0);
-  //
-  //    Alter<Integer> increment = new Alter<Integer>() {
-  //      @Override
-  //      public Integer alter(Integer value) {
-  //        return value + 1;
-  //      }
-  //    };
-  //
-  //    // Increment A twice
-  //    executor().execute(increment, driverA);
-  //    executor().execute(increment, driverA);
-  //    // Transfer A to B
-  //    executor().execute(new TransferGear(driverA, driverB));
-  //
-  //    assertEquals(Integer.valueOf(0), driverA.persistence().read());
-  //    assertEquals(Integer.valueOf(2), driverB.persistence().read());
-  //  }
+    worker().complete(stepA, stepB, stepC, stepD);
+
+    assertEquals(true, stepA.variable.driver().persistence().read());
+    assertEquals(true, stepB.variable.driver().persistence().read());
+    assertEquals(true, stepC.variable.driver().persistence().read());
+    assertEquals(true, stepD.variable.driver().persistence().read());
+  }
+
+  @Test
+  public void testBatch() throws Exception {
+    final Variable<Integer> A = new InMemoryVariable<Integer>(0);
+    final Variable<Integer> B = new InMemoryVariable<Integer>(0);
+
+    Alter<Integer> increment = new Alter<Integer>(A) {
+
+      @Override
+      public Integer alter(Integer value) {
+        return value + 1;
+      }
+    };
+
+    // Increment A twice
+    executor().execute(increment);
+    executor().execute(increment);
+    // Transfer A to B
+    executor().execute(new TransferGear(A, B));
+
+    assertEquals(Integer.valueOf(0), A.driver().persistence().read());
+    assertEquals(Integer.valueOf(2), B.driver().persistence().read());
+  }
 }
