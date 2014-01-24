@@ -20,6 +20,7 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
+import com.liveramp.megadesk.base.state.Name;
 import com.liveramp.megadesk.core.state.Driver;
 import com.liveramp.megadesk.core.state.Reference;
 import com.liveramp.megadesk.core.state.Variable;
@@ -48,5 +49,13 @@ public class BaseBinding implements Binding {
 
   public <VALUE> BaseBinding bind(Reference<VALUE> reference, Variable<VALUE> variable) {
     return bind(reference, variable.driver());
+  }
+
+  public <VALUE> BaseBinding bind(String name, Driver<VALUE> driver) {
+    return bind(new Name<VALUE>(name), driver);
+  }
+
+  public <VALUE> BaseBinding bind(String name, Variable<VALUE> variable) {
+    return bind(new Name<VALUE>(name), variable);
   }
 }
