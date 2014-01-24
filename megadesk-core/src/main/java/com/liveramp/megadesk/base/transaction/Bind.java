@@ -16,8 +16,10 @@
 
 package com.liveramp.megadesk.base.transaction;
 
+import java.util.Collections;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 import com.liveramp.megadesk.base.state.Name;
@@ -26,12 +28,32 @@ import com.liveramp.megadesk.core.state.Reference;
 import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Binding;
 
-public class BaseBinding implements Binding {
+public class Bind implements Binding {
 
   private final Map<Reference, Driver> binding;
 
-  public BaseBinding() {
-    binding = Maps.newHashMap();
+  public Bind() {
+    this(Maps.<Reference, Driver>newHashMap());
+  }
+
+  public <VALUE> Bind(Reference<VALUE> reference, Driver<VALUE> driver) {
+    this(ImmutableMap.<Reference, Driver>of(reference, driver));
+  }
+
+  public <VALUE> Bind(Reference<VALUE> reference, Variable<VALUE> variable) {
+    this(ImmutableMap.<Reference, Driver>of(reference, variable.driver()));
+  }
+
+  public <VALUE> Bind(String name, Driver<VALUE> driver) {
+    this(ImmutableMap.<Reference, Driver>of(new Name<VALUE>(name), driver));
+  }
+
+  public <VALUE> Bind(String name, Variable<VALUE> variable) {
+    this(ImmutableMap.<Reference, Driver>of(new Name<VALUE>(name), variable.driver()));
+  }
+
+  public Bind(Map<Reference, Driver> binding) {
+    this.binding = Collections.unmodifiableMap(Maps.newHashMap(binding));
   }
 
   @Override
@@ -42,20 +64,21 @@ public class BaseBinding implements Binding {
     return binding.get(reference);
   }
 
-  public <VALUE> BaseBinding bind(Reference<VALUE> reference, Driver<VALUE> driver) {
+  public <VALUE> Bind bind(Reference<VALUE> reference, Driver<VALUE> driver) {
+    Map<Reference, Driver> binding = Maps.newHashMap();
     binding.put(reference, driver);
-    return this;
+    return new Bind(binding);
   }
 
-  public <VALUE> BaseBinding bind(Reference<VALUE> reference, Variable<VALUE> variable) {
+  public <VALUE> Bind bind(Reference<VALUE> reference, Variable<VALUE> variable) {
     return bind(reference, variable.driver());
   }
 
-  public <VALUE> BaseBinding bind(String name, Driver<VALUE> driver) {
+  public <VALUE> Bind bind(String name, Driver<VALUE> driver) {
     return bind(new Name<VALUE>(name), driver);
   }
 
-  public <VALUE> BaseBinding bind(String name, Variable<VALUE> variable) {
+  public <VALUE> Bind bind(String name, Variable<VALUE> variable) {
     return bind(new Name<VALUE>(name), variable);
   }
 }

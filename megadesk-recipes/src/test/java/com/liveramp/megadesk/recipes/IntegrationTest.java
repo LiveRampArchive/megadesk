@@ -24,9 +24,9 @@ import org.apache.log4j.Logger;
 import org.junit.Test;
 
 import com.liveramp.megadesk.base.state.InMemoryLocal;
-import com.liveramp.megadesk.base.transaction.BaseBinding;
 import com.liveramp.megadesk.base.transaction.BaseDependency;
 import com.liveramp.megadesk.base.transaction.BaseExecutor;
+import com.liveramp.megadesk.base.transaction.Bind;
 import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Accessor;
 import com.liveramp.megadesk.core.transaction.Context;
@@ -188,8 +188,8 @@ public class IntegrationTest extends BaseTestCase {
     };
 
     // Increment A twice
-    executor().execute(increment, new BaseBinding().bind("input", A));
-    executor().execute(increment, new BaseBinding().bind("input", A));
+    executor().execute(increment, new Bind("input", A));
+    executor().execute(increment, new Bind("input", A));
     // Transfer A to B
     executor().execute(new TransferGear(A, B));
 
