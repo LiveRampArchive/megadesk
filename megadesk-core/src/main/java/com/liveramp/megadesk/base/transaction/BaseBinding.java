@@ -20,9 +20,9 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
-import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.state.Driver;
 import com.liveramp.megadesk.core.state.Reference;
+import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Binding;
 
 public class BaseBinding implements Binding {
@@ -41,11 +41,12 @@ public class BaseBinding implements Binding {
     return binding.get(reference);
   }
 
-  public <VALUE> void bind(Reference<VALUE> reference, Driver<VALUE> driver) {
+  public <VALUE> BaseBinding bind(Reference<VALUE> reference, Driver<VALUE> driver) {
     binding.put(reference, driver);
+    return this;
   }
 
-  public <VALUE> void add(Variable<VALUE> variable) {
-    binding.put(variable.reference(), variable.driver());
+  public <VALUE> BaseBinding bind(Reference<VALUE> reference, Variable<VALUE> variable) {
+    return bind(reference, variable.driver());
   }
 }

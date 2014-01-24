@@ -16,6 +16,7 @@
 
 package com.liveramp.megadesk.recipes.state.transaction;
 
+import com.liveramp.megadesk.base.state.Var;
 import com.liveramp.megadesk.base.transaction.BaseDependency;
 import com.liveramp.megadesk.base.transaction.BaseTransaction;
 import com.liveramp.megadesk.core.state.Variable;
@@ -25,6 +26,10 @@ import com.liveramp.megadesk.core.transaction.Transaction;
 public abstract class Alter<VALUE> extends BaseTransaction<VALUE> implements Transaction<VALUE> {
 
   private final Variable<VALUE> variable;
+
+  public Alter() {
+    this(new Var<VALUE>("input"));
+  }
 
   public Alter(Variable<VALUE> variable) {
     super(BaseDependency.<Variable>builder().writes(variable).build());

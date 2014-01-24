@@ -24,6 +24,8 @@ import org.apache.log4j.Logger;
 import org.junit.Test;
 
 import com.liveramp.megadesk.base.state.InMemoryVariable;
+import com.liveramp.megadesk.base.state.Name;
+import com.liveramp.megadesk.base.transaction.BaseBinding;
 import com.liveramp.megadesk.base.transaction.BaseDependency;
 import com.liveramp.megadesk.base.transaction.BaseExecutor;
 import com.liveramp.megadesk.core.state.Variable;
@@ -178,7 +180,7 @@ public class IntegrationTest extends BaseTestCase {
     final Variable<Integer> A = new InMemoryVariable<Integer>(0);
     final Variable<Integer> B = new InMemoryVariable<Integer>(0);
 
-    Alter<Integer> increment = new Alter<Integer>(A) {
+    Alter<Integer> increment = new Alter<Integer>() {
 
       @Override
       public Integer alter(Integer value) {
@@ -187,8 +189,8 @@ public class IntegrationTest extends BaseTestCase {
     };
 
     // Increment A twice
-    executor().execute(increment);
-    executor().execute(increment);
+    executor().execute(increment, new BaseBinding().bind(new Name<Integer>("input"), A));
+    executor().execute(increment, new BaseBinding().bind(new Name<Integer>("input"), A));
     // Transfer A to B
     executor().execute(new TransferGear(A, B));
 
