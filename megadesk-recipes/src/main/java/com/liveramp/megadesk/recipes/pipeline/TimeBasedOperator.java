@@ -46,7 +46,6 @@ public abstract class TimeBasedOperator extends Operator implements Gear {
           youngestWrite = Math.max(((TimestampedDriver) driver).modified(), youngestWrite);
         }
       }
-      System.out.println("read:" + oldestRead + "  write: " + youngestWrite);
       if (oldestRead >= youngestWrite) {
         return Outcome.SUCCESS;
       } else {
