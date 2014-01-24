@@ -4,9 +4,9 @@ import com.liveramp.megadesk.base.state.BaseDriver;
 import com.liveramp.megadesk.core.state.ReadWriteLock;
 import com.liveramp.megadesk.core.state.Reference;
 
-public class TimestampedDriverImpl<VALUE> extends BaseDriver<VALUE> implements TimestampedDriver<VALUE> {
+public class BaseTimestampedDriver<VALUE> extends BaseDriver<VALUE> implements TimestampedDriver<VALUE> {
 
-  public TimestampedDriverImpl(
+  public BaseTimestampedDriver(
       Reference<VALUE> reference,
       TimestampedPersistence<VALUE> persistence,
       ReadWriteLock persistenceLock,

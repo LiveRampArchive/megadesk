@@ -5,6 +5,7 @@ import com.liveramp.megadesk.core.state.Reference;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.recipes.gear.Outcome;
 import com.liveramp.megadesk.recipes.gear.worker.NaiveWorker;
+import com.liveramp.megadesk.recipes.pipeline.lib.InMemoryTimestampedDriver;
 import com.liveramp.megadesk.test.BaseTestCase;
 import junit.framework.Assert;
 import org.junit.Test;
