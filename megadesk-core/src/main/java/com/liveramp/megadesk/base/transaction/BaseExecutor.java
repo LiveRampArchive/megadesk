@@ -44,7 +44,7 @@ public class BaseExecutor implements Executor {
   @Override
   public <V> V execute(Transaction<V> transaction, Binding binding) throws Exception {
     TransactionExecution transactionExecution = new BaseTransactionExecution();
-    Dependency<Variable> dependency = bindDependency(transaction.dependency(), binding);
+    Dependency dependency = bindDependency(transaction.dependency(), binding);
     Context context = transactionExecution.begin(dependency);
     try {
       V resultValue = transaction.run(context);
@@ -59,7 +59,7 @@ public class BaseExecutor implements Executor {
   @Override
   public <V> ExecutionResult<V> tryExecute(Transaction<V> transaction, Binding binding) throws Exception {
     TransactionExecution transactionExecution = new BaseTransactionExecution();
-    Dependency<Variable> dependency = bindDependency(transaction.dependency(), binding);
+    Dependency dependency = bindDependency(transaction.dependency(), binding);
     Context context = transactionExecution.tryBegin(dependency);
     if (context != null) {
       try {
@@ -75,11 +75,11 @@ public class BaseExecutor implements Executor {
     }
   }
 
-  private Dependency<Variable> bindDependency(Dependency<Variable> dependency, Binding binding) {
+  private Dependency bindDependency(Dependency dependency, Binding binding) {
     List<Variable> snapshots = bindReferences(dependency.snapshots(), binding);
     List<Variable> reads = bindReferences(dependency.reads(), binding);
     List<Variable> writes = bindReferences(dependency.writes(), binding);
-    return BaseDependency.<Variable>builder()
+    return BaseDependency.builder()
                .snapshots(snapshots)
                .reads(reads)
                .writes(writes)

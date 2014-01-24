@@ -16,11 +16,9 @@
 
 package com.liveramp.megadesk.core.transaction;
 
-import com.liveramp.megadesk.core.state.Variable;
-
 public interface Transaction<V> {
 
-  Dependency<Variable> dependency();
+  Dependency dependency();
 
   V run(Context context) throws Exception;
 }

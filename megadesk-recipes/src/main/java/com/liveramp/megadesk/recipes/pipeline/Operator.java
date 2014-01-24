@@ -17,7 +17,6 @@
 package com.liveramp.megadesk.recipes.pipeline;
 
 import com.liveramp.megadesk.base.transaction.BaseDependency;
-import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.recipes.gear.ConditionalGear;
 import com.liveramp.megadesk.recipes.gear.Outcome;
@@ -26,7 +25,7 @@ public abstract class Operator extends ConditionalGear {
 
   private Pipeline pipeline;
 
-  protected Operator(BaseDependency<Variable> dependency, Pipeline pipeline) {
+  protected Operator(BaseDependency dependency, Pipeline pipeline) {
     super(dependency);
     this.pipeline = pipeline;
   }

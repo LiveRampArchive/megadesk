@@ -39,7 +39,7 @@ public class BaseTransactionExecution implements TransactionExecution {
     ABORTED
   }
 
-  private Dependency<Variable> dependency;
+  private Dependency dependency;
   private Context data;
   private State state = State.STANDBY;
   private final Set<Lock> executionLocksAcquired;
@@ -51,14 +51,14 @@ public class BaseTransactionExecution implements TransactionExecution {
   }
 
   @Override
-  public Context begin(Dependency<Variable> dependency) {
+  public Context begin(Dependency dependency) {
     ensureState(State.STANDBY);
     lock(dependency);
     return prepare(dependency);
   }
 
   @Override
-  public Context tryBegin(Dependency<Variable> dependency) {
+  public Context tryBegin(Dependency dependency) {
     ensureState(State.STANDBY);
     boolean result = tryLock(dependency);
     if (result) {
@@ -68,7 +68,7 @@ public class BaseTransactionExecution implements TransactionExecution {
     }
   }
 
-  private Context prepare(Dependency<Variable> dependency) {
+  private Context prepare(Dependency dependency) {
     // Acquire persistence read locks for snapshot
     lockAndRemember(persistenceReadLocks(dependency), persistenceLocksAcquired);
     try {
@@ -110,17 +110,17 @@ public class BaseTransactionExecution implements TransactionExecution {
     state = State.ABORTED;
   }
 
-  private boolean tryLock(Dependency<Variable> dependency) {
+  private boolean tryLock(Dependency dependency) {
     return tryLockAndRemember(executionReadLocks(dependency), executionLocksAcquired)
                && tryLockAndRemember(executionWriteLocks(dependency), executionLocksAcquired);
   }
 
-  private void lock(Dependency<Variable> dependency) {
+  private void lock(Dependency dependency) {
     lockAndRemember(executionReadLocks(dependency), executionLocksAcquired);
     lockAndRemember(executionWriteLocks(dependency), executionLocksAcquired);
   }
 
-  private static List<Lock> executionReadLocks(Dependency<Variable> dependency) {
+  private static List<Lock> executionReadLocks(Dependency dependency) {
     List<Lock> result = Lists.newArrayList();
     for (Variable variable : dependency.reads()) {
       result.add(variable.driver().executionLock().readLock());
@@ -128,7 +128,7 @@ public class BaseTransactionExecution implements TransactionExecution {
     return result;
   }
 
-  private static List<Lock> executionWriteLocks(Dependency<Variable> dependency) {
+  private static List<Lock> executionWriteLocks(Dependency dependency) {
     List<Lock> result = Lists.newArrayList();
     for (Variable variable : dependency.writes()) {
       result.add(variable.driver().executionLock().writeLock());
@@ -136,7 +136,7 @@ public class BaseTransactionExecution implements TransactionExecution {
     return result;
   }
 
-  private static List<Lock> persistenceReadLocks(Dependency<Variable> dependency) {
+  private static List<Lock> persistenceReadLocks(Dependency dependency) {
     List<Lock> result = Lists.newArrayList();
     // Snapshots
     for (Variable variable : dependency.snapshots()) {
@@ -153,7 +153,7 @@ public class BaseTransactionExecution implements TransactionExecution {
     return result;
   }
 
-  private static List<Lock> persistenceWriteLocks(Dependency<Variable> dependency) {
+  private static List<Lock> persistenceWriteLocks(Dependency dependency) {
     List<Lock> result = Lists.newArrayList();
     // Execution writes only
     for (Variable variable : dependency.writes()) {

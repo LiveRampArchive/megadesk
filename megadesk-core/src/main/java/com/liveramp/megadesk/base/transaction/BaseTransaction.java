@@ -16,20 +16,19 @@
 
 package com.liveramp.megadesk.base.transaction;
 
-import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.Transaction;
 
 public abstract class BaseTransaction<V> implements Transaction<V> {
 
-  private final Dependency<Variable> dependency;
+  private final Dependency dependency;
 
-  public BaseTransaction(Dependency<Variable> dependency) {
+  public BaseTransaction(Dependency dependency) {
     this.dependency = dependency;
   }
 
   @Override
-  public final Dependency<Variable> dependency() {
+  public final Dependency dependency() {
     return dependency;
   }
 }

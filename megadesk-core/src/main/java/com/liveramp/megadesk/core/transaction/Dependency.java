@@ -18,11 +18,13 @@ package com.liveramp.megadesk.core.transaction;
 
 import java.util.List;
 
-public interface Dependency<V> {
+import com.liveramp.megadesk.core.state.Variable;
 
-  List<V> snapshots();
+public interface Dependency {
 
-  List<V> reads();
+  List<Variable> snapshots();
 
-  List<V> writes();
+  List<Variable> reads();
+
+  List<Variable> writes();
 }

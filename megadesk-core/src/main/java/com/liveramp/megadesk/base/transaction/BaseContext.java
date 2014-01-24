@@ -32,7 +32,7 @@ public class BaseContext implements Context {
 
   private final Map<Reference, Accessor> bindings;
 
-  public BaseContext(Dependency<Variable> dependency) {
+  public BaseContext(Dependency dependency) {
     bindings = Maps.newHashMap();
     for (Variable variable : readDrivers(dependency)) {
       addBinding(variable, true);
@@ -42,7 +42,7 @@ public class BaseContext implements Context {
     }
   }
 
-  private static List<Variable> readDrivers(Dependency<Variable> dependency) {
+  private static List<Variable> readDrivers(Dependency dependency) {
     List<Variable> result = Lists.newArrayList();
     // Snapshots
     for (Variable variable : dependency.snapshots()) {
@@ -55,7 +55,7 @@ public class BaseContext implements Context {
     return result;
   }
 
-  private static List<Variable> writeDrivers(Dependency<Variable> dependency) {
+  private static List<Variable> writeDrivers(Dependency dependency) {
     List<Variable> result = Lists.newArrayList();
     // Execution writes
     for (Variable variable : dependency.writes()) {
@@ -71,7 +71,7 @@ public class BaseContext implements Context {
   @Override
   public <VALUE> Accessor<VALUE> accessor(Reference<VALUE> reference) {
     if (!bindings.containsKey(reference)) {
-      throw new IllegalStateException("Couldnt find "+reference.name()); // TODO message
+      throw new IllegalStateException("Couldnt find " + reference.name()); // TODO message
     }
     return bindings.get(reference);
   }

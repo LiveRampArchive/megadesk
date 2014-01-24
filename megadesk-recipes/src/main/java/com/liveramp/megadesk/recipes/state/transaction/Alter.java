@@ -32,7 +32,7 @@ public abstract class Alter<VALUE> extends BaseTransaction<VALUE> implements Tra
   }
 
   public Alter(Variable<VALUE> variable) {
-    super(BaseDependency.<Variable>builder().writes(variable).build());
+    super(BaseDependency.builder().writes(variable).build());
     this.variable = variable;
   }
 

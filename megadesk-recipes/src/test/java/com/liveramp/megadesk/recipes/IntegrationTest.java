@@ -54,7 +54,7 @@ public class IntegrationTest extends BaseTestCase {
 
     public StepGear(StepGear... parents) {
       this.parents = Arrays.asList(parents);
-      setDependency(BaseDependency.<Variable>builder().snapshots(references(parents)).writes(variable).build());
+      setDependency(BaseDependency.builder().snapshots(references(parents)).writes(variable).build());
     }
 
     private static List<Variable> references(StepGear... parents) {
@@ -89,7 +89,7 @@ public class IntegrationTest extends BaseTestCase {
     private final Variable<Integer> dst;
 
     private TransferGear(Variable<Integer> src, Variable<Integer> dst) {
-      setDependency(BaseDependency.<Variable>builder().writes(src, dst).build());
+      setDependency(BaseDependency.builder().writes(src, dst).build());
       this.src = src;
       this.dst = dst;
     }
@@ -139,8 +139,8 @@ public class IntegrationTest extends BaseTestCase {
     assertEquals(true, executor().execute(new Transaction<Boolean>() {
 
       @Override
-      public Dependency<Variable> dependency() {
-        return BaseDependency.<Variable>builder()
+      public Dependency dependency() {
+        return BaseDependency.builder()
                    .reads(A, B, C, D).build();
       }
 

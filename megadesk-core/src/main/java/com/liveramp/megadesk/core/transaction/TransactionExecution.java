@@ -16,13 +16,11 @@
 
 package com.liveramp.megadesk.core.transaction;
 
-import com.liveramp.megadesk.core.state.Variable;
-
 public interface TransactionExecution {
 
-  Context begin(Dependency<Variable> dependency);
+  Context begin(Dependency dependency);
 
-  Context tryBegin(Dependency<Variable> dependency);
+  Context tryBegin(Dependency dependency);
 
   void commit();
 

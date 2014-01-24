@@ -25,7 +25,7 @@ public abstract class ConditionalGear extends BaseGear implements Gear {
   public ConditionalGear() {
   }
 
-  public ConditionalGear(BaseDependency<Variable> dependency) {
+  public ConditionalGear(BaseDependency dependency) {
     super(dependency);
   }
 

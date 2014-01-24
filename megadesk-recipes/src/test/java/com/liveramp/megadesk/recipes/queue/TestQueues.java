@@ -16,13 +16,17 @@
 
 package com.liveramp.megadesk.recipes.queue;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import org.junit.Test;
+
 import com.liveramp.megadesk.base.state.InMemoryDriver;
 import com.liveramp.megadesk.base.transaction.BaseDependency;
 import com.liveramp.megadesk.base.transaction.BaseExecutor;
 import com.liveramp.megadesk.core.state.Driver;
-import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.recipes.gear.ConditionalGear;
 import com.liveramp.megadesk.recipes.gear.Gear;
@@ -30,10 +34,6 @@ import com.liveramp.megadesk.recipes.gear.Outcome;
 import com.liveramp.megadesk.recipes.gear.worker.NaiveWorker;
 import com.liveramp.megadesk.recipes.pipeline.DriverFactory;
 import com.liveramp.megadesk.test.BaseTestCase;
-import org.junit.Test;
-
-import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -144,8 +144,8 @@ public class TestQueues extends BaseTestCase {
     private MultiplyBy10(Queue<Integer> inputQueue, Queue<Integer> outputQueue) {
       this.inputQueue = inputQueue;
       this.outputQueue = outputQueue;
-      this.setDependency(BaseDependency.<Variable>builder()
-          .writes(inputQueue.getFrozen(), inputQueue.getInput(), inputQueue.getOutput(), outputQueue.getInput()).build());
+      this.setDependency(BaseDependency.builder()
+                             .writes(inputQueue.getFrozen(), inputQueue.getInput(), inputQueue.getOutput(), outputQueue.getInput()).build());
     }
 
     @Override

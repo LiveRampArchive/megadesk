@@ -16,19 +16,18 @@
 
 package com.liveramp.megadesk.recipes.pipeline;
 
+import java.util.List;
+
 import com.liveramp.megadesk.base.transaction.BaseDependency;
-import com.liveramp.megadesk.core.state.Driver;
 import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.recipes.gear.Gear;
 import com.liveramp.megadesk.recipes.gear.Outcome;
 
-import java.util.List;
-
 public abstract class TimeBasedOperator extends Operator implements Gear {
 
   protected TimeBasedOperator(List<Variable<? extends TimestampedValue>> reads, List<Variable<? extends TimestampedValue>> writes, Pipeline pipeline) {
-    super(BaseDependency.<Variable>builder().reads((List) reads).writes((List) writes).build(), pipeline);
+    super(BaseDependency.builder().reads((List)reads).writes((List)writes).build(), pipeline);
   }
 
   @Override
