@@ -18,13 +18,9 @@ package com.liveramp.megadesk.base.state;
 
 import com.liveramp.megadesk.core.state.Reference;
 
-public class Name<VALUE> extends BaseReference<VALUE> implements Reference<VALUE> {
+public class Position<VALUE> extends BaseReference<VALUE> implements Reference<VALUE> {
 
-  public Name() {
-    super(null);
-  }
-
-  public Name(String name) {
-    super(name);
+  public Position(int position) {
+    super(Integer.toString(position));
   }
 }

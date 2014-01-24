@@ -20,6 +20,10 @@ import com.liveramp.megadesk.core.state.Variable;
 
 public class Arg<VALUE> extends BaseVariable<VALUE> implements Variable<VALUE> {
 
+  public Arg(int position) {
+    super(new Position<VALUE>(position), null);
+  }
+
   public Arg(String name) {
     super(new Name<VALUE>(name), null);
   }

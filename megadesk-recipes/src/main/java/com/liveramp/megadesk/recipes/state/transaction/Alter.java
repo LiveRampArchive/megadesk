@@ -28,7 +28,7 @@ public abstract class Alter<VALUE> extends BaseTransaction<VALUE> implements Tra
   private final Variable<VALUE> variable;
 
   public Alter() {
-    this(new Arg<VALUE>("input"));
+    this(new Arg<VALUE>(0));
   }
 
   public Alter(Variable<VALUE> variable) {

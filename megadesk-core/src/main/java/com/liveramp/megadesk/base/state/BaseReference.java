@@ -19,6 +19,7 @@ package com.liveramp.megadesk.base.state;
 import org.apache.commons.lang.builder.CompareToBuilder;
 
 import com.liveramp.megadesk.core.state.Reference;
+import com.liveramp.megadesk.utils.FormatUtils;
 
 public class BaseReference<VALUE> implements Reference<VALUE> {
 
@@ -40,12 +41,18 @@ public class BaseReference<VALUE> implements Reference<VALUE> {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof BaseReference)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof BaseReference)) {
+      return false;
+    }
 
-    BaseReference that = (BaseReference) o;
+    BaseReference that = (BaseReference)o;
 
-    if (name != null ? !name.equals(that.name) : that.name != null) return false;
+    if (name != null ? !name.equals(that.name) : that.name != null) {
+      return false;
+    }
 
     return true;
   }
@@ -53,5 +60,10 @@ public class BaseReference<VALUE> implements Reference<VALUE> {
   @Override
   public int hashCode() {
     return name != null ? name.hashCode() : 0;
+  }
+
+  @Override
+  public String toString() {
+    return FormatUtils.formatToString(this, name);
   }
 }

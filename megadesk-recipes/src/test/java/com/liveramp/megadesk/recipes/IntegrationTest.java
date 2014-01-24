@@ -188,8 +188,8 @@ public class IntegrationTest extends BaseTestCase {
     };
 
     // Increment A twice
-    executor().execute(increment, new Bind("input", A));
-    executor().execute(increment, new Bind("input", A));
+    executor().execute(increment, new Bind(A));
+    executor().execute(increment, new Bind(A));
     // Transfer A to B
     executor().execute(new TransferGear(A, B));
 

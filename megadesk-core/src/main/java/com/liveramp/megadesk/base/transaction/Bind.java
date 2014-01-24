@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 import com.liveramp.megadesk.base.state.Name;
+import com.liveramp.megadesk.base.state.Position;
 import com.liveramp.megadesk.core.state.Driver;
 import com.liveramp.megadesk.core.state.Reference;
 import com.liveramp.megadesk.core.state.Variable;
@@ -52,6 +53,10 @@ public class Bind implements Binding {
     this(ImmutableMap.<Reference, Driver>of(new Name<VALUE>(name), variable.driver()));
   }
 
+  public Bind(Variable... variables) {
+    this(argumentBinding(variables));
+  }
+
   public Bind(Map<Reference, Driver> binding) {
     this.binding = Collections.unmodifiableMap(Maps.newHashMap(binding));
   }
@@ -59,7 +64,7 @@ public class Bind implements Binding {
   @Override
   public Driver get(Reference reference) {
     if (!binding.containsKey(reference)) {
-      throw new IllegalStateException(); // TODO message
+      throw new IllegalStateException(reference + " is not bound."); // TODO message
     }
     return binding.get(reference);
   }
@@ -80,5 +85,17 @@ public class Bind implements Binding {
 
   public <VALUE> Bind bind(String name, Variable<VALUE> variable) {
     return bind(new Name<VALUE>(name), variable);
+  }
+
+  private static Map<Reference, Driver> argumentBinding(Variable... variables) {
+    Map<Reference, Driver> result = Maps.newHashMap();
+    for (int i = 0; i < variables.length; ++i) {
+      result.put(new Position(i), variables[i].driver());
+    }
+    return result;
+  }
+
+  public Binding bind(Variable... variables) {
+    return new Bind(variables);
   }
 }
