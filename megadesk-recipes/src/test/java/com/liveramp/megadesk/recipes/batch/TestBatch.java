@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TestBatch extends BaseTestCase {
 
@@ -59,6 +60,13 @@ public class TestBatch extends BaseTestCase {
     BatchStructure<Integer> sameBatchNewName = BatchStructure.getByName("summed-integers", factory, executor);
     List<Integer> newSum = sameBatchNewName.readBatch();
     assertEquals(ImmutableList.of(10), newSum);
+
+    sameBatchNewName.popBatch();
+
+    //Reading an empty batch should still freeze the batch until pop is called
+    assertTrue(sameBatchNewName.readBatch().isEmpty());
+    sameBatchNewName.append(10);
+    assertTrue(sameBatchNewName.readBatch().isEmpty());
   }
 
   private static class BasicFactory implements DriverFactory {

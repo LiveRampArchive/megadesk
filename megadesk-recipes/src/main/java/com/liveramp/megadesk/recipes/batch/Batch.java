@@ -29,10 +29,12 @@ public class Batch<VALUE> {
 
   private final Driver<ImmutableList> input;
   private final Driver<ImmutableList> output;
+  private Driver<Boolean> frozen;
 
-  public Batch(Driver<ImmutableList> input, Driver<ImmutableList> output) {
+  public Batch(Driver<ImmutableList> input, Driver<ImmutableList> output, Driver<Boolean> frozen) {
     this.input = input;
     this.output = output;
+    this.frozen = frozen;
   }
 
   public void append(Context context, VALUE value) {
@@ -68,7 +70,7 @@ public class Batch<VALUE> {
   }
 
   protected TransferBatch getTransferTransaction() {
-    return new TransferBatch(input, output);
+    return new TransferBatch(input, output, frozen);
   }
 
   public void popBatch(Context context) {
@@ -81,20 +83,7 @@ public class Batch<VALUE> {
   }
 
   protected Erase getEraseTransaction() {
-    return new Erase(output);
-  }
-
-  public boolean batchAvailable(Context context) {
-    CheckForData checkForData = getCheckForDataTransaction();
-    try {
-      return checkForData.run(context);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  protected CheckForData getCheckForDataTransaction() {
-    return new CheckForData(input, output);
+    return new Erase(output, frozen);
   }
 
   private static class TransferBatch implements Transaction<Void> {
@@ -102,11 +91,13 @@ public class Batch<VALUE> {
     private final Dependency dependency;
     private final Driver<ImmutableList> input;
     private final Driver<ImmutableList> output;
+    private final Driver<Boolean> frozen;
 
-    public TransferBatch(Driver<ImmutableList> input, Driver<ImmutableList> output) {
+    public TransferBatch(Driver<ImmutableList> input, Driver<ImmutableList> output, Driver<Boolean> frozen) {
       this.input = input;
       this.output = output;
-      this.dependency = BaseDependency.builder().writes(input, output).build();
+      this.frozen = frozen;
+      this.dependency = BaseDependency.builder().writes(input, output, frozen).build();
     }
 
     @Override
@@ -118,10 +109,15 @@ public class Batch<VALUE> {
     public Void run(Context context) throws Exception {
       Binding<ImmutableList> inputList = context.binding(input.reference());
       Binding<ImmutableList> outputList = context.binding(output.reference());
-      if (outputList.read().isEmpty()) {
+      Binding<Boolean> frozenFlag = context.binding(frozen.reference());
+      if (!frozenFlag.read()) {
+        if (!outputList.read().isEmpty()) {
+          throw new IllegalStateException("Batch should not be unfrozen when output still remains!");
+        }
         ImmutableList values = inputList.read();
         outputList.write(values);
         inputList.write(ImmutableList.of());
+        frozenFlag.write(true);
       }
       return null;
     }
@@ -156,11 +152,13 @@ public class Batch<VALUE> {
   private static class Erase implements Transaction<Void> {
 
     private final Dependency dependency;
-    private final Reference<ImmutableList> reference;
+    private final Reference<ImmutableList> listReference;
+    private final Reference<Boolean> frozen;
 
-    private Erase(Driver<ImmutableList> driver) {
-      this.reference = driver.reference();
-      this.dependency = BaseDependency.builder().writes(driver).build();
+    private Erase(Driver<ImmutableList> listDriver, Driver<Boolean> frozen) {
+      this.frozen = frozen.reference();
+      this.listReference = listDriver.reference();
+      this.dependency = BaseDependency.builder().writes(listDriver, frozen).build();
     }
 
     @Override
@@ -170,30 +168,9 @@ public class Batch<VALUE> {
 
     @Override
     public Void run(Context context) throws Exception {
-      context.write(reference, ImmutableList.of());
+      context.write(listReference, ImmutableList.of());
+      context.write(frozen, false);
       return null;
-    }
-  }
-
-  private class CheckForData implements Transaction<Boolean> {
-    private final Reference<ImmutableList> input;
-    private final Reference<ImmutableList> output;
-    private final Dependency<Driver> dependency;
-
-    public CheckForData(Driver<ImmutableList> input, Driver<ImmutableList> output) {
-      this.input = input.reference();
-      this.output = output.reference();
-      this.dependency = BaseDependency.<Driver>builder().reads(input, output).build();
-    }
-
-    @Override
-    public Dependency<Driver> dependency() {
-      return dependency;
-    }
-
-    @Override
-    public Boolean run(Context context) throws Exception {
-      return !context.read(input).isEmpty() || context.read(output).isEmpty();
     }
   }
 }

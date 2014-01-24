@@ -42,7 +42,13 @@ public abstract class BatchConsumerOperator<VALUE> extends Operator {
   public Outcome check(Context context) {
     Outcome check = super.check(context);
     if (check == Outcome.SUCCESS) {
-      return batch.batchAvailable(context) ? Outcome.SUCCESS : Outcome.STANDBY;
+      ImmutableList currentBatch = batch.readBatch(context);
+      if (!currentBatch.isEmpty()) {
+        return Outcome.SUCCESS;
+      } else {
+        batch.popBatch(context);
+        return Outcome.STANDBY;
+      }
     } else {
       return check;
     }
