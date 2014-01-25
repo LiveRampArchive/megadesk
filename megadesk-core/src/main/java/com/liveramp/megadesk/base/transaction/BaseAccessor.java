@@ -16,30 +16,53 @@
 
 package com.liveramp.megadesk.base.transaction;
 
-import com.liveramp.megadesk.core.state.Persistence;
+import java.util.List;
+
+import com.google.common.collect.Lists;
+
 import com.liveramp.megadesk.base.state.InMemoryPersistence;
+import com.liveramp.megadesk.core.state.Persistence;
 import com.liveramp.megadesk.core.transaction.Accessor;
+import com.liveramp.megadesk.core.transaction.Commutation;
 
 public class BaseAccessor<VALUE> implements Accessor<VALUE> {
 
   private final Persistence<VALUE> persistence;
+  private final List<Commutation> commutations;
   private final boolean readOnly;
 
   public BaseAccessor(VALUE value, boolean readOnly) {
     this.readOnly = readOnly;
-    persistence = new InMemoryPersistence<VALUE>(value);
+    this.persistence = new InMemoryPersistence<VALUE>(value);
+    this.commutations = Lists.newArrayList();
   }
 
   @Override
   public VALUE read() {
+    // TODO: check permissions
     return persistence.read();
   }
 
   @Override
   public void write(VALUE value) {
+    // TODO: check permissions
     if (readOnly) {
       throw new IllegalStateException(); // TODO message
     }
     persistence.write(value);
+  }
+
+  @Override
+  public VALUE commute(Commutation<VALUE> commutation) {
+    // TODO: check permissions
+    write(commutation.commute(read()));
+    commutations.add(commutation);
+    return read();
+  }
+
+  @Override
+  public List<Commutation> commutations() {
+    // TODO: check permissions
+    return commutations;
   }
 }

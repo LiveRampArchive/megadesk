@@ -25,6 +25,7 @@ import com.google.common.collect.Maps;
 import com.liveramp.megadesk.core.state.Reference;
 import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Accessor;
+import com.liveramp.megadesk.core.transaction.Commutation;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
 
@@ -34,15 +35,15 @@ public class BaseContext implements Context {
 
   public BaseContext(Dependency dependency) {
     bindings = Maps.newHashMap();
-    for (Variable variable : readDrivers(dependency)) {
+    for (Variable variable : reads(dependency)) {
       addBinding(variable, true);
     }
-    for (Variable variable : writeDrivers(dependency)) {
+    for (Variable variable : writes(dependency)) {
       addBinding(variable, false);
     }
   }
 
-  private static List<Variable> readDrivers(Dependency dependency) {
+  private static List<Variable> reads(Dependency dependency) {
     List<Variable> result = Lists.newArrayList();
     // Snapshots
     for (Variable variable : dependency.snapshots()) {
@@ -55,7 +56,7 @@ public class BaseContext implements Context {
     return result;
   }
 
-  private static List<Variable> writeDrivers(Dependency dependency) {
+  private static List<Variable> writes(Dependency dependency) {
     List<Variable> result = Lists.newArrayList();
     // Execution writes
     for (Variable variable : dependency.writes()) {
@@ -99,5 +100,15 @@ public class BaseContext implements Context {
   @Override
   public <VALUE> void write(Variable<VALUE> variable, VALUE value) {
     write(variable.reference(), value);
+  }
+
+  @Override
+  public <VALUE> VALUE commute(Reference<VALUE> reference, Commutation<VALUE> commutation) {
+    return accessor(reference).commute(commutation);
+  }
+
+  @Override
+  public <VALUE> VALUE commute(Variable<VALUE> variable, Commutation<VALUE> commutation) {
+    return commute(variable.reference(), commutation);
   }
 }

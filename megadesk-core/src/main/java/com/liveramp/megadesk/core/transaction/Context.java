@@ -32,4 +32,8 @@ public interface Context {
   <VALUE> void write(Reference<VALUE> reference, VALUE value);
 
   <VALUE> void write(Variable<VALUE> variable, VALUE value);
+
+  <VALUE> VALUE commute(Reference<VALUE> reference, Commutation<VALUE> commutation);
+
+  <VALUE> VALUE commute(Variable<VALUE> variable, Commutation<VALUE> commutation);
 }

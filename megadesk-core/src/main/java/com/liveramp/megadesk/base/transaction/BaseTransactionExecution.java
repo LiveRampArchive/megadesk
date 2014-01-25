@@ -89,6 +89,9 @@ public class BaseTransactionExecution implements TransactionExecution {
     // Acquire persistence write locks
     lockAndRemember(persistenceWriteLocks(dependency), persistenceLocksAcquired);
     try {
+
+      // TODO: commutations
+
       // Write updates
       for (Variable variable : dependency.writes()) {
         Object value = data.read(variable.reference());
