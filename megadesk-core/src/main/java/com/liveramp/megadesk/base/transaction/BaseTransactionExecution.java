@@ -26,6 +26,7 @@ import com.google.common.collect.Sets;
 
 import com.liveramp.megadesk.core.state.Lock;
 import com.liveramp.megadesk.core.state.Variable;
+import com.liveramp.megadesk.core.transaction.Commutation;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.TransactionExecution;
@@ -90,13 +91,22 @@ public class BaseTransactionExecution implements TransactionExecution {
     lockAndRemember(persistenceWriteLocks(dependency), persistenceLocksAcquired);
     try {
 
-      // TODO: commutations
-
-      // Write updates
+      // Writes
       for (Variable variable : dependency.writes()) {
-        Object value = data.read(variable.reference());
+        Object value = data.read(variable);
         variable.driver().persistence().write(value);
       }
+
+      // Commutations
+      for (Variable variable : dependency.commutations()) {
+        List<Commutation> commutations = data.accessor(variable).commutations();
+        Object value = variable.driver().persistence().read();
+        for (Commutation commutation : commutations) {
+          value = commutation.commute(value);
+        }
+        variable.driver().persistence().write(value);
+      }
+
     } finally {
       // Always release persistence write locks
       unlock(persistenceLocksAcquired);
@@ -153,13 +163,21 @@ public class BaseTransactionExecution implements TransactionExecution {
     for (Variable variable : dependency.writes()) {
       result.add(variable.driver().persistenceLock().readLock());
     }
+    // Commutations
+    for (Variable variable : dependency.commutations()) {
+      result.add(variable.driver().persistenceLock().readLock());
+    }
     return result;
   }
 
   private static List<Lock> persistenceWriteLocks(Dependency dependency) {
     List<Lock> result = Lists.newArrayList();
-    // Execution writes only
+    // Execution writes
     for (Variable variable : dependency.writes()) {
+      result.add(variable.driver().persistenceLock().writeLock());
+    }
+    // Commutations
+    for (Variable variable : dependency.commutations()) {
       result.add(variable.driver().persistenceLock().writeLock());
     }
     return result;

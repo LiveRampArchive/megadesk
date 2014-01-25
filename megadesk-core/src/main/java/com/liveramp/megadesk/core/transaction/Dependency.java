@@ -27,4 +27,6 @@ public interface Dependency {
   List<Variable> reads();
 
   List<Variable> writes();
+
+  List<Variable> commutations();
 }

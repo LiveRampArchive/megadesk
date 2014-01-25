@@ -28,7 +28,7 @@ import com.liveramp.megadesk.core.transaction.Commutation;
 public class BaseAccessor<VALUE> implements Accessor<VALUE> {
 
   private final Persistence<VALUE> persistence;
-  private final List<Commutation> commutations;
+  private final List<Commutation<VALUE>> commutations;
   private final boolean readOnly;
 
   public BaseAccessor(VALUE value, boolean readOnly) {
@@ -61,7 +61,7 @@ public class BaseAccessor<VALUE> implements Accessor<VALUE> {
   }
 
   @Override
-  public List<Commutation> commutations() {
+  public List<Commutation<VALUE>> commutations() {
     // TODO: check permissions
     return commutations;
   }

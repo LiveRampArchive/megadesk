@@ -24,7 +24,7 @@ public interface Accessor<VALUE> {
 
   void write(VALUE value);
 
-  List<Commutation> commutations();
+  List<Commutation<VALUE>> commutations();
 
   VALUE commute(Commutation<VALUE> commutation);
 }

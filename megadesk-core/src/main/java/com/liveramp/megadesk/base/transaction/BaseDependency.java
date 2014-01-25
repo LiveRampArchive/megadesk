@@ -15,13 +15,16 @@ public class BaseDependency implements Dependency {
   private final List<Variable> snapshots;
   private final List<Variable> reads;
   private final List<Variable> writes;
+  private final List<Variable> commutations;
 
   public BaseDependency(Collection<Variable> snapshots,
                         Collection<Variable> reads,
-                        Collection<Variable> writes) {
+                        Collection<Variable> writes,
+                        Collection<Variable> commutations) {
     this.snapshots = prepareList(snapshots);
     this.reads = prepareList(reads);
     this.writes = prepareList(writes);
+    this.commutations = prepareList(commutations);
     checkIntegrity();
   }
 
@@ -57,11 +60,17 @@ public class BaseDependency implements Dependency {
     return writes;
   }
 
+  @Override
+  public List<Variable> commutations() {
+    return commutations;
+  }
+
   public static class Builder {
 
     private List<Variable> snapshots = Collections.emptyList();
     private List<Variable> reads = Collections.emptyList();
     private List<Variable> writes = Collections.emptyList();
+    private List<Variable> commutations = Collections.emptyList();
 
     public Builder snapshots(Variable... dependencies) {
       return snapshots(Arrays.asList(dependencies));
@@ -102,6 +111,19 @@ public class BaseDependency implements Dependency {
       return this;
     }
 
+    public Builder commutations(Variable... dependencies) {
+      return commutations(Arrays.asList(dependencies));
+    }
+
+    public Builder commutations(Variable[]... dependencies) {
+      return commutations(concatenate(dependencies));
+    }
+
+    public Builder commutations(List<Variable> drivers) {
+      this.commutations = Lists.newArrayList(drivers);
+      return this;
+    }
+
     private List<Variable> concatenate(Variable[]... lists) {
       List<Variable> result = Lists.newArrayList();
       for (Variable[] list : lists) {
@@ -111,7 +133,7 @@ public class BaseDependency implements Dependency {
     }
 
     public BaseDependency build() {
-      return new BaseDependency(snapshots, reads, writes);
+      return new BaseDependency(snapshots, reads, writes, commutations);
     }
   }
 
