@@ -71,19 +71,9 @@ public class BaseContext implements Context {
   @Override
   public <VALUE> Accessor<VALUE> accessor(Reference<VALUE> reference) {
     if (!bindings.containsKey(reference)) {
-      throw new IllegalStateException("Couldnt find " + reference.name()); // TODO message
+      throw new IllegalStateException("Context does not contain " + reference);
     }
     return bindings.get(reference);
-  }
-
-  @Override
-  public <VALUE> VALUE read(Reference<VALUE> reference) {
-    return accessor(reference).read();
-  }
-
-  @Override
-  public <VALUE> void write(Reference<VALUE> reference, VALUE value) {
-    accessor(reference).write(value);
   }
 
   @Override
@@ -92,8 +82,18 @@ public class BaseContext implements Context {
   }
 
   @Override
+  public <VALUE> VALUE read(Reference<VALUE> reference) {
+    return accessor(reference).read();
+  }
+
+  @Override
   public <VALUE> VALUE read(Variable<VALUE> variable) {
     return read(variable.reference());
+  }
+
+  @Override
+  public <VALUE> void write(Reference<VALUE> reference, VALUE value) {
+    accessor(reference).write(value);
   }
 
   @Override

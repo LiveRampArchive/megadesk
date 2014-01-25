@@ -23,13 +23,13 @@ public interface Context {
 
   <VALUE> Accessor<VALUE> accessor(Reference<VALUE> reference);
 
-  <VALUE> VALUE read(Reference<VALUE> reference);
-
-  <VALUE> void write(Reference<VALUE> reference, VALUE value);
-
   <VALUE> Accessor<VALUE> accessor(Variable<VALUE> variable);
 
+  <VALUE> VALUE read(Reference<VALUE> reference);
+
   <VALUE> VALUE read(Variable<VALUE> variable);
+
+  <VALUE> void write(Reference<VALUE> reference, VALUE value);
 
   <VALUE> void write(Variable<VALUE> variable, VALUE value);
 }
