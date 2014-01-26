@@ -16,6 +16,7 @@
 
 package com.liveramp.megadesk.base.transaction;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -24,45 +25,56 @@ import com.liveramp.megadesk.base.state.InMemoryPersistence;
 import com.liveramp.megadesk.core.state.Persistence;
 import com.liveramp.megadesk.core.transaction.Accessor;
 import com.liveramp.megadesk.core.transaction.Commutation;
+import com.liveramp.megadesk.core.transaction.DependencyType;
+import com.liveramp.megadesk.utils.FormatUtils;
 
 public class BaseAccessor<VALUE> implements Accessor<VALUE> {
 
   private final Persistence<VALUE> persistence;
   private final List<Commutation<VALUE>> commutations;
-  private final boolean readOnly;
+  private final DependencyType dependencyType;
 
-  public BaseAccessor(VALUE value, boolean readOnly) {
-    this.readOnly = readOnly;
+  public BaseAccessor(VALUE value, DependencyType dependencyType) {
+    this.dependencyType = dependencyType;
     this.persistence = new InMemoryPersistence<VALUE>(value);
     this.commutations = Lists.newArrayList();
   }
 
   @Override
   public VALUE read() {
-    // TODO: check permissions
+    ensureDependencyType(DependencyType.SNAPSHOT, DependencyType.READ, DependencyType.WRITE, DependencyType.COMMUTATION);
     return persistence.read();
   }
 
   @Override
   public void write(VALUE value) {
-    // TODO: check permissions
-    if (readOnly) {
-      throw new IllegalStateException(); // TODO message
-    }
+    ensureDependencyType(DependencyType.WRITE);
     persistence.write(value);
   }
 
   @Override
   public VALUE commute(Commutation<VALUE> commutation) {
-    // TODO: check permissions
-    write(commutation.commute(read()));
+    ensureDependencyType(DependencyType.COMMUTATION);
+    VALUE value = commutation.commute(read());
+    persistence.write(value);
     commutations.add(commutation);
-    return read();
+    return value;
   }
 
   @Override
   public List<Commutation<VALUE>> commutations() {
-    // TODO: check permissions
+    ensureDependencyType(DependencyType.COMMUTATION);
     return commutations;
+  }
+
+  private void ensureDependencyType(DependencyType... dependencyTypes) {
+    if (!Arrays.asList(dependencyTypes).contains(dependencyType)) {
+      throw new IllegalArgumentException(); // TODO message
+    }
+  }
+
+  @Override
+  public String toString() {
+    return FormatUtils.formatToString(this, dependencyType.toString());
   }
 }

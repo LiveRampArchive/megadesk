@@ -39,6 +39,7 @@ import com.liveramp.megadesk.recipes.gear.Outcome;
 import com.liveramp.megadesk.recipes.gear.worker.NaiveWorker;
 import com.liveramp.megadesk.recipes.gear.worker.Worker;
 import com.liveramp.megadesk.recipes.state.transaction.Alter;
+import com.liveramp.megadesk.recipes.state.transaction.Commute;
 import com.liveramp.megadesk.test.BaseTestCase;
 
 import static org.junit.Assert.assertEquals;
@@ -195,5 +196,23 @@ public class IntegrationTest extends BaseTestCase {
 
     assertEquals(Integer.valueOf(0), A.driver().persistence().read());
     assertEquals(Integer.valueOf(2), B.driver().persistence().read());
+  }
+
+  @Test
+  public void testCommutation() throws Exception {
+    final Variable<Integer> A = new InMemoryLocal<Integer>(0);
+
+    Transaction<Void> incrementCommutation = new Commute<Integer>() {
+      @Override
+      public Integer commute(Integer integer) {
+        return integer + 1;
+      }
+    };
+
+    // Increment A twice
+    executor().execute(incrementCommutation, new Bind(A));
+    executor().execute(incrementCommutation, new Bind(A));
+
+    assertEquals(Integer.valueOf(2), A.driver().persistence().read());
   }
 }

@@ -16,10 +16,8 @@
 
 package com.liveramp.megadesk.base.transaction;
 
-import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import com.liveramp.megadesk.core.state.Reference;
@@ -28,6 +26,8 @@ import com.liveramp.megadesk.core.transaction.Accessor;
 import com.liveramp.megadesk.core.transaction.Commutation;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
+import com.liveramp.megadesk.core.transaction.DependencyType;
+import com.liveramp.megadesk.utils.FormatUtils;
 
 public class BaseContext implements Context {
 
@@ -35,44 +35,28 @@ public class BaseContext implements Context {
 
   public BaseContext(Dependency dependency) {
     bindings = Maps.newHashMap();
-    for (Variable variable : reads(dependency)) {
-      addBinding(variable, true);
-    }
-    for (Variable variable : writes(dependency)) {
-      addBinding(variable, false);
-    }
-  }
-
-  private static List<Variable> reads(Dependency dependency) {
-    List<Variable> result = Lists.newArrayList();
-    // Snapshots
     for (Variable variable : dependency.snapshots()) {
-      result.add(variable);
+      addBinding(variable, DependencyType.SNAPSHOT);
     }
-    // Execution reads
     for (Variable variable : dependency.reads()) {
-      result.add(variable);
+      addBinding(variable, DependencyType.READ);
     }
-    return result;
-  }
-
-  private static List<Variable> writes(Dependency dependency) {
-    List<Variable> result = Lists.newArrayList();
-    // Execution writes
     for (Variable variable : dependency.writes()) {
-      result.add(variable);
+      addBinding(variable, DependencyType.WRITE);
     }
-    return result;
+    for (Variable variable : dependency.commutations()) {
+      addBinding(variable, DependencyType.COMMUTATION);
+    }
   }
 
-  private void addBinding(Variable variable, boolean readOnly) {
-    bindings.put(variable.reference(), new BaseAccessor(variable.driver().persistence().read(), readOnly));
+  private <VALUE> void addBinding(Variable<VALUE> variable, DependencyType dependencyType) {
+    bindings.put(variable.reference(), new BaseAccessor<VALUE>(variable.driver().persistence().read(), dependencyType));
   }
 
   @Override
   public <VALUE> Accessor<VALUE> accessor(Reference<VALUE> reference) {
     if (!bindings.containsKey(reference)) {
-      throw new IllegalStateException("Context does not contain " + reference);
+      throw new IllegalStateException("Context does not contain " + reference + ". Context: " + this);
     }
     return bindings.get(reference);
   }
@@ -110,5 +94,10 @@ public class BaseContext implements Context {
   @Override
   public <VALUE> VALUE commute(Variable<VALUE> variable, Commutation<VALUE> commutation) {
     return commute(variable.reference(), commutation);
+  }
+
+  @Override
+  public String toString() {
+    return FormatUtils.formatToString(this, bindings.toString());
   }
 }

@@ -28,23 +28,27 @@ public class BaseDependency implements Dependency {
     checkIntegrity();
   }
 
-  private List<Variable> prepareList(Collection<Variable> drivers) {
+  private List<Variable> prepareList(Collection<Variable> dependencies) {
     // Deep copy, sort, and make unmodifiable
-    List<Variable> result = Lists.newArrayList(drivers);
+    List<Variable> result = Lists.newArrayList(dependencies);
     Collections.sort(result);
     return Collections.unmodifiableList(result);
   }
 
   private void checkIntegrity() {
-    for (Variable dependency : snapshots) {
-      if (reads.contains(dependency) || writes.contains(dependency)) {
-        throw new IllegalStateException(); // TODO message
-      }
-    }
-    for (Variable dependency : reads) {
-      if (writes.contains(dependency)) {
-        throw new IllegalStateException(); // TODO message
-      }
+    checkDisjoint(snapshots, reads);
+    checkDisjoint(snapshots, writes);
+    checkDisjoint(snapshots, commutations);
+
+    checkDisjoint(reads, writes);
+    checkDisjoint(reads, commutations);
+
+    checkDisjoint(writes, commutations);
+  }
+
+  private void checkDisjoint(Collection<Variable> a, Collection<Variable> b) {
+    if (!Collections.disjoint(a, b)) {
+      throw new IllegalStateException();
     }
   }
 
@@ -106,8 +110,8 @@ public class BaseDependency implements Dependency {
       return writes(concatenate(dependencies));
     }
 
-    public Builder writes(List<Variable> drivers) {
-      this.writes = Lists.newArrayList(drivers);
+    public Builder writes(List<Variable> dependencies) {
+      this.writes = Lists.newArrayList(dependencies);
       return this;
     }
 
@@ -119,8 +123,8 @@ public class BaseDependency implements Dependency {
       return commutations(concatenate(dependencies));
     }
 
-    public Builder commutations(List<Variable> drivers) {
-      this.commutations = Lists.newArrayList(drivers);
+    public Builder commutations(List<Variable> dependencies) {
+      this.commutations = Lists.newArrayList(dependencies);
       return this;
     }
 

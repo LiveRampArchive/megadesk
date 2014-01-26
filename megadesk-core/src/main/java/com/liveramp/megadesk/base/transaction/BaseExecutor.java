@@ -79,10 +79,13 @@ public class BaseExecutor implements Executor {
     List<Variable> snapshots = bindReferences(dependency.snapshots(), binding);
     List<Variable> reads = bindReferences(dependency.reads(), binding);
     List<Variable> writes = bindReferences(dependency.writes(), binding);
+    List<Variable> commutations = bindReferences(dependency.commutations(), binding);
+    // TODO check for extra bindings
     return BaseDependency.builder()
                .snapshots(snapshots)
                .reads(reads)
                .writes(writes)
+               .commutations(commutations)
                .build();
   }
 
@@ -91,7 +94,7 @@ public class BaseExecutor implements Executor {
     for (Variable variable : variables) {
       if (variable.driver() == null) {
         if (binding == null) {
-          throw new IllegalStateException(); // TODO message
+          throw new IllegalStateException("Binding is null");
         }
         result.add(new BaseVariable(variable.reference(), binding.get(variable.reference())));
       } else {
