@@ -1,14 +1,13 @@
 package com.liveramp.megadesk.base.transaction;
 
+import com.google.common.collect.Lists;
+import com.liveramp.megadesk.core.state.Variable;
+import com.liveramp.megadesk.core.transaction.Dependency;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
-import com.google.common.collect.Lists;
-
-import com.liveramp.megadesk.core.state.Variable;
-import com.liveramp.megadesk.core.transaction.Dependency;
 
 public class BaseDependency implements Dependency {
 
@@ -18,9 +17,9 @@ public class BaseDependency implements Dependency {
   private final List<Variable> commutations;
 
   public BaseDependency(Collection<Variable> snapshots,
-                        Collection<Variable> reads,
-                        Collection<Variable> writes,
-                        Collection<Variable> commutations) {
+      Collection<Variable> reads,
+      Collection<Variable> writes,
+      Collection<Variable> commutations) {
     this.snapshots = prepareList(snapshots);
     this.reads = prepareList(reads);
     this.writes = prepareList(writes);
@@ -143,5 +142,20 @@ public class BaseDependency implements Dependency {
 
   public static Builder builder() {
     return new Builder();
+  }
+
+  public static BaseDependency merge(Dependency... dependencies) {
+    Builder builder = BaseDependency.builder();
+    List<Variable> reads = Lists.newArrayList();
+    List<Variable> writes = Lists.newArrayList();
+    List<Variable> snapshots = Lists.newArrayList();
+    List<Variable> commutes = Lists.newArrayList();
+    for (Dependency dependency : dependencies) {
+      reads.addAll(dependency.reads());
+      writes.addAll(dependency.writes());
+      snapshots.addAll(dependency.snapshots());
+      commutes.addAll(dependency.commutations());
+    }
+    return builder.reads(reads).writes(writes).snapshots(snapshots).commutations(commutes).build();
   }
 }
