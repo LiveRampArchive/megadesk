@@ -17,8 +17,10 @@
 package com.liveramp.megadesk.recipes.queue;
 
 import com.google.common.collect.ImmutableList;
+import com.liveramp.megadesk.base.transaction.BaseDependency;
 import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Context;
+import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.Transaction;
 
 public abstract class BaseQueue<VALUE, OUTPUT> {
@@ -31,6 +33,14 @@ public abstract class BaseQueue<VALUE, OUTPUT> {
     this.input = input;
     this.output = output;
     this.frozen = frozen;
+  }
+
+  public Dependency getAppendDependency() {
+    return BaseDependency.builder().writes(input).build();
+  }
+
+  public Dependency getPopDependency() {
+    return BaseDependency.builder().writes(input, output, frozen).build();
   }
 
   public void append(Context context, VALUE value) {
