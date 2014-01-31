@@ -55,10 +55,10 @@ public class IntegrationTest extends BaseTestCase {
 
     public StepGear(StepGear... parents) {
       this.parents = Arrays.asList(parents);
-      setDependency(BaseDependency.builder().snapshots(references(parents)).writes(variable).build());
+      setDependency(BaseDependency.builder().snapshots(variables(parents)).writes(variable).build());
     }
 
-    private static List<Variable> references(StepGear... parents) {
+    private static List<Variable> variables(StepGear... parents) {
       List<Variable> result = Lists.newArrayList();
       for (StepGear parent : parents) {
         result.add(parent.variable);
