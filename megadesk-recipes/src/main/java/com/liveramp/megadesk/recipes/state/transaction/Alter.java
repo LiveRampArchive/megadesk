@@ -43,5 +43,5 @@ public abstract class Alter<VALUE> extends BaseTransaction<VALUE> implements Tra
     return value;
   }
 
-  protected abstract VALUE alter(VALUE read);
+  protected abstract VALUE alter(VALUE value);
 }
