@@ -29,7 +29,9 @@ import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Commutation;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
+import com.liveramp.megadesk.core.transaction.DependencyType;
 import com.liveramp.megadesk.core.transaction.TransactionExecution;
+import com.liveramp.megadesk.core.transaction.VariableDependency;
 
 public class BaseTransactionExecution implements TransactionExecution {
 
@@ -151,34 +153,19 @@ public class BaseTransactionExecution implements TransactionExecution {
 
   private static List<Lock> persistenceReadLocks(Dependency dependency) {
     List<Lock> result = Lists.newArrayList();
-    // Snapshots
-    for (Variable variable : dependency.snapshots()) {
-      result.add(variable.driver().persistenceLock().readLock());
-    }
-    // Execution reads
-    for (Variable variable : dependency.reads()) {
-      result.add(variable.driver().persistenceLock().readLock());
-    }
-    // Execution writes
-    for (Variable variable : dependency.writes()) {
-      result.add(variable.driver().persistenceLock().readLock());
-    }
-    // Commutations
-    for (Variable variable : dependency.commutations()) {
-      result.add(variable.driver().persistenceLock().readLock());
+    for (VariableDependency variableDependency : dependency.all()) {
+      result.add(variableDependency.variable().driver().persistenceLock().readLock());
     }
     return result;
   }
 
   private static List<Lock> persistenceWriteLocks(Dependency dependency) {
     List<Lock> result = Lists.newArrayList();
-    // Execution writes
-    for (Variable variable : dependency.writes()) {
-      result.add(variable.driver().persistenceLock().writeLock());
-    }
-    // Commutations
-    for (Variable variable : dependency.commutations()) {
-      result.add(variable.driver().persistenceLock().writeLock());
+    for (VariableDependency variableDependency : dependency.all()) {
+      if (variableDependency.type() == DependencyType.WRITE
+              || variableDependency.type() == DependencyType.COMMUTATION) {
+        result.add(variableDependency.variable().driver().persistenceLock().writeLock());
+      }
     }
     return result;
   }

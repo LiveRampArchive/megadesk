@@ -28,6 +28,7 @@ import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.Executor;
 import com.liveramp.megadesk.core.transaction.Transaction;
 import com.liveramp.megadesk.core.transaction.TransactionExecution;
+import com.liveramp.megadesk.core.transaction.VariableDependency;
 
 public class BaseExecutor implements Executor {
 
@@ -76,29 +77,22 @@ public class BaseExecutor implements Executor {
   }
 
   private Dependency bindDependency(Dependency dependency, Binding binding) {
-    List<Variable> snapshots = bindReferences(dependency.snapshots(), binding);
-    List<Variable> reads = bindReferences(dependency.reads(), binding);
-    List<Variable> writes = bindReferences(dependency.writes(), binding);
-    List<Variable> commutations = bindReferences(dependency.commutations(), binding);
-    // TODO check for extra bindings
-    return BaseDependency.builder()
-               .snapshots(snapshots)
-               .reads(reads)
-               .writes(writes)
-               .commutations(commutations)
-               .build();
+    List<VariableDependency> dependencies = bindReferences(dependency.all(), binding);
+    return BaseDependency.builder().all(dependencies).build();
   }
 
-  private List<Variable> bindReferences(List<Variable> variables, Binding binding) {
-    List<Variable> result = Lists.newArrayList();
-    for (Variable variable : variables) {
+  private List<VariableDependency> bindReferences(List<VariableDependency> dependencies, Binding binding) {
+    // TODO check for extra bindings
+    List<VariableDependency> result = Lists.newArrayList();
+    for (VariableDependency dependency : dependencies) {
+      Variable variable = dependency.variable();
       if (variable.driver() == null) {
         if (binding == null) {
           throw new IllegalStateException("Binding is null");
         }
-        result.add(new BaseVariable(variable.reference(), binding.get(variable.reference())));
+        result.add(BaseVariableDependency.build(BaseVariable.build(variable.reference(), binding.get(variable.reference())), dependency.type()));
       } else {
-        result.add(variable);
+        result.add(dependency);
       }
     }
     return result;

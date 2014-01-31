@@ -27,6 +27,7 @@ import com.liveramp.megadesk.core.transaction.Commutation;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.DependencyType;
+import com.liveramp.megadesk.core.transaction.VariableDependency;
 import com.liveramp.megadesk.utils.FormatUtils;
 
 public class BaseContext implements Context {
@@ -35,17 +36,8 @@ public class BaseContext implements Context {
 
   public BaseContext(Dependency dependency) {
     bindings = Maps.newHashMap();
-    for (Variable variable : dependency.snapshots()) {
-      addBinding(variable, DependencyType.SNAPSHOT);
-    }
-    for (Variable variable : dependency.reads()) {
-      addBinding(variable, DependencyType.READ);
-    }
-    for (Variable variable : dependency.writes()) {
-      addBinding(variable, DependencyType.WRITE);
-    }
-    for (Variable variable : dependency.commutations()) {
-      addBinding(variable, DependencyType.COMMUTATION);
+    for (VariableDependency variableDependency : dependency.all()) {
+      addBinding(variableDependency.variable(), variableDependency.type());
     }
   }
 

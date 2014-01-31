@@ -44,4 +44,8 @@ public class BaseVariable<VALUE> implements Variable<VALUE> {
   public int compareTo(Variable<VALUE> o) {
     return reference.compareTo(o.reference());
   }
+
+  public static <VALUE> Variable<VALUE> build(Reference<VALUE> reference, Driver<VALUE> driver) {
+    return new BaseVariable<VALUE>(reference, driver);
+  }
 }

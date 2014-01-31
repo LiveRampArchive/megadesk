@@ -16,19 +16,11 @@
 
 package com.liveramp.megadesk.core.transaction;
 
-import java.util.List;
-
 import com.liveramp.megadesk.core.state.Variable;
 
-public interface Dependency {
+public interface VariableDependency<VALUE> extends Comparable<VariableDependency<VALUE>> {
 
-  List<VariableDependency> all();
+  Variable<VALUE> variable();
 
-  List<Variable> snapshots();
-
-  List<Variable> reads();
-
-  List<Variable> writes();
-
-  List<Variable> commutations();
+  DependencyType type();
 }
