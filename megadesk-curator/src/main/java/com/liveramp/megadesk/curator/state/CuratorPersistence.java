@@ -37,7 +37,7 @@ public class CuratorPersistence<VALUE> extends SerializedPersistence<VALUE> impl
 
     try {
       if (curator.checkExists().forPath(path) == null) {
-        curator.create().forPath(path);
+        curator.create().creatingParentsIfNeeded().forPath(path);
       }
     } catch (Exception e) {
       throw new RuntimeException(e);
