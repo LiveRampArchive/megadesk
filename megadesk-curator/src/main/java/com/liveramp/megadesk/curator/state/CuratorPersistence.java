@@ -39,6 +39,7 @@ public class CuratorPersistence<VALUE> extends SerializedPersistence<VALUE> impl
       if (curator.checkExists().forPath(path) == null) {
         curator.create().creatingParentsIfNeeded().forPath(path);
       }
+      cache.start();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
