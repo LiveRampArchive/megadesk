@@ -1,11 +1,10 @@
 package com.liveramp.megadesk.recipes.queue;
 
 import com.google.common.collect.ImmutableList;
-import com.liveramp.megadesk.core.state.Driver;
 import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Transaction;
 
-public class Queue<VALUE> extends BaseQueue<VALUE, VALUE> {
+public class Queue<VALUE> extends BaseQueue<VALUE, VALUE>{
 
   public Queue(Variable<ImmutableList> input,Variable<ImmutableList> output, Variable<Boolean> frozen) {
     super(input, output, frozen);

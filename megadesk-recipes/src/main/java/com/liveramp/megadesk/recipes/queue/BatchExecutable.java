@@ -6,7 +6,7 @@ import com.liveramp.megadesk.base.transaction.BaseExecutor;
 import com.liveramp.megadesk.core.transaction.Executor;
 import com.liveramp.megadesk.recipes.pipeline.DriverFactory;
 
-public class BatchExecutable<VALUE> extends BaseQueueExecutable<VALUE, ImmutableList<VALUE>> {
+public class BatchExecutable<VALUE> extends BaseQueueExecutable<VALUE, ImmutableList<VALUE>> implements MegadeskPersistentBatch<VALUE> {
 
   public BatchExecutable(Batch<VALUE> batch, Executor executor) {
     super(batch, executor);

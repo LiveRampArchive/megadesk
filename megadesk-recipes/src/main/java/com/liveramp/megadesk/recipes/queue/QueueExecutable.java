@@ -7,7 +7,7 @@ import com.liveramp.megadesk.base.transaction.BaseExecutor;
 import com.liveramp.megadesk.core.transaction.Executor;
 import com.liveramp.megadesk.recipes.pipeline.DriverFactory;
 
-public class QueueExecutable<VALUE> extends BaseQueueExecutable<VALUE, VALUE> {
+public class QueueExecutable<VALUE> extends BaseQueueExecutable<VALUE, VALUE> implements MegadeskPersistentQueue<VALUE, VALUE> {
 
   public QueueExecutable(Queue<VALUE> queue, Executor executor) {
     super(queue, executor);
