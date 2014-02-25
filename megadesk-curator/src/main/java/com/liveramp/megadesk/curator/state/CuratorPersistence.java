@@ -33,13 +33,13 @@ public class CuratorPersistence<VALUE> extends SerializedPersistence<VALUE> impl
     super(serializer);
     this.curator = curator;
     this.path = path;
-    this.cache = new NodeCache(curator, path);
 
     try {
       if (curator.checkExists().forPath(path) == null) {
         curator.create().creatingParentsIfNeeded().forPath(path);
       }
-      cache.start();
+      this.cache = new NodeCache(curator, path);
+      cache.start(true);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
