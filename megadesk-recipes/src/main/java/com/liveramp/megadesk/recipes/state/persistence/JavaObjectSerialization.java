@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import com.liveramp.megadesk.recipes.state.persistence.SerializationHandler;
-
 public class JavaObjectSerialization<T> implements SerializationHandler<T> {
 
   @Override
@@ -37,14 +35,18 @@ public class JavaObjectSerialization<T> implements SerializationHandler<T> {
 
   @Override
   public T deserialize(byte[] bytes) throws IOException, ClassNotFoundException {
-    ByteArrayInputStream bytesInputStream = new ByteArrayInputStream(bytes);
-    ObjectInputStream objectInputStream = new ObjectInputStream(bytesInputStream);
-    Object o;
-    try {
-      o = objectInputStream.readObject();
-    } finally {
-      objectInputStream.close();
+    if (bytes.length > 0) {
+      ByteArrayInputStream bytesInputStream = new ByteArrayInputStream(bytes);
+      ObjectInputStream objectInputStream = new ObjectInputStream(bytesInputStream);
+      Object o;
+      try {
+        o = objectInputStream.readObject();
+      } finally {
+        objectInputStream.close();
+      }
+      return (T) o;
+    } else {
+      return null;
     }
-    return (T)o;
   }
 }

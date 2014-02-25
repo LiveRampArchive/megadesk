@@ -16,12 +16,12 @@
 
 package com.liveramp.megadesk.curator.state;
 
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.recipes.cache.NodeCache;
-
 import com.liveramp.megadesk.core.state.Persistence;
 import com.liveramp.megadesk.recipes.state.persistence.SerializationHandler;
 import com.liveramp.megadesk.recipes.state.persistence.SerializedPersistence;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.cache.ChildData;
+import org.apache.curator.framework.recipes.cache.NodeCache;
 
 public class CuratorPersistence<VALUE> extends SerializedPersistence<VALUE> implements Persistence<VALUE> {
 
@@ -56,6 +56,11 @@ public class CuratorPersistence<VALUE> extends SerializedPersistence<VALUE> impl
 
   @Override
   protected byte[] readBytes() {
-    return cache.getCurrentData().getData();
+    ChildData currentData = cache.getCurrentData();
+    if (currentData != null) {
+      return currentData.getData();
+    } else {
+      return new byte[0];
+    }
   }
 }
