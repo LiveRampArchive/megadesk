@@ -20,12 +20,9 @@ import com.liveramp.megadesk.core.state.Persistence;
 import com.liveramp.megadesk.recipes.state.persistence.SerializationHandler;
 import com.liveramp.megadesk.recipes.state.persistence.SerializedPersistence;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.recipes.cache.ChildData;
-import org.apache.curator.framework.recipes.cache.NodeCache;
 
 public class CuratorPersistence<VALUE> extends SerializedPersistence<VALUE> implements Persistence<VALUE> {
 
-  private final NodeCache cache;
   private CuratorFramework curator;
   private final String path;
 
@@ -38,8 +35,6 @@ public class CuratorPersistence<VALUE> extends SerializedPersistence<VALUE> impl
       if (curator.checkExists().forPath(path) == null) {
         curator.create().creatingParentsIfNeeded().forPath(path);
       }
-      this.cache = new NodeCache(curator, path);
-      cache.start(true);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -56,11 +51,10 @@ public class CuratorPersistence<VALUE> extends SerializedPersistence<VALUE> impl
 
   @Override
   protected byte[] readBytes() {
-    ChildData currentData = cache.getCurrentData();
-    if (currentData != null) {
-      return currentData.getData();
-    } else {
-      return new byte[0];
+    try {
+      return curator.getData().forPath(path);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
   }
 }
