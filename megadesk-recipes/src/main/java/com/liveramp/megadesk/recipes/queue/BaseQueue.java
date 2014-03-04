@@ -43,8 +43,8 @@ public abstract class BaseQueue<VALUE, OUTPUT> {
     return BaseDependency.builder().writes(input, output, frozen).build();
   }
 
-  public void append(Context context, VALUE value) {
-    Append<VALUE> append = getAppendTransaction(value);
+  public void append(Context context, VALUE... values) {
+    Append<VALUE> append = getAppendTransaction(values);
     try {
       append.run(context);
     } catch (Exception e) {
@@ -64,8 +64,8 @@ public abstract class BaseQueue<VALUE, OUTPUT> {
     return frozen;
   }
 
-  protected Append<VALUE> getAppendTransaction(VALUE value) {
-    return new Append<VALUE>(input, value);
+  protected Append<VALUE> getAppendTransaction(VALUE... values) {
+    return new Append<VALUE>(input, values);
   }
 
   protected ImmutableList<VALUE> transfer(Context context) {

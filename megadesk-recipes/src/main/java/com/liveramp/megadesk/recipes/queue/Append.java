@@ -13,10 +13,10 @@ class Append<V> implements Transaction<Void> {
 
   private final Dependency dependency;
   private final Variable<ImmutableList> list;
-  private final V value;
+  private final V[] values;
 
-  Append(Variable<ImmutableList> driver, V value) {
-    this.value = value;
+  Append(Variable<ImmutableList> driver, V... values) {
+    this.values = values;
     this.list = driver;
     this.dependency = BaseDependency.builder().writes(list).build();
   }
@@ -29,7 +29,7 @@ class Append<V> implements Transaction<Void> {
   @Override
   public Void run(Context context) throws Exception {
     ImmutableList originalValue = context.read(list);
-    ImmutableList newValue = ImmutableList.builder().addAll(originalValue).add(value).build();
+    ImmutableList newValue = ImmutableList.builder().addAll(originalValue).add(values).build();
     context.write(list, newValue);
     return null;
   }

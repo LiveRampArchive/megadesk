@@ -17,7 +17,7 @@ package com.liveramp.megadesk.recipes.queue;
  */
 public interface MegadeskPersistentQueue<VALUE, OUTPUT> {
 
-  public void append(VALUE value);
+  public void append(VALUE... values);
 
   public OUTPUT read();
 

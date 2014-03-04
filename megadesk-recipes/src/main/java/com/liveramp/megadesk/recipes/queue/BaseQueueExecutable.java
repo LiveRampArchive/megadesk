@@ -27,9 +27,9 @@ public abstract class BaseQueueExecutable<VALUE, OUTPUT> {
     this.executor = executor;
   }
 
-  public void append(VALUE value) {
+  public void append(VALUE... values) {
     try {
-      executor.execute(queue.getAppendTransaction(value));
+      executor.execute(queue.getAppendTransaction(values));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
