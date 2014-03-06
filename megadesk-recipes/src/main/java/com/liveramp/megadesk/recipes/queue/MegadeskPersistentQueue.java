@@ -1,5 +1,7 @@
 package com.liveramp.megadesk.recipes.queue;
 
+import java.util.List;
+
 /**
  * Copyright 2014 LiveRamp
  * <p/>
@@ -18,6 +20,8 @@ package com.liveramp.megadesk.recipes.queue;
 public interface MegadeskPersistentQueue<VALUE, OUTPUT> {
 
   public void append(VALUE... values);
+
+  public void append(List<VALUE> values);
 
   public OUTPUT read();
 

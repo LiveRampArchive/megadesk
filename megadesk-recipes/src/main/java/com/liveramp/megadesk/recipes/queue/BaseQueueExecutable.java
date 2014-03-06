@@ -15,6 +15,10 @@
  */
 package com.liveramp.megadesk.recipes.queue;
 
+import java.util.List;
+
+import com.google.common.collect.Lists;
+
 import com.liveramp.megadesk.core.transaction.Executor;
 
 public abstract class BaseQueueExecutable<VALUE, OUTPUT> {
@@ -28,6 +32,10 @@ public abstract class BaseQueueExecutable<VALUE, OUTPUT> {
   }
 
   public void append(VALUE... values) {
+    append(Lists.newArrayList(values));
+  }
+
+  public void append(List<VALUE> values) {
     try {
       executor.execute(queue.getAppendTransaction(values));
     } catch (Exception e) {

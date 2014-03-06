@@ -16,7 +16,11 @@
 
 package com.liveramp.megadesk.recipes.queue;
 
+import java.util.List;
+
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+
 import com.liveramp.megadesk.base.transaction.BaseDependency;
 import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Context;
@@ -43,13 +47,17 @@ public abstract class BaseQueue<VALUE, OUTPUT> {
     return BaseDependency.builder().writes(input, output, frozen).build();
   }
 
-  public void append(Context context, VALUE... values) {
+  public void append(Context context, List<VALUE> values) {
     Append<VALUE> append = getAppendTransaction(values);
     try {
       append.run(context);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public void append(Context context, VALUE... values) {
+    append(context, Lists.newArrayList(values));
   }
 
   public Variable<ImmutableList> getInput() {
@@ -64,7 +72,7 @@ public abstract class BaseQueue<VALUE, OUTPUT> {
     return frozen;
   }
 
-  protected Append<VALUE> getAppendTransaction(VALUE... values) {
+  protected Append<VALUE> getAppendTransaction(List<VALUE> values) {
     return new Append<VALUE>(input, values);
   }
 
