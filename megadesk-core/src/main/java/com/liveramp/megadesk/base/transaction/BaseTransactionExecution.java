@@ -46,11 +46,9 @@ public class BaseTransactionExecution implements TransactionExecution {
   private Context data;
   private State state = State.STANDBY;
   private final Set<Lock> executionLocksAcquired;
-  private final Set<Lock> persistenceLocksAcquired;
 
   public BaseTransactionExecution() {
     executionLocksAcquired = Sets.newHashSet();
-    persistenceLocksAcquired = Sets.newHashSet();
   }
 
   @Override
@@ -73,6 +71,7 @@ public class BaseTransactionExecution implements TransactionExecution {
 
   private Context prepare(Dependency dependency) {
     // Acquire persistence read locks for snapshot
+    final Set<Lock> persistenceLocksAcquired = Sets.newHashSet();
     lockAndRemember(persistenceReadLocks(dependency), persistenceLocksAcquired);
     try {
       this.data = new BaseContext(dependency);
@@ -90,6 +89,7 @@ public class BaseTransactionExecution implements TransactionExecution {
   public void commit() {
     ensureState(State.RUNNING);
     // Acquire persistence write locks
+    final Set<Lock> persistenceLocksAcquired = Sets.newHashSet();
     lockAndRemember(persistenceWriteLocks(dependency), persistenceLocksAcquired);
     try {
 
@@ -127,7 +127,7 @@ public class BaseTransactionExecution implements TransactionExecution {
 
   private boolean tryLock(Dependency dependency) {
     return tryLockAndRemember(executionReadLocks(dependency), executionLocksAcquired)
-               && tryLockAndRemember(executionWriteLocks(dependency), executionLocksAcquired);
+        && tryLockAndRemember(executionWriteLocks(dependency), executionLocksAcquired);
   }
 
   private void lock(Dependency dependency) {
@@ -163,7 +163,7 @@ public class BaseTransactionExecution implements TransactionExecution {
     List<Lock> result = Lists.newArrayList();
     for (VariableDependency variableDependency : dependency.all()) {
       if (variableDependency.type() == DependencyType.WRITE
-              || variableDependency.type() == DependencyType.COMMUTATION) {
+          || variableDependency.type() == DependencyType.COMMUTATION) {
         result.add(variableDependency.variable().driver().persistenceLock().writeLock());
       }
     }
