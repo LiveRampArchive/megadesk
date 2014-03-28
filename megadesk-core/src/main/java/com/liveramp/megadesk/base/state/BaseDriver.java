@@ -23,23 +23,16 @@ import com.liveramp.megadesk.core.state.ReadWriteLock;
 public class BaseDriver<VALUE> implements Driver<VALUE> {
 
   private final ReadWriteLock executionLock;
-  private final ReadWriteLock persistenceLock;
   private final Persistence<VALUE> persistence;
 
-  public BaseDriver(Persistence<VALUE> persistence, ReadWriteLock persistenceLock, ReadWriteLock executionLock) {
+  public BaseDriver(Persistence<VALUE> persistence, ReadWriteLock lock) {
     this.persistence = persistence;
-    this.persistenceLock = persistenceLock;
-    this.executionLock = executionLock;
+    this.executionLock = lock;
   }
 
   @Override
-  public ReadWriteLock executionLock() {
+  public ReadWriteLock lock() {
     return executionLock;
-  }
-
-  @Override
-  public ReadWriteLock persistenceLock() {
-    return persistenceLock;
   }
 
   @Override

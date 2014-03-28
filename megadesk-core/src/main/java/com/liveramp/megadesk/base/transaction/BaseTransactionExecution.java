@@ -29,9 +29,7 @@ import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Commutation;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
-import com.liveramp.megadesk.core.transaction.DependencyType;
 import com.liveramp.megadesk.core.transaction.TransactionExecution;
-import com.liveramp.megadesk.core.transaction.VariableDependency;
 
 public class BaseTransactionExecution implements TransactionExecution {
 
@@ -70,16 +68,7 @@ public class BaseTransactionExecution implements TransactionExecution {
   }
 
   private Context prepare(Dependency dependency) {
-    // Acquire persistence read locks for snapshot
-    final Set<Lock> persistenceLocksAcquired = Sets.newHashSet();
-    lockAndRemember(persistenceReadLocks(dependency), persistenceLocksAcquired);
-    try {
-      this.data = new BaseContext(dependency);
-    } finally {
-      // Always release persistence read locks
-      unlock(persistenceLocksAcquired);
-    }
-    // Prepare rest of transaction
+    this.data = new BaseContext(dependency);
     this.state = State.RUNNING;
     this.dependency = dependency;
     return this.data;
@@ -88,30 +77,20 @@ public class BaseTransactionExecution implements TransactionExecution {
   @Override
   public void commit() {
     ensureState(State.RUNNING);
-    // Acquire persistence write locks
-    final Set<Lock> persistenceLocksAcquired = Sets.newHashSet();
-    lockAndRemember(persistenceWriteLocks(dependency), persistenceLocksAcquired);
-    try {
+    // Writes
+    for (Variable variable : dependency.writes()) {
+      Object value = data.read(variable);
+      variable.driver().persistence().write(value);
+    }
 
-      // Writes
-      for (Variable variable : dependency.writes()) {
-        Object value = data.read(variable);
-        variable.driver().persistence().write(value);
+    // Commutations
+    for (Variable variable : dependency.commutations()) {
+      List<Commutation> commutations = data.accessor(variable).commutations();
+      Object value = variable.driver().persistence().read();
+      for (Commutation commutation : commutations) {
+        value = commutation.commute(value);
       }
-
-      // Commutations
-      for (Variable variable : dependency.commutations()) {
-        List<Commutation> commutations = data.accessor(variable).commutations();
-        Object value = variable.driver().persistence().read();
-        for (Commutation commutation : commutations) {
-          value = commutation.commute(value);
-        }
-        variable.driver().persistence().write(value);
-      }
-
-    } finally {
-      // Always release persistence write locks
-      unlock(persistenceLocksAcquired);
+      variable.driver().persistence().write(value);
     }
     // Release execution locks
     unlock(executionLocksAcquired);
@@ -126,46 +105,27 @@ public class BaseTransactionExecution implements TransactionExecution {
   }
 
   private boolean tryLock(Dependency dependency) {
-    return tryLockAndRemember(executionReadLocks(dependency), executionLocksAcquired)
-        && tryLockAndRemember(executionWriteLocks(dependency), executionLocksAcquired);
+    return tryLockAndRemember(readLocks(dependency), executionLocksAcquired)
+        && tryLockAndRemember(writeLocks(dependency), executionLocksAcquired);
   }
 
   private void lock(Dependency dependency) {
-    lockAndRemember(executionReadLocks(dependency), executionLocksAcquired);
-    lockAndRemember(executionWriteLocks(dependency), executionLocksAcquired);
+    lockAndRemember(readLocks(dependency), executionLocksAcquired);
+    lockAndRemember(writeLocks(dependency), executionLocksAcquired);
   }
 
-  private static List<Lock> executionReadLocks(Dependency dependency) {
+  private static List<Lock> readLocks(Dependency dependency) {
     List<Lock> result = Lists.newArrayList();
     for (Variable variable : dependency.reads()) {
-      result.add(variable.driver().executionLock().readLock());
+      result.add(variable.driver().lock().readLock());
     }
     return result;
   }
 
-  private static List<Lock> executionWriteLocks(Dependency dependency) {
+  private static List<Lock> writeLocks(Dependency dependency) {
     List<Lock> result = Lists.newArrayList();
     for (Variable variable : dependency.writes()) {
-      result.add(variable.driver().executionLock().writeLock());
-    }
-    return result;
-  }
-
-  private static List<Lock> persistenceReadLocks(Dependency dependency) {
-    List<Lock> result = Lists.newArrayList();
-    for (VariableDependency variableDependency : dependency.all()) {
-      result.add(variableDependency.variable().driver().persistenceLock().readLock());
-    }
-    return result;
-  }
-
-  private static List<Lock> persistenceWriteLocks(Dependency dependency) {
-    List<Lock> result = Lists.newArrayList();
-    for (VariableDependency variableDependency : dependency.all()) {
-      if (variableDependency.type() == DependencyType.WRITE
-          || variableDependency.type() == DependencyType.COMMUTATION) {
-        result.add(variableDependency.variable().driver().persistenceLock().writeLock());
-      }
+      result.add(variable.driver().lock().writeLock());
     }
     return result;
   }

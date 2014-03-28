@@ -31,10 +31,8 @@ public class CuratorDriver<VALUE> {
                                             CuratorFramework framework,
                                             SerializationHandler<VALUE> serializer) {
 
-    ReadWriteLock executionLock = new CuratorReadWriteLock(new InterProcessReadWriteLock(framework, path + "/executionLock"));
-    ReadWriteLock persistenceLock = new CuratorReadWriteLock(new InterProcessReadWriteLock(framework, path + "/persistenceLock"));
+    ReadWriteLock lock = new CuratorReadWriteLock(new InterProcessReadWriteLock(framework, path + "/lock"));
     Persistence<VALUE> persistence = new CuratorPersistence<VALUE>(framework, path, serializer);
-
-    return new BaseDriver<VALUE>(persistence, persistenceLock, executionLock);
+    return new BaseDriver<VALUE>(persistence, lock);
   }
 }

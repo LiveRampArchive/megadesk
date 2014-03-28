@@ -18,9 +18,7 @@ package com.liveramp.megadesk.core.state;
 
 public interface Driver<VALUE> {
 
-  ReadWriteLock executionLock();
-
-  ReadWriteLock persistenceLock();
+  ReadWriteLock lock();
 
   Persistence<VALUE> persistence();
 }
