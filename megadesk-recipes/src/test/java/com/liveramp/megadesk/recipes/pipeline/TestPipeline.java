@@ -1,7 +1,7 @@
 package com.liveramp.megadesk.recipes.pipeline;
 
 import com.google.common.collect.Lists;
-import com.liveramp.megadesk.base.state.Arg;
+import com.liveramp.megadesk.base.state.Param;
 import com.liveramp.megadesk.base.state.InMemoryDriver;
 import com.liveramp.megadesk.base.state.Local;
 import com.liveramp.megadesk.base.transaction.Bind;
@@ -76,7 +76,7 @@ public class TestPipeline extends BaseTestCase {
     private final Variable<TimestampedInteger> output;
 
     protected AddOne(Pipeline pipeline) {
-      this(new Arg<TimestampedInteger>(0), new Arg<TimestampedInteger>(1), pipeline);
+      this(new Param<TimestampedInteger>(0), new Param<TimestampedInteger>(1), pipeline);
     }
 
     protected AddOne(Variable<TimestampedInteger> input, Variable<TimestampedInteger> output, Pipeline pipeline) {
