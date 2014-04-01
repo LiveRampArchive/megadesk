@@ -24,11 +24,7 @@ public interface Dependency {
 
   List<VariableDependency> all();
 
-  List<Variable> snapshots();
-
   List<Variable> reads();
 
   List<Variable> writes();
-
-  List<Variable> commutations();
 }

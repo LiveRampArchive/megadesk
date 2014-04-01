@@ -23,7 +23,6 @@ import com.google.common.collect.Maps;
 import com.liveramp.megadesk.core.state.Reference;
 import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Accessor;
-import com.liveramp.megadesk.core.transaction.Commutation;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.DependencyType;
@@ -76,16 +75,6 @@ public class BaseContext implements Context {
   @Override
   public <VALUE> void write(Variable<VALUE> variable, VALUE value) {
     write(variable.reference(), value);
-  }
-
-  @Override
-  public <VALUE> VALUE commute(Reference<VALUE> reference, Commutation<VALUE> commutation) {
-    return accessor(reference).commute(commutation);
-  }
-
-  @Override
-  public <VALUE> VALUE commute(Variable<VALUE> variable, Commutation<VALUE> commutation) {
-    return commute(variable.reference(), commutation);
   }
 
   @Override

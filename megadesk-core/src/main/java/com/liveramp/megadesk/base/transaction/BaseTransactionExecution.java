@@ -26,7 +26,6 @@ import com.google.common.collect.Sets;
 
 import com.liveramp.megadesk.core.state.Lock;
 import com.liveramp.megadesk.core.state.Variable;
-import com.liveramp.megadesk.core.transaction.Commutation;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.TransactionExecution;
@@ -80,16 +79,6 @@ public class BaseTransactionExecution implements TransactionExecution {
     // Writes
     for (Variable variable : dependency.writes()) {
       Object value = data.read(variable);
-      variable.driver().persistence().write(value);
-    }
-
-    // Commutations
-    for (Variable variable : dependency.commutations()) {
-      List<Commutation> commutations = data.accessor(variable).commutations();
-      Object value = variable.driver().persistence().read();
-      for (Commutation commutation : commutations) {
-        value = commutation.commute(value);
-      }
       variable.driver().persistence().write(value);
     }
     // Release execution locks

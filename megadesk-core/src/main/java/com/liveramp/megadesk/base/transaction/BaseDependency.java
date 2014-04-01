@@ -15,19 +15,13 @@ import com.liveramp.megadesk.core.transaction.VariableDependency;
 public class BaseDependency implements Dependency {
 
   private final List<VariableDependency> all;
-  private final List<Variable> snapshots;
   private final List<Variable> reads;
   private final List<Variable> writes;
-  private final List<Variable> commutations;
 
-  public BaseDependency(Collection<Variable> snapshots,
-                        Collection<Variable> reads,
-                        Collection<Variable> writes,
-                        Collection<Variable> commutations) {
-    this.snapshots = prepareList(snapshots);
+  public BaseDependency(Collection<Variable> reads,
+                        Collection<Variable> writes) {
     this.reads = prepareList(reads);
     this.writes = prepareList(writes);
-    this.commutations = prepareList(commutations);
     this.all = prepareAll();
     checkIntegrity();
   }
@@ -41,31 +35,18 @@ public class BaseDependency implements Dependency {
 
   private List<VariableDependency> prepareAll() {
     List<VariableDependency> result = Lists.newArrayList();
-    for (Variable variable : snapshots) {
-      result.add(BaseVariableDependency.build(variable, DependencyType.SNAPSHOT));
-    }
     for (Variable variable : reads) {
       result.add(BaseVariableDependency.build(variable, DependencyType.READ));
     }
     for (Variable variable : writes) {
       result.add(BaseVariableDependency.build(variable, DependencyType.WRITE));
     }
-    for (Variable variable : commutations) {
-      result.add(BaseVariableDependency.build(variable, DependencyType.COMMUTATION));
-    }
     Collections.sort(result);
     return Collections.unmodifiableList(result);
   }
 
   private void checkIntegrity() {
-    checkDisjoint(snapshots, reads);
-    checkDisjoint(snapshots, writes);
-    checkDisjoint(snapshots, commutations);
-
     checkDisjoint(reads, writes);
-    checkDisjoint(reads, commutations);
-
-    checkDisjoint(writes, commutations);
   }
 
   private void checkDisjoint(Collection<Variable> a, Collection<Variable> b) {
@@ -79,21 +60,12 @@ public class BaseDependency implements Dependency {
     return all;
   }
 
-  public List<Variable> snapshots() {
-    return snapshots;
-  }
-
   public List<Variable> reads() {
     return reads;
   }
 
   public List<Variable> writes() {
     return writes;
-  }
-
-  @Override
-  public List<Variable> commutations() {
-    return commutations;
   }
 
   public static class Builder {
@@ -112,41 +84,20 @@ public class BaseDependency implements Dependency {
     }
 
     public Builder all(List<VariableDependency> dependencies) {
-      snapshots = Lists.newArrayList();
       reads = Lists.newArrayList();
       writes = Lists.newArrayList();
-      commutations = Lists.newArrayList();
       for (VariableDependency dependency : dependencies) {
         switch (dependency.type()) {
-          case SNAPSHOT:
-            snapshots.add(dependency.variable());
-            break;
           case READ:
             reads.add(dependency.variable());
             break;
           case WRITE:
             writes.add(dependency.variable());
             break;
-          case COMMUTATION:
-            commutations.add(dependency.variable());
-            break;
           default:
             throw new IllegalStateException();
         }
       }
-      return this;
-    }
-
-    public Builder snapshots(Variable... dependencies) {
-      return snapshots(Arrays.asList(dependencies));
-    }
-
-    public Builder snapshots(Variable[]... dependencies) {
-      return snapshots(concatenate(dependencies));
-    }
-
-    public Builder snapshots(List<Variable> dependencies) {
-      this.snapshots = Lists.newArrayList(dependencies);
       return this;
     }
 
@@ -176,19 +127,6 @@ public class BaseDependency implements Dependency {
       return this;
     }
 
-    public Builder commutations(Variable... dependencies) {
-      return commutations(Arrays.asList(dependencies));
-    }
-
-    public Builder commutations(Variable[]... dependencies) {
-      return commutations(concatenate(dependencies));
-    }
-
-    public Builder commutations(List<Variable> dependencies) {
-      this.commutations = Lists.newArrayList(dependencies);
-      return this;
-    }
-
     private List<Variable> concatenate(Variable[]... lists) {
       List<Variable> result = Lists.newArrayList();
       for (Variable[] list : lists) {
@@ -206,7 +144,7 @@ public class BaseDependency implements Dependency {
     }
 
     public BaseDependency build() {
-      return new BaseDependency(snapshots, reads, writes, commutations);
+      return new BaseDependency(reads, writes);
     }
   }
 

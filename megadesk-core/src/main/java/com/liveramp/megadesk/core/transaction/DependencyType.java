@@ -17,8 +17,6 @@
 package com.liveramp.megadesk.core.transaction;
 
 public enum DependencyType {
-  SNAPSHOT,
   READ,
-  WRITE,
-  COMMUTATION
+  WRITE
 }

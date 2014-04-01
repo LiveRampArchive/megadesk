@@ -17,32 +17,26 @@
 package com.liveramp.megadesk.base.transaction;
 
 import java.util.Arrays;
-import java.util.List;
-
-import com.google.common.collect.Lists;
 
 import com.liveramp.megadesk.base.state.InMemoryPersistence;
 import com.liveramp.megadesk.core.state.Persistence;
 import com.liveramp.megadesk.core.transaction.Accessor;
-import com.liveramp.megadesk.core.transaction.Commutation;
 import com.liveramp.megadesk.core.transaction.DependencyType;
 import com.liveramp.megadesk.utils.FormatUtils;
 
 public class BaseAccessor<VALUE> implements Accessor<VALUE> {
 
   private final Persistence<VALUE> persistence;
-  private final List<Commutation<VALUE>> commutations;
   private final DependencyType dependencyType;
 
   public BaseAccessor(VALUE value, DependencyType dependencyType) {
     this.dependencyType = dependencyType;
     this.persistence = new InMemoryPersistence<VALUE>(value);
-    this.commutations = Lists.newArrayList();
   }
 
   @Override
   public VALUE read() {
-    ensureDependencyType(DependencyType.SNAPSHOT, DependencyType.READ, DependencyType.WRITE, DependencyType.COMMUTATION);
+    ensureDependencyType(DependencyType.READ, DependencyType.WRITE);
     return persistence.read();
   }
 
@@ -50,21 +44,6 @@ public class BaseAccessor<VALUE> implements Accessor<VALUE> {
   public void write(VALUE value) {
     ensureDependencyType(DependencyType.WRITE);
     persistence.write(value);
-  }
-
-  @Override
-  public VALUE commute(Commutation<VALUE> commutation) {
-    ensureDependencyType(DependencyType.COMMUTATION);
-    VALUE value = commutation.commute(read());
-    persistence.write(value);
-    commutations.add(commutation);
-    return value;
-  }
-
-  @Override
-  public List<Commutation<VALUE>> commutations() {
-    ensureDependencyType(DependencyType.COMMUTATION);
-    return commutations;
   }
 
   private void ensureDependencyType(DependencyType... dependencyTypes) {

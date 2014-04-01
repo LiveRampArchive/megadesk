@@ -39,7 +39,6 @@ import com.liveramp.megadesk.recipes.gear.Outcome;
 import com.liveramp.megadesk.recipes.gear.worker.NaiveWorker;
 import com.liveramp.megadesk.recipes.gear.worker.Worker;
 import com.liveramp.megadesk.recipes.state.transaction.Alter;
-import com.liveramp.megadesk.recipes.state.transaction.Commute;
 import com.liveramp.megadesk.test.BaseTestCase;
 
 import static org.junit.Assert.assertEquals;
@@ -55,7 +54,7 @@ public class IntegrationTest extends BaseTestCase {
 
     public StepGear(StepGear... parents) {
       this.parents = Arrays.asList(parents);
-      setDependency(BaseDependency.builder().snapshots(variables(parents)).writes(variable).build());
+      setDependency(BaseDependency.builder().reads(variables(parents)).writes(variable).build());
     }
 
     private static List<Variable> variables(StepGear... parents) {
@@ -142,15 +141,15 @@ public class IntegrationTest extends BaseTestCase {
       @Override
       public Dependency dependency() {
         return BaseDependency.builder()
-                   .reads(A, B, C, D).build();
+            .reads(A, B, C, D).build();
       }
 
       @Override
       public Boolean run(Context context) throws Exception {
         return context.read(A) == 0
-                   && context.read(B) == 0
-                   && context.read(C) == 0
-                   && context.read(D) == 1;
+            && context.read(B) == 0
+            && context.read(C) == 0
+            && context.read(D) == 1;
       }
     }));
 
@@ -196,23 +195,5 @@ public class IntegrationTest extends BaseTestCase {
 
     assertEquals(Integer.valueOf(0), A.driver().persistence().read());
     assertEquals(Integer.valueOf(2), B.driver().persistence().read());
-  }
-
-  @Test
-  public void testCommutation() throws Exception {
-    final Variable<Integer> A = new InMemoryLocal<Integer>(0);
-
-    Transaction<Void> incrementCommutation = new Commute<Integer>() {
-      @Override
-      public Integer commute(Integer integer) {
-        return integer + 1;
-      }
-    };
-
-    // Increment A twice
-    executor().execute(incrementCommutation, new Bind(A));
-    executor().execute(incrementCommutation, new Bind(A));
-
-    assertEquals(Integer.valueOf(2), A.driver().persistence().read());
   }
 }

@@ -16,15 +16,9 @@
 
 package com.liveramp.megadesk.core.transaction;
 
-import java.util.List;
-
 public interface Accessor<VALUE> {
 
   VALUE read();
 
   void write(VALUE value);
-
-  List<Commutation<VALUE>> commutations();
-
-  VALUE commute(Commutation<VALUE> commutation);
 }
