@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes;
+package com.liveramp.megadesk.recipes.gear;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,9 +33,6 @@ import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.Executor;
 import com.liveramp.megadesk.core.transaction.Transaction;
-import com.liveramp.megadesk.recipes.gear.ConditionalGear;
-import com.liveramp.megadesk.recipes.gear.Gear;
-import com.liveramp.megadesk.recipes.gear.Outcome;
 import com.liveramp.megadesk.recipes.gear.worker.NaiveWorker;
 import com.liveramp.megadesk.recipes.gear.worker.Worker;
 import com.liveramp.megadesk.recipes.state.transaction.Alter;
@@ -43,9 +40,9 @@ import com.liveramp.megadesk.test.BaseTestCase;
 
 import static org.junit.Assert.assertEquals;
 
-public class IntegrationTest extends BaseTestCase {
+public class TestGear extends BaseTestCase {
 
-  private static final Logger LOG = Logger.getLogger(IntegrationTest.class);
+  private static final Logger LOG = Logger.getLogger(TestGear.class);
 
   private static class StepGear extends ConditionalGear implements Gear {
 
