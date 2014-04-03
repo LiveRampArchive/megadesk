@@ -17,6 +17,7 @@
 package com.liveramp.megadesk.base.transaction;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -28,7 +29,9 @@ import com.liveramp.megadesk.core.state.Lock;
 import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
+import com.liveramp.megadesk.core.transaction.DependencyType;
 import com.liveramp.megadesk.core.transaction.TransactionExecution;
+import com.liveramp.megadesk.core.transaction.VariableDependency;
 
 public class BaseTransactionExecution implements TransactionExecution {
 
@@ -42,10 +45,10 @@ public class BaseTransactionExecution implements TransactionExecution {
   private Dependency dependency;
   private Context data;
   private State state = State.STANDBY;
-  private final Set<Lock> executionLocksAcquired;
+  private final Set<Lock> locksAcquired;
 
   public BaseTransactionExecution() {
-    executionLocksAcquired = Sets.newHashSet();
+    locksAcquired = Sets.newHashSet();
   }
 
   @Override
@@ -82,39 +85,32 @@ public class BaseTransactionExecution implements TransactionExecution {
       variable.driver().persistence().write(value);
     }
     // Release execution locks
-    unlock(executionLocksAcquired);
+    unlock(locksAcquired);
     state = State.COMMITTED;
   }
 
   @Override
   public void abort() {
     ensureState(State.RUNNING);
-    unlock(executionLocksAcquired);
+    unlock(locksAcquired);
     state = State.ABORTED;
   }
 
   private boolean tryLock(Dependency dependency) {
-    return tryLockAndRemember(readLocks(dependency), executionLocksAcquired)
-        && tryLockAndRemember(writeLocks(dependency), executionLocksAcquired);
+    return tryLockAndRemember(orderedLocks(dependency), locksAcquired);
   }
 
   private void lock(Dependency dependency) {
-    lockAndRemember(readLocks(dependency), executionLocksAcquired);
-    lockAndRemember(writeLocks(dependency), executionLocksAcquired);
+    lockAndRemember(orderedLocks(dependency), locksAcquired);
   }
 
-  private static List<Lock> readLocks(Dependency dependency) {
+  // Locks are globally ordered to prevent deadlocks
+  private static List<Lock> orderedLocks(Dependency dependency) {
+    List<VariableDependency> all = Lists.newArrayList(dependency.all());
+    Collections.sort(all);
     List<Lock> result = Lists.newArrayList();
-    for (Variable variable : dependency.reads()) {
-      result.add(variable.driver().lock().readLock());
-    }
-    return result;
-  }
-
-  private static List<Lock> writeLocks(Dependency dependency) {
-    List<Lock> result = Lists.newArrayList();
-    for (Variable variable : dependency.writes()) {
-      result.add(variable.driver().lock().writeLock());
+    for (VariableDependency variableDependency : all) {
+      result.add(DependencyType.lock(variableDependency));
     }
     return result;
   }
@@ -158,7 +154,7 @@ public class BaseTransactionExecution implements TransactionExecution {
 
   private void ensureState(State state) {
     if (this.state != state) {
-      throw new IllegalStateException("TransactionExecution state should be " + state + " but is " + this.state);
+      throw new IllegalStateException("State should be " + state + " but is " + this.state);
     }
   }
 }
