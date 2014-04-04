@@ -63,10 +63,16 @@ public class BaseIterationCoordinator implements IterationCoordinator {
             return null;
           } else {
             Iteration nextIteration = iteration.call();
-            if (nextIteration != null && hasPermit(state)) {
-              return new CoordinatedIteration(nextIteration, state);
-            } else {
+            if (!hasPermit(state)) {
+              // No more permit, just abandon
               return null;
+            } else if (nextIteration == null) {
+              // Has a permit, but no next iteration, abandon permit and abandon
+              removePermit(state);
+              return null;
+            } else {
+              // Has a permit and has a next iteration, execute it
+              return new CoordinatedIteration(nextIteration, state);
             }
           }
         }
@@ -100,6 +106,17 @@ public class BaseIterationCoordinator implements IterationCoordinator {
       protected ImmutableList<String> alter(ImmutableList<String> value) {
         List<String> newPermits = Lists.newArrayList(value);
         newPermits.add(permit);
+        return ImmutableList.copyOf(newPermits);
+      }
+    });
+  }
+
+  private void removePermit(IterationState state) throws Exception {
+    transactionExecutor.execute(new Alter<ImmutableList<String>>(state.permits()) {
+      @Override
+      protected ImmutableList<String> alter(ImmutableList<String> value) {
+        List<String> newPermits = Lists.newArrayList(value);
+        newPermits.remove(permit);
         return ImmutableList.copyOf(newPermits);
       }
     });
