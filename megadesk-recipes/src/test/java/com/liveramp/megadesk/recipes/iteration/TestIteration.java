@@ -19,21 +19,21 @@ package com.liveramp.megadesk.recipes.iteration;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
+import com.liveramp.megadesk.base.state.InMemoryLocal;
 import com.liveramp.megadesk.test.BaseTestCase;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TestIteration extends BaseTestCase {
 
   @Test
-  public void testMain() throws Exception {
-
+  public void testIteration() throws Exception {
     final List<Integer> list = new ArrayList<Integer>();
-
     Iteration addFive = new Iteration() {
-
       @Override
       public Iteration call() throws Exception {
         list.add(list.size());
@@ -45,11 +45,30 @@ public class TestIteration extends BaseTestCase {
       }
     };
 
-    IterationExecutor executor = new IterationExecutor();
-
+    BaseIterationExecutor executor = new BaseIterationExecutor();
     executor.execute(addFive);
     executor.join();
-
     assertEquals(5, list.size());
+  }
+
+  @Test
+  public void testIterationCoordinator() throws Exception {
+    final List<Integer> list = new ArrayList<Integer>();
+    Iteration addNeverEnding = new Iteration() {
+      @Override
+      public Iteration call() throws Exception {
+        list.add(list.size());
+        return this;
+      }
+    };
+
+    IterationState state = new BaseIterationState(new InMemoryLocal(), new InMemoryLocal<ImmutableList<String>>(ImmutableList.<String>of()));
+
+    IterationCoordinator coordinator = new BaseIterationCoordinator();
+    coordinator.execute(addNeverEnding, state);
+    Thread.sleep(1000);
+    coordinator.shutdown(state);
+    coordinator.join();
+    assertTrue(list.size() > 0);
   }
 }

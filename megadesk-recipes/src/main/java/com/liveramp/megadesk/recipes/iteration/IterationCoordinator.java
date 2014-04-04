@@ -16,11 +16,9 @@
 
 package com.liveramp.megadesk.recipes.iteration;
 
-public interface IterationExecutor {
+public interface IterationCoordinator extends IterationExecutor {
 
-  void execute(Iteration iteration);
+  public void execute(Iteration iteration, IterationState state) throws Exception;
 
-  void execute(Iteration... iterations);
-
-  void join() throws InterruptedException;
+  public void shutdown(IterationState state) throws Exception;
 }

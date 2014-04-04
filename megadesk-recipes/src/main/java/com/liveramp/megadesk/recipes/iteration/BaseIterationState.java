@@ -16,11 +16,27 @@
 
 package com.liveramp.megadesk.recipes.iteration;
 
-public interface IterationExecutor {
+import com.google.common.collect.ImmutableList;
 
-  void execute(Iteration iteration);
+import com.liveramp.megadesk.core.state.Variable;
 
-  void execute(Iteration... iterations);
+public class BaseIterationState implements IterationState {
 
-  void join() throws InterruptedException;
+  private final Variable state;
+  private final Variable<ImmutableList<String>> permits;
+
+  public BaseIterationState(Variable state, Variable<ImmutableList<String>> permits) {
+    this.state = state;
+    this.permits = permits;
+  }
+
+  @Override
+  public Variable state() {
+    return state;
+  }
+
+  @Override
+  public Variable<ImmutableList<String>> permits() {
+    return permits;
+  }
 }
