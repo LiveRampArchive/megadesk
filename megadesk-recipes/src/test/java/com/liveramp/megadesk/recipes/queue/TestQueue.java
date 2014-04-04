@@ -16,29 +16,34 @@
 
 package com.liveramp.megadesk.recipes.queue;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import org.junit.Test;
+
 import com.liveramp.megadesk.base.state.InMemoryDriver;
 import com.liveramp.megadesk.base.transaction.BaseDependency;
 import com.liveramp.megadesk.base.transaction.BaseExecutor;
 import com.liveramp.megadesk.core.state.Driver;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
+import com.liveramp.megadesk.recipes.gear.BaseGearIteration;
 import com.liveramp.megadesk.recipes.gear.ConditionalGear;
 import com.liveramp.megadesk.recipes.gear.Gear;
 import com.liveramp.megadesk.recipes.gear.Outcome;
-import com.liveramp.megadesk.recipes.gear.worker.NaiveWorker;
+import com.liveramp.megadesk.recipes.iteration.BaseIterationExecutor;
+import com.liveramp.megadesk.recipes.iteration.IterationExecutor;
 import com.liveramp.megadesk.recipes.pipeline.DriverFactory;
 import com.liveramp.megadesk.test.BaseTestCase;
-import org.junit.Test;
-
-import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TestQueue extends BaseTestCase {
+
+  private final IterationExecutor iterationExecutor = new BaseIterationExecutor();
 
   @Test
   public void testBatching() {
@@ -104,8 +109,7 @@ public class TestQueue extends BaseTestCase {
 
     MultiplyBy10 multiplyBy10 = new MultiplyBy10(input.getQueue(), output.getQueue());
 
-    NaiveWorker worker = new NaiveWorker();
-    worker.run(multiplyBy10);
+    iterationExecutor.execute(new BaseGearIteration(multiplyBy10));
 
     input.append(10);
     input.append(20);

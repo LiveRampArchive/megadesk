@@ -1,21 +1,26 @@
 package com.liveramp.megadesk.recipes.pipeline;
 
+import java.util.List;
+
 import com.google.common.collect.Lists;
-import com.liveramp.megadesk.base.state.Param;
-import com.liveramp.megadesk.base.state.InMemoryDriver;
-import com.liveramp.megadesk.base.state.Local;
-import com.liveramp.megadesk.base.transaction.Bind;
-import com.liveramp.megadesk.core.state.Variable;
-import com.liveramp.megadesk.core.transaction.Context;
-import com.liveramp.megadesk.recipes.gear.Outcome;
-import com.liveramp.megadesk.recipes.gear.worker.NaiveWorker;
-import com.liveramp.megadesk.test.BaseTestCase;
 import junit.framework.Assert;
 import org.junit.Test;
 
-import java.util.List;
+import com.liveramp.megadesk.base.state.InMemoryDriver;
+import com.liveramp.megadesk.base.state.Local;
+import com.liveramp.megadesk.base.state.Param;
+import com.liveramp.megadesk.base.transaction.Bind;
+import com.liveramp.megadesk.core.state.Variable;
+import com.liveramp.megadesk.core.transaction.Context;
+import com.liveramp.megadesk.recipes.gear.BaseGearIteration;
+import com.liveramp.megadesk.recipes.gear.Outcome;
+import com.liveramp.megadesk.recipes.iteration.BaseIterationExecutor;
+import com.liveramp.megadesk.recipes.iteration.IterationExecutor;
+import com.liveramp.megadesk.test.BaseTestCase;
 
 public class TestPipeline extends BaseTestCase {
+
+  private final IterationExecutor iterationExecutor = new BaseIterationExecutor();
 
   @Test
   public void testTimeBasedPipeline() throws InterruptedException {
@@ -36,11 +41,9 @@ public class TestPipeline extends BaseTestCase {
 
     AddOne addOne = new AddOne(pipeline);
 
-    NaiveWorker worker = new NaiveWorker();
-    worker.run(addOne, new Bind(step1, step2));
-    worker.run(addOne, new Bind(step2, step3));
-    worker.run(addOne, new Bind(step3, step4));
-
+    iterationExecutor.execute(new BaseGearIteration(addOne, new Bind(step1, step2)));
+    iterationExecutor.execute(new BaseGearIteration(addOne, new Bind(step2, step3)));
+    iterationExecutor.execute(new BaseGearIteration(addOne, new Bind(step3, step4)));
 
     waitUntilValueEqual(step4, 4, 1000);
 
@@ -80,7 +83,7 @@ public class TestPipeline extends BaseTestCase {
     }
 
     protected AddOne(Variable<TimestampedInteger> input, Variable<TimestampedInteger> output, Pipeline pipeline) {
-      super((List) Lists.newArrayList(input), (List) Lists.newArrayList(output), pipeline);
+      super((List)Lists.newArrayList(input), (List)Lists.newArrayList(output), pipeline);
       this.input = input;
       this.output = output;
     }

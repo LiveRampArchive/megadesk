@@ -19,34 +19,41 @@ package com.liveramp.megadesk.recipes.gear;
 import org.apache.log4j.Logger;
 
 import com.liveramp.megadesk.base.transaction.BaseExecutor;
-import com.liveramp.megadesk.base.transaction.ExecutionResult;
 import com.liveramp.megadesk.core.transaction.Binding;
 import com.liveramp.megadesk.core.transaction.Executor;
+import com.liveramp.megadesk.recipes.iteration.Iteration;
 
-public class BaseGearExecutor implements GearExecutor {
+public class BaseGearIteration implements Iteration {
 
-  private static final Logger LOG = Logger.getLogger(BaseGearExecutor.class);
+  private static final Logger LOG = Logger.getLogger(BaseGearIteration.class);
 
   private final Executor executor = new BaseExecutor();
+  private final Gear gear;
+  private final Binding binding;
 
-  @Override
-  public Outcome execute(Gear gear) {
-    return execute(gear, null);
+  public BaseGearIteration(Gear gear) {
+    this(gear, null);
+  }
+
+  public BaseGearIteration(Gear gear, Binding binding) {
+    this.gear = gear;
+    this.binding = binding;
   }
 
   @Override
-  public Outcome execute(Gear gear, Binding binding) {
-    try {
-      ExecutionResult<Outcome> executionResult = executor.tryExecute(gear, binding);
-      if (executionResult.executed()) {
-        return executionResult.result();
-      } else {
-        return Outcome.STANDBY;
-      }
-    } catch (Exception e) {
-      LOG.error(e);
-      throw new RuntimeException(e); // TODO
-      // return Outcome.FAILURE;
+  public Iteration call() throws Exception {
+    Outcome outcome = executor.execute(gear, binding);
+    switch (outcome) {
+      case SUCCESS:
+        return this;
+      case FAILURE:
+        return null;
+      case STANDBY:
+        return this;
+      case ABANDON:
+        return null;
+      default:
+        throw new IllegalStateException(); // TODO
     }
   }
 }

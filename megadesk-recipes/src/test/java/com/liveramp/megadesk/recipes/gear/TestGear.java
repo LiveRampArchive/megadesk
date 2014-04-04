@@ -33,8 +33,8 @@ import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.Executor;
 import com.liveramp.megadesk.core.transaction.Transaction;
-import com.liveramp.megadesk.recipes.gear.worker.NaiveWorker;
-import com.liveramp.megadesk.recipes.gear.worker.Worker;
+import com.liveramp.megadesk.recipes.iteration.BaseIterationExecutor;
+import com.liveramp.megadesk.recipes.iteration.IterationExecutor;
 import com.liveramp.megadesk.recipes.state.transaction.Alter;
 import com.liveramp.megadesk.test.BaseTestCase;
 
@@ -43,6 +43,8 @@ import static org.junit.Assert.assertEquals;
 public class TestGear extends BaseTestCase {
 
   private static final Logger LOG = Logger.getLogger(TestGear.class);
+  private final IterationExecutor iterationExecutor = new BaseIterationExecutor();
+  private final Executor executor = new BaseExecutor();
 
   private static class StepGear extends ConditionalGear implements Gear {
 
@@ -110,12 +112,12 @@ public class TestGear extends BaseTestCase {
     }
   }
 
-  private Worker worker() {
-    return new NaiveWorker();
+  private IterationExecutor iterationExecutor() {
+    return iterationExecutor;
   }
 
   private Executor executor() {
-    return new BaseExecutor();
+    return executor;
   }
 
   @Test
@@ -130,7 +132,12 @@ public class TestGear extends BaseTestCase {
     Gear gearB = new TransferGear(B, C);
     Gear gearC = new TransferGear(C, D);
 
-    worker().complete(gearA, gearB, gearC);
+    iterationExecutor().execute(
+        new BaseGearIteration(gearA),
+        new BaseGearIteration(gearB),
+        new BaseGearIteration(gearC));
+
+    iterationExecutor().join();
 
     // Check using a transaction
     assertEquals(true, executor().execute(new Transaction<Boolean>() {
@@ -163,7 +170,13 @@ public class TestGear extends BaseTestCase {
     StepGear stepC = new StepGear(stepA);
     StepGear stepD = new StepGear(stepB, stepC);
 
-    worker().complete(stepA, stepB, stepC, stepD);
+    iterationExecutor().execute(
+        new BaseGearIteration(stepA),
+        new BaseGearIteration(stepB),
+        new BaseGearIteration(stepC),
+        new BaseGearIteration(stepD));
+
+    iterationExecutor().join();
 
     assertEquals(true, stepA.variable.driver().persistence().read());
     assertEquals(true, stepB.variable.driver().persistence().read());
