@@ -22,7 +22,7 @@ import com.liveramp.megadesk.core.state.Variable;
 
 public interface IterationState {
 
-  Variable state();
+  Variable iterationLock();
 
-  Variable<ImmutableList<String>> permits();
+  Variable<ImmutableList<String>> iterationPermits();
 }
