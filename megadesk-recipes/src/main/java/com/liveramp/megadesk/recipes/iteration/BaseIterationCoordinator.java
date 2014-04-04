@@ -55,7 +55,7 @@ public class BaseIterationCoordinator implements IterationCoordinator {
       return transactionExecutor.execute(new Transaction<Iteration>() {
         @Override
         public Dependency dependency() {
-          return BaseDependency.builder().writes(state.state()).build();
+          return BaseDependency.builder().writes(state.iterationLock()).build();
         }
 
         @Override
@@ -89,15 +89,15 @@ public class BaseIterationCoordinator implements IterationCoordinator {
 
   @Override
   public void shutdown(final IterationState state) throws Exception {
-    transactionExecutor.execute(new Write<ImmutableList<String>>(state.permits(), ImmutableList.<String>of()));
+    transactionExecutor.execute(new Write<ImmutableList<String>>(state.iterationPermits(), ImmutableList.<String>of()));
   }
 
   protected boolean hasPermit(final IterationState state) throws Exception {
-    return transactionExecutor.execute(new Read<ImmutableList<String>>(state.permits())).contains(permit);
+    return transactionExecutor.execute(new Read<ImmutableList<String>>(state.iterationPermits())).contains(permit);
   }
 
   protected void addPermit(final IterationState state) throws Exception {
-    transactionExecutor.execute(new Alter<ImmutableList<String>>(state.permits()) {
+    transactionExecutor.execute(new Alter<ImmutableList<String>>(state.iterationPermits()) {
       @Override
       protected ImmutableList<String> alter(ImmutableList<String> value) {
         List<String> newPermits = Lists.newArrayList(value);
@@ -108,7 +108,7 @@ public class BaseIterationCoordinator implements IterationCoordinator {
   }
 
   private void removePermit(IterationState state) throws Exception {
-    transactionExecutor.execute(new Alter<ImmutableList<String>>(state.permits()) {
+    transactionExecutor.execute(new Alter<ImmutableList<String>>(state.iterationPermits()) {
       @Override
       protected ImmutableList<String> alter(ImmutableList<String> value) {
         List<String> newPermits = Lists.newArrayList(value);

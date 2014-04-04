@@ -31,12 +31,12 @@ public class BaseIterationState implements IterationState {
   }
 
   @Override
-  public Variable state() {
+  public Variable iterationLock() {
     return state;
   }
 
   @Override
-  public Variable<ImmutableList<String>> permits() {
+  public Variable<ImmutableList<String>> iterationPermits() {
     return permits;
   }
 }
