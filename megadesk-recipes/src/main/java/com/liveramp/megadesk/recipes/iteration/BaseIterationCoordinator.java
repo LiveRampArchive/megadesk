@@ -28,6 +28,8 @@ import com.liveramp.megadesk.base.transaction.BaseExecutor;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.Transaction;
+import com.liveramp.megadesk.recipes.state.transaction.Alter;
+import com.liveramp.megadesk.recipes.state.transaction.Read;
 
 public class BaseIterationCoordinator implements IterationCoordinator {
 
@@ -80,47 +82,25 @@ public class BaseIterationCoordinator implements IterationCoordinator {
 
   @Override
   public void shutdown(final IterationState state) throws Exception {
-    transactionExecutor.execute(new Transaction<Void>() {
+    transactionExecutor.execute(new Alter<ImmutableList<String>>(state.permits()) {
       @Override
-      public Dependency dependency() {
-        return BaseDependency.builder().writes(state.permits()).build();
-      }
-
-      @Override
-      public Void run(Context context) throws Exception {
-        context.write(state.permits(), ImmutableList.<String>of());
-        return null;
+      protected ImmutableList<String> alter(ImmutableList<String> value) {
+        return ImmutableList.of();
       }
     });
   }
 
   protected boolean hasPermit(final IterationState state) throws Exception {
-    return transactionExecutor.execute(new Transaction<Boolean>() {
-      @Override
-      public Dependency dependency() {
-        return BaseDependency.builder().reads(state.permits()).build();
-      }
-
-      @Override
-      public Boolean run(Context context) throws Exception {
-        return context.read(state.permits()).contains(permit);
-      }
-    });
+    return transactionExecutor.execute(new Read<ImmutableList<String>>(state.permits())).contains(permit);
   }
 
   protected void addPermit(final IterationState state) throws Exception {
-    transactionExecutor.execute(new Transaction<Void>() {
+    transactionExecutor.execute(new Alter<ImmutableList<String>>(state.permits()) {
       @Override
-      public Dependency dependency() {
-        return BaseDependency.builder().writes(state.permits()).build();
-      }
-
-      @Override
-      public Void run(Context context) throws Exception {
-        List<String> newPermits = Lists.newArrayList(context.read(state.permits()));
+      protected ImmutableList<String> alter(ImmutableList<String> value) {
+        List<String> newPermits = Lists.newArrayList(value);
         newPermits.add(permit);
-        context.write(state.permits(), ImmutableList.copyOf(newPermits));
-        return null;
+        return ImmutableList.copyOf(newPermits);
       }
     });
   }
