@@ -47,6 +47,10 @@ public abstract class BaseQueue<VALUE, OUTPUT> {
     return BaseDependency.builder().writes(input, output, frozen).build();
   }
 
+  public Dependency getReadDependency() {
+    return BaseDependency.builder().reads(output).build();
+  }
+
   public void append(Context context, List<VALUE> values) {
     Append<VALUE> append = getAppendTransaction(values);
     try {

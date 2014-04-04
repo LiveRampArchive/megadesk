@@ -13,7 +13,7 @@ public class PopOne implements Transaction<Void> {
   private final Variable<ImmutableList> list;
   private final Variable<Boolean> frozen;
 
-  PopOne(Variable<ImmutableList> list, Variable<Boolean> frozen) {
+  public PopOne(Variable<ImmutableList> list, Variable<Boolean> frozen) {
     this.frozen = frozen;
     this.list = list;
     this.dependency = BaseDependency.builder().writes(this.list, this.frozen).build();

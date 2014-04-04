@@ -10,13 +10,13 @@ import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.Transaction;
 
-class Append<V> implements Transaction<Void> {
+public class Append<V> implements Transaction<Void> {
 
   private final Dependency dependency;
   private final Variable<ImmutableList> list;
   private final List<V> values;
 
-  Append(Variable<ImmutableList> driver, List<V> values) {
+  public Append(Variable<ImmutableList> driver, List<V> values) {
     this.values = values;
     this.list = driver;
     this.dependency = BaseDependency.builder().writes(list).build();

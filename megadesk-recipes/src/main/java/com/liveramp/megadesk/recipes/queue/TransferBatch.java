@@ -24,7 +24,7 @@ import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.Transaction;
 
-class TransferBatch implements Transaction<ImmutableList> {
+public class TransferBatch implements Transaction<ImmutableList> {
 
   private final Dependency dependency;
   private final Variable<ImmutableList> input;
