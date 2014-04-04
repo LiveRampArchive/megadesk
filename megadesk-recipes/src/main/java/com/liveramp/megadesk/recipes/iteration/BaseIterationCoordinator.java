@@ -30,6 +30,7 @@ import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.Transaction;
 import com.liveramp.megadesk.recipes.state.transaction.Alter;
 import com.liveramp.megadesk.recipes.state.transaction.Read;
+import com.liveramp.megadesk.recipes.state.transaction.Write;
 
 public class BaseIterationCoordinator implements IterationCoordinator {
 
@@ -88,12 +89,7 @@ public class BaseIterationCoordinator implements IterationCoordinator {
 
   @Override
   public void shutdown(final IterationState state) throws Exception {
-    transactionExecutor.execute(new Alter<ImmutableList<String>>(state.permits()) {
-      @Override
-      protected ImmutableList<String> alter(ImmutableList<String> value) {
-        return ImmutableList.of();
-      }
-    });
+    transactionExecutor.execute(new Write<ImmutableList<String>>(state.permits(), ImmutableList.<String>of()));
   }
 
   protected boolean hasPermit(final IterationState state) throws Exception {
