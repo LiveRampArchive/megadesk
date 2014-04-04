@@ -55,11 +55,9 @@ public class IterationExecutor {
     }
   }
 
-  public void execute(Iteration iteration) {
-    synchronized (executorService) {
-      clearRemainingTasks();
-      remainingTasks.add(executorService.submit(new Task(iteration)));
-    }
+  public synchronized void execute(Iteration iteration) {
+    clearRemainingTasks();
+    remainingTasks.add(executorService.submit(new Task(iteration)));
   }
 
   public void execute(Iteration... iterations) {
@@ -70,24 +68,24 @@ public class IterationExecutor {
 
   public void join() throws InterruptedException {
     while (true) {
-      synchronized (remainingTasks) {
-        clearRemainingTasks();
-        if (remainingTasks.size() == 0) {
-          return;
-        }
+      if (isEmpty()) {
+        return;
       }
       Thread.sleep(1000); // TODO
     }
   }
 
-  private void clearRemainingTasks() {
-    synchronized (remainingTasks) {
-      Iterator<Future> iterator = remainingTasks.iterator();
-      while (iterator.hasNext()) {
-        Future future = iterator.next();
-        if (future.isDone()) {
-          iterator.remove();
-        }
+  public synchronized boolean isEmpty() {
+    clearRemainingTasks();
+    return remainingTasks.size() == 0;
+  }
+
+  private synchronized void clearRemainingTasks() {
+    Iterator<Future> iterator = remainingTasks.iterator();
+    while (iterator.hasNext()) {
+      Future future = iterator.next();
+      if (future.isDone()) {
+        iterator.remove();
       }
     }
   }
