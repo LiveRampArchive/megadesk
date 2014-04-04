@@ -60,7 +60,6 @@ public class BaseIterationCoordinator implements IterationCoordinator {
           if (!hasPermit(state)) {
             return null;
           } else {
-            LOG.info("Starting " + state + " with permit " + permit);
             Iteration nextIteration = iteration.call();
             if (nextIteration != null && hasPermit(state)) {
               return new CoordinatedIteration(nextIteration, state);
