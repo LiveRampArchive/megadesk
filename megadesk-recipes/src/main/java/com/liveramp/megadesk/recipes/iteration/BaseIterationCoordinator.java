@@ -25,7 +25,6 @@ import org.apache.log4j.Logger;
 
 import com.liveramp.megadesk.base.transaction.BaseDependency;
 import com.liveramp.megadesk.base.transaction.BaseExecutor;
-import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.Transaction;
@@ -58,12 +57,12 @@ public class BaseIterationCoordinator implements IterationCoordinator {
 
         @Override
         public Iteration run(Context context) throws Exception {
-          if (!hasPermit(state.permits())) {
+          if (!hasPermit(state)) {
             return null;
           } else {
             LOG.info("Starting " + state + " with permit " + permit);
             Iteration nextIteration = iteration.call();
-            if (nextIteration != null && hasPermit(state.permits())) {
+            if (nextIteration != null && hasPermit(state)) {
               return new CoordinatedIteration(nextIteration, state);
             } else {
               return null;
@@ -96,16 +95,16 @@ public class BaseIterationCoordinator implements IterationCoordinator {
     });
   }
 
-  protected boolean hasPermit(final Variable<ImmutableList<String>> permits) throws Exception {
+  protected boolean hasPermit(final IterationState state) throws Exception {
     return transactionExecutor.execute(new Transaction<Boolean>() {
       @Override
       public Dependency dependency() {
-        return BaseDependency.builder().reads(permits).build();
+        return BaseDependency.builder().reads(state.permits()).build();
       }
 
       @Override
       public Boolean run(Context context) throws Exception {
-        return context.read(permits).contains(permit);
+        return context.read(state.permits()).contains(permit);
       }
     });
   }
