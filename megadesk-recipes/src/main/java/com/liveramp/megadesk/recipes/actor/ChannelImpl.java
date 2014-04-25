@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import com.liveramp.megadesk.base.transaction.BaseDependency;
-import com.liveramp.megadesk.base.transaction.BaseExecutor;
+import com.liveramp.megadesk.base.transaction.BaseTransactionExecutor;
 import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
@@ -86,6 +86,6 @@ public class ChannelImpl<Message> implements Channel<Message>, RawAddress<Messag
   }
 
   public Address port() {
-    return new Address(this, new BaseExecutor());
+    return new Address(this, new BaseTransactionExecutor());
   }
 }

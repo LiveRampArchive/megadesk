@@ -18,16 +18,16 @@ package com.liveramp.megadesk.recipes.gear;
 
 import org.apache.log4j.Logger;
 
-import com.liveramp.megadesk.base.transaction.BaseExecutor;
+import com.liveramp.megadesk.base.transaction.BaseTransactionExecutor;
 import com.liveramp.megadesk.core.transaction.Binding;
-import com.liveramp.megadesk.core.transaction.Executor;
+import com.liveramp.megadesk.core.transaction.TransactionExecutor;
 import com.liveramp.megadesk.recipes.iteration.Iteration;
 
 public class BaseGearIteration implements Iteration {
 
   private static final Logger LOG = Logger.getLogger(BaseGearIteration.class);
 
-  private final Executor executor = new BaseExecutor();
+  private final TransactionExecutor executor = new BaseTransactionExecutor();
   private final Gear gear;
   private final Binding binding;
 

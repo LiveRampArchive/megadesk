@@ -25,12 +25,12 @@ import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Binding;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
-import com.liveramp.megadesk.core.transaction.Executor;
+import com.liveramp.megadesk.core.transaction.TransactionExecutor;
 import com.liveramp.megadesk.core.transaction.Transaction;
 import com.liveramp.megadesk.core.transaction.TransactionExecution;
 import com.liveramp.megadesk.core.transaction.VariableDependency;
 
-public class BaseExecutor implements Executor {
+public class BaseTransactionExecutor implements TransactionExecutor {
 
   @Override
   public <V> V execute(Transaction<V> transaction) throws Exception {
@@ -38,7 +38,7 @@ public class BaseExecutor implements Executor {
   }
 
   @Override
-  public <V> ExecutionResult<V> tryExecute(Transaction<V> transaction) throws Exception {
+  public <V> TransactionExecutionResult<V> tryExecute(Transaction<V> transaction) throws Exception {
     return tryExecute(transaction, null);
   }
 
@@ -58,7 +58,7 @@ public class BaseExecutor implements Executor {
   }
 
   @Override
-  public <V> ExecutionResult<V> tryExecute(Transaction<V> transaction, Binding binding) throws Exception {
+  public <V> TransactionExecutionResult<V> tryExecute(Transaction<V> transaction, Binding binding) throws Exception {
     TransactionExecution transactionExecution = new BaseTransactionExecution();
     Dependency dependency = bindDependency(transaction.dependency(), binding);
     Context context = transactionExecution.tryBegin(dependency);
@@ -66,13 +66,13 @@ public class BaseExecutor implements Executor {
       try {
         V resultValue = transaction.run(context);
         transactionExecution.commit();
-        return new ExecutionResult<V>(true, resultValue);
+        return new TransactionExecutionResult<V>(true, resultValue);
       } catch (Exception e) {
         transactionExecution.abort();
         throw e;
       }
     } else {
-      return new ExecutionResult<V>(false, null);
+      return new TransactionExecutionResult<V>(false, null);
     }
   }
 

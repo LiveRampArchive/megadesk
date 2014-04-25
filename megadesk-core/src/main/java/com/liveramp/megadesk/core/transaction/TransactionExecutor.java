@@ -16,15 +16,15 @@
 
 package com.liveramp.megadesk.core.transaction;
 
-import com.liveramp.megadesk.base.transaction.ExecutionResult;
+import com.liveramp.megadesk.base.transaction.TransactionExecutionResult;
 
-public interface Executor {
+public interface TransactionExecutor {
 
   <V> V execute(Transaction<V> transaction) throws Exception;
 
-  <V> ExecutionResult<V> tryExecute(Transaction<V> transaction) throws Exception;
+  <V> TransactionExecutionResult<V> tryExecute(Transaction<V> transaction) throws Exception;
 
   <V> V execute(Transaction<V> transaction, Binding binding) throws Exception;
 
-  <V> ExecutionResult<V> tryExecute(Transaction<V> transaction, Binding binding) throws Exception;
+  <V> TransactionExecutionResult<V> tryExecute(Transaction<V> transaction, Binding binding) throws Exception;
 }

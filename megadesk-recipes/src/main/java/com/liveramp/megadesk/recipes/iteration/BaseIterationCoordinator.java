@@ -24,7 +24,7 @@ import com.google.common.collect.Lists;
 import org.apache.log4j.Logger;
 
 import com.liveramp.megadesk.base.transaction.BaseDependency;
-import com.liveramp.megadesk.base.transaction.BaseExecutor;
+import com.liveramp.megadesk.base.transaction.BaseTransactionExecutor;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.Transaction;
@@ -37,7 +37,7 @@ public class BaseIterationCoordinator implements IterationCoordinator {
   private final static Logger LOG = Logger.getLogger(BaseIterationCoordinator.class);
 
   private final BaseIterationExecutor iterationExecutor = new BaseIterationExecutor();
-  private final BaseExecutor transactionExecutor = new BaseExecutor();
+  private final BaseTransactionExecutor transactionExecutor = new BaseTransactionExecutor();
   private final String permit = UUID.randomUUID().toString();
 
   private class CoordinatedIteration implements Iteration {

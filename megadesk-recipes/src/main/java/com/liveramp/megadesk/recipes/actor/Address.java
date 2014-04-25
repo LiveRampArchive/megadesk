@@ -1,13 +1,13 @@
 package com.liveramp.megadesk.recipes.actor;
 
-import com.liveramp.megadesk.base.transaction.BaseExecutor;
+import com.liveramp.megadesk.base.transaction.BaseTransactionExecutor;
 
 public class Address<Message> {
 
   private final RawAddress<Message> add;
-  private final BaseExecutor exec;
+  private final BaseTransactionExecutor exec;
 
-  public Address(RawAddress<Message> add, BaseExecutor exec) {
+  public Address(RawAddress<Message> add, BaseTransactionExecutor exec) {
     this.add = add;
     this.exec = exec;
   }

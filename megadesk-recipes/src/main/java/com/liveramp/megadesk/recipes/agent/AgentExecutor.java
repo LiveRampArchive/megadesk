@@ -20,13 +20,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import com.liveramp.megadesk.base.transaction.BaseExecutor;
-import com.liveramp.megadesk.core.transaction.Executor;
+import com.liveramp.megadesk.base.transaction.BaseTransactionExecutor;
+import com.liveramp.megadesk.core.transaction.TransactionExecutor;
 
 public class AgentExecutor {
 
   private final ExecutorService executor = Executors.newFixedThreadPool(100);
-  private final Executor transactionExecutor = new BaseExecutor();
+  private final TransactionExecutor transactionExecutor = new BaseTransactionExecutor();
 
   public void join() throws InterruptedException {
     executor.shutdown();

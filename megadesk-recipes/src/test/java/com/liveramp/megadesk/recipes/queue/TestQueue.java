@@ -25,7 +25,7 @@ import org.junit.Test;
 
 import com.liveramp.megadesk.base.state.InMemoryDriver;
 import com.liveramp.megadesk.base.transaction.BaseDependency;
-import com.liveramp.megadesk.base.transaction.BaseExecutor;
+import com.liveramp.megadesk.base.transaction.BaseTransactionExecutor;
 import com.liveramp.megadesk.core.state.Driver;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
@@ -49,7 +49,7 @@ public class TestQueue extends BaseTestCase {
   public void testBatching() {
 
     DriverFactory factory = new BasicFactory();
-    BaseExecutor executor = new BaseExecutor();
+    BaseTransactionExecutor executor = new BaseTransactionExecutor();
     BatchExecutable<Integer> batch = BatchExecutable.getBatchByName("summed-integers", factory, executor);
 
     //basic batching
@@ -84,7 +84,7 @@ public class TestQueue extends BaseTestCase {
   @Test
   public void testQueue() {
     DriverFactory factory = new BasicFactory();
-    BaseExecutor executor = new BaseExecutor();
+    BaseTransactionExecutor executor = new BaseTransactionExecutor();
     QueueExecutable<Integer> queue = QueueExecutable.getQueueByName("integers", factory, executor);
 
     queue.append(10);
@@ -103,7 +103,7 @@ public class TestQueue extends BaseTestCase {
   public void testQueueTransactions() throws InterruptedException {
 
     DriverFactory factory = new BasicFactory();
-    BaseExecutor executor = new BaseExecutor();
+    BaseTransactionExecutor executor = new BaseTransactionExecutor();
     QueueExecutable<Integer> input = QueueExecutable.getQueueByName("input", factory, executor);
     QueueExecutable<Integer> output = QueueExecutable.getQueueByName("output", factory, executor);
 

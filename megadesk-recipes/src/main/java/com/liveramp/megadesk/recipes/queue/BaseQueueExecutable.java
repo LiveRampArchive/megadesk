@@ -19,14 +19,14 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import com.liveramp.megadesk.core.transaction.Executor;
+import com.liveramp.megadesk.core.transaction.TransactionExecutor;
 
 public abstract class BaseQueueExecutable<VALUE, OUTPUT> {
 
   private final BaseQueue<VALUE, OUTPUT> queue;
-  private Executor executor;
+  private TransactionExecutor executor;
 
-  public BaseQueueExecutable(BaseQueue<VALUE, OUTPUT> queue, Executor executor) {
+  public BaseQueueExecutable(BaseQueue<VALUE, OUTPUT> queue, TransactionExecutor executor) {
     this.queue = queue;
     this.executor = executor;
   }

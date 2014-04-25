@@ -8,23 +8,23 @@ import com.google.common.collect.Lists;
 
 import com.liveramp.megadesk.base.state.InMemoryLocal;
 import com.liveramp.megadesk.base.transaction.BaseDependency;
-import com.liveramp.megadesk.base.transaction.BaseExecutor;
+import com.liveramp.megadesk.base.transaction.BaseTransactionExecutor;
 import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
-import com.liveramp.megadesk.core.transaction.Executor;
+import com.liveramp.megadesk.core.transaction.TransactionExecutor;
 import com.liveramp.megadesk.core.transaction.Transaction;
 
 public abstract class Actor<State, Message> {
 
   private final ChannelImpl<Message> mailbox;
-  private final Executor executor;
+  private final TransactionExecutor executor;
   private final List<Transaction<Void>> sendOffs = Lists.newArrayList();
   private final Variable<State> state;
   private final ActorId actorId;
 
 
-  protected Actor(Channel<Message> mailbox, Executor executor, Variable<State> state, ActorId actorId) {
+  protected Actor(Channel<Message> mailbox, TransactionExecutor executor, Variable<State> state, ActorId actorId) {
     this.state = state;
     this.actorId = actorId;
     this.mailbox = (ChannelImpl<Message>)mailbox;
@@ -32,7 +32,7 @@ public abstract class Actor<State, Message> {
   }
 
   protected Actor(String uniqueName, State state) {
-    this.executor = new BaseExecutor();
+    this.executor = new BaseTransactionExecutor();
     this.mailbox = new ChannelImpl<Message>(new InMemoryLocal<ImmutableList<Message>>(ImmutableList.<Message>of()));
     this.state = new InMemoryLocal<State>(state);
     this.actorId = new ActorId(uniqueName);
@@ -81,7 +81,7 @@ public abstract class Actor<State, Message> {
 
   public void spawn(ExecutorService service) {
     final Actor thisActor = this;
-    final BaseExecutor exec = new BaseExecutor();
+    final BaseTransactionExecutor exec = new BaseTransactionExecutor();
     Runnable runnable = new Runnable() {
 
       @Override

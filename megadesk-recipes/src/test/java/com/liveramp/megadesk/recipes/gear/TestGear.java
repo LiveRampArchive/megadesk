@@ -25,13 +25,13 @@ import org.junit.Test;
 
 import com.liveramp.megadesk.base.state.InMemoryLocal;
 import com.liveramp.megadesk.base.transaction.BaseDependency;
-import com.liveramp.megadesk.base.transaction.BaseExecutor;
+import com.liveramp.megadesk.base.transaction.BaseTransactionExecutor;
 import com.liveramp.megadesk.base.transaction.Bind;
 import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Accessor;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
-import com.liveramp.megadesk.core.transaction.Executor;
+import com.liveramp.megadesk.core.transaction.TransactionExecutor;
 import com.liveramp.megadesk.core.transaction.Transaction;
 import com.liveramp.megadesk.recipes.iteration.BaseIterationExecutor;
 import com.liveramp.megadesk.recipes.iteration.IterationExecutor;
@@ -44,7 +44,7 @@ public class TestGear extends BaseTestCase {
 
   private static final Logger LOG = Logger.getLogger(TestGear.class);
   private final IterationExecutor iterationExecutor = new BaseIterationExecutor();
-  private final Executor executor = new BaseExecutor();
+  private final TransactionExecutor executor = new BaseTransactionExecutor();
 
   private static class StepGear extends ConditionalGear implements Gear {
 
@@ -116,7 +116,7 @@ public class TestGear extends BaseTestCase {
     return iterationExecutor;
   }
 
-  private Executor executor() {
+  private TransactionExecutor executor() {
     return executor;
   }
 
