@@ -16,8 +16,6 @@
 
 package com.liveramp.megadesk.core.transaction;
 
-import com.liveramp.megadesk.base.transaction.TransactionExecutionResult;
-
 public interface TransactionExecutor {
 
   <V> V execute(Transaction<V> transaction) throws Exception;

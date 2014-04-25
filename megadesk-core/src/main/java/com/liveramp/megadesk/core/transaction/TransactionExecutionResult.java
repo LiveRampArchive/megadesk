@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.base.transaction;
+package com.liveramp.megadesk.core.transaction;
 
 public class TransactionExecutionResult<V> {
 
