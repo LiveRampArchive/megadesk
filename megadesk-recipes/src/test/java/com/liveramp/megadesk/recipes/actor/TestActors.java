@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -31,7 +32,14 @@ public class TestActors {
     multTwenty.addRecipient(print.rawAddress());
 
 
-    ThreadPoolExecutor service = new ScheduledThreadPoolExecutor(20);
+    ThreadPoolExecutor service = new ScheduledThreadPoolExecutor(20, new ThreadFactory() {
+      @Override
+      public Thread newThread(Runnable runnable) {
+        Thread t = new Thread(runnable);
+        t.setDaemon(true);
+        return t;
+      }
+    });
 
     splitEvenAndOdd.spawn(service);
     multTwenty.spawn(service);
@@ -45,8 +53,8 @@ public class TestActors {
     address.send(5);
     address.send(20);
 
-    service.awaitTermination(2, TimeUnit.SECONDS);
-
+    service.awaitTermination(1, TimeUnit.SECONDS);
+    service.shutdownNow();
 
   }
 
@@ -354,7 +362,7 @@ public class TestActors {
         head.address().send(new ActorId("Go!"));
       }
       try {
-        service.awaitTermination(100, TimeUnit.SECONDS);
+        service.awaitTermination(1, TimeUnit.SECONDS);
       } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
