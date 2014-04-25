@@ -52,33 +52,36 @@ public class BaseIterationCoordinator implements IterationCoordinator {
 
     @Override
     public Iteration call() throws Exception {
-      return transactionExecutor.execute(new Transaction<Iteration>() {
-        @Override
-        public Dependency dependency() {
-          return BaseDependency.builder().writes(state.iterationLock()).build();
-        }
+      return transactionExecutor.execute(new CallTransaction());
+    }
 
-        @Override
-        public Iteration run(Context context) throws Exception {
+    private class CallTransaction implements Transaction<Iteration> {
+
+      @Override
+      public Dependency dependency() {
+        return BaseDependency.builder().writes(state.iterationLock()).build();
+      }
+
+      @Override
+      public Iteration run(Context context) throws Exception {
+        if (!hasPermit(state)) {
+          // No permit, just abandon
+          return null;
+        } else {
+          Iteration nextIteration = iteration.call();
           if (!hasPermit(state)) {
-            // No permit, just abandon
+            // No permit anymore, just abandon
+            return null;
+          } else if (nextIteration == null) {
+            // Has a permit, but no next iteration, abandon permit and abandon
+            removePermit(state);
             return null;
           } else {
-            Iteration nextIteration = iteration.call();
-            if (!hasPermit(state)) {
-              // No permit anymore, just abandon
-              return null;
-            } else if (nextIteration == null) {
-              // Has a permit, but no next iteration, abandon permit and abandon
-              removePermit(state);
-              return null;
-            } else {
-              // Has a permit and has a next iteration, execute it
-              return new CoordinatedIteration(nextIteration, state);
-            }
+            // Has a permit and has a next iteration, execute it
+            return new CoordinatedIteration(nextIteration, state);
           }
         }
-      });
+      }
     }
   }
 
