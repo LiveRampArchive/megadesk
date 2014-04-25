@@ -35,7 +35,7 @@ import com.liveramp.megadesk.core.transaction.TransactionExecutor;
 import com.liveramp.megadesk.core.transaction.Transaction;
 import com.liveramp.megadesk.recipes.iteration.BaseIterationExecutor;
 import com.liveramp.megadesk.recipes.iteration.IterationExecutor;
-import com.liveramp.megadesk.recipes.state.transaction.Alter;
+import com.liveramp.megadesk.recipes.transaction.Alter;
 import com.liveramp.megadesk.test.BaseTestCase;
 
 import static org.junit.Assert.assertEquals;

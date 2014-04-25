@@ -28,9 +28,9 @@ import com.liveramp.megadesk.base.transaction.BaseTransactionExecutor;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.Transaction;
-import com.liveramp.megadesk.recipes.state.transaction.Alter;
-import com.liveramp.megadesk.recipes.state.transaction.Read;
-import com.liveramp.megadesk.recipes.state.transaction.Write;
+import com.liveramp.megadesk.recipes.transaction.Alter;
+import com.liveramp.megadesk.recipes.transaction.Read;
+import com.liveramp.megadesk.recipes.transaction.Write;
 
 public class BaseIterationCoordinator implements IterationCoordinator {
 
