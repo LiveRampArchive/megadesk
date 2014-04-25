@@ -45,7 +45,7 @@ public class TestActors {
     address.send(5);
     address.send(20);
 
-    service.awaitTermination(100, TimeUnit.SECONDS);
+    service.awaitTermination(2, TimeUnit.SECONDS);
 
 
   }
@@ -87,6 +87,26 @@ public class TestActors {
         send(output, largerM);
       }
       return null;
+    }
+  }
+
+  class KeepEvensSendOdds extends Actor<Set<Integer>, Integer> {
+
+    private final RawAddress<Integer> recipient;
+
+    protected KeepEvensSendOdds(String uniqueName, RawAddress<Integer> recipient) {
+      super(uniqueName, Sets.<Integer>newHashSet());
+      this.recipient = recipient;
+    }
+
+    @Override
+    protected Set<Integer> act(Set<Integer> state, Integer m) {
+      if (m % 2 == 0) {
+        state.add(m);
+      } else {
+        send(recipient, m);
+      }
+      return state;
     }
   }
 

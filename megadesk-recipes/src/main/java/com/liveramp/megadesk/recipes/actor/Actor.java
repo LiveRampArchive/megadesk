@@ -91,7 +91,6 @@ public abstract class Actor<State, Message> {
           try {
             exec.execute(finalizingTransaction);
           } catch (Exception e) {
-            e.printStackTrace();
             throw new RuntimeException(e);
           }
         }
