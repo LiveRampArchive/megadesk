@@ -61,11 +61,12 @@ public class BaseIterationCoordinator implements IterationCoordinator {
         @Override
         public Iteration run(Context context) throws Exception {
           if (!hasPermit(state)) {
+            // No permit, just abandon
             return null;
           } else {
             Iteration nextIteration = iteration.call();
             if (!hasPermit(state)) {
-              // No more permit, just abandon
+              // No permit anymore, just abandon
               return null;
             } else if (nextIteration == null) {
               // Has a permit, but no next iteration, abandon permit and abandon
