@@ -23,15 +23,15 @@ import com.google.common.collect.Maps;
 
 import com.liveramp.megadesk.core.state.Variable;
 
-public class InterProcessKeyedAggregator<KEY, AGGREGATE> extends InterProcessAggregator<ImmutableMap<KEY, AGGREGATE>> {
+public class InterProcessKeyedAggregator<KEY, AGGREGAND, AGGREGATE> extends InterProcessAggregator<ImmutableMap<KEY, AGGREGAND>, ImmutableMap<KEY, AGGREGATE>> {
 
   public InterProcessKeyedAggregator(Variable<ImmutableMap<KEY, AGGREGATE>> variable,
-                                     Aggregator<AGGREGATE> aggregator) {
-    super(variable, new KeyedAggregator<KEY, AGGREGATE>(aggregator));
+                                     Aggregator<AGGREGAND, AGGREGATE> aggregator) {
+    super(variable, new KeyedAggregator<KEY, AGGREGAND, AGGREGATE>(aggregator));
   }
 
-  public AGGREGATE aggregateLocal(KEY key, AGGREGATE value) {
-    ImmutableMap<KEY, AGGREGATE> aggregate = ImmutableMap.of(key, value);
+  public AGGREGATE aggregateLocal(KEY key, AGGREGAND value) {
+    ImmutableMap<KEY, AGGREGAND> aggregate = ImmutableMap.of(key, value);
     return aggregateLocal(aggregate).get(key);
   }
 
@@ -48,11 +48,11 @@ public class InterProcessKeyedAggregator<KEY, AGGREGATE> extends InterProcessAgg
     }
   }
 
-  private static class KeyedAggregator<KEY, AGGREGATE> implements Aggregator<ImmutableMap<KEY, AGGREGATE>> {
+  private static class KeyedAggregator<KEY, AGGREGAND, AGGREGATE> implements Aggregator<ImmutableMap<KEY, AGGREGAND>, ImmutableMap<KEY, AGGREGATE>> {
 
-    private final Aggregator<AGGREGATE> aggregator;
+    private final Aggregator<AGGREGAND, AGGREGATE> aggregator;
 
-    private KeyedAggregator(Aggregator<AGGREGATE> aggregator) {
+    private KeyedAggregator(Aggregator<AGGREGAND, AGGREGATE> aggregator) {
       this.aggregator = aggregator;
     }
 
@@ -62,21 +62,38 @@ public class InterProcessKeyedAggregator<KEY, AGGREGATE> extends InterProcessAgg
     }
 
     @Override
-    public ImmutableMap<KEY, AGGREGATE> aggregate(ImmutableMap<KEY, AGGREGATE> aggregate, ImmutableMap<KEY, AGGREGATE> value) {
-      Map<KEY, AGGREGATE> result = Maps.newHashMap();
-      aggregateMap(aggregate, result);
+    public ImmutableMap<KEY, AGGREGATE> aggregate(ImmutableMap<KEY, AGGREGAND> value, ImmutableMap<KEY, AGGREGATE> aggregate) {
+      Map<KEY, AGGREGATE> result = Maps.newHashMap(aggregate);
       aggregateMap(value, result);
       return ImmutableMap.copyOf(result);
     }
 
-    private void aggregateMap(ImmutableMap<KEY, AGGREGATE> input, Map<KEY, AGGREGATE> result) {
+    @Override
+    public ImmutableMap<KEY, AGGREGATE> merge(ImmutableMap<KEY, AGGREGATE> lhs, ImmutableMap<KEY, AGGREGATE> rhs) {
+      Map<KEY, AGGREGATE> result = Maps.newHashMap(lhs);
+      mergeMap(rhs, result);
+      return ImmutableMap.copyOf(result);
+    }
+
+    private void aggregateMap(ImmutableMap<KEY, AGGREGAND> input, Map<KEY, AGGREGATE> result) {
+      for (Map.Entry<KEY, AGGREGAND> entry : input.entrySet()) {
+        KEY key = entry.getKey();
+        AGGREGAND value = entry.getValue();
+        if (!result.containsKey(key)) {
+          result.put(key, aggregator.initialValue());
+        }
+        result.put(key, aggregator.aggregate(value, result.get(key)));
+      }
+    }
+
+    private void mergeMap(ImmutableMap<KEY, AGGREGATE> input, Map<KEY, AGGREGATE> result) {
       for (Map.Entry<KEY, AGGREGATE> entry : input.entrySet()) {
         KEY key = entry.getKey();
         AGGREGATE aggregate = entry.getValue();
         if (!result.containsKey(key)) {
           result.put(key, aggregator.initialValue());
         }
-        result.put(key, aggregator.aggregate(result.get(key), aggregate));
+        result.put(key, aggregator.merge(aggregate, result.get(key)));
       }
     }
   }

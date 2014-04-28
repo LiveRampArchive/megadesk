@@ -16,9 +16,11 @@
 
 package com.liveramp.megadesk.recipes.aggregator;
 
-public interface Aggregator<AGGREGATE> {
+public interface Aggregator<AGGREGAND, AGGREGATE> {
 
   AGGREGATE initialValue();
 
-  AGGREGATE aggregate(AGGREGATE aggregate, AGGREGATE value);
+  AGGREGATE aggregate(AGGREGAND value, AGGREGATE aggregate);
+
+  AGGREGATE merge(AGGREGATE lhs, AGGREGATE rhs);
 }

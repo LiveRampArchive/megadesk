@@ -23,14 +23,14 @@ import com.liveramp.megadesk.recipes.transaction.Alter;
 import com.liveramp.megadesk.recipes.transaction.Read;
 import com.liveramp.megadesk.recipes.transaction.Write;
 
-public class InterProcessAggregator<AGGREGATE> {
+public class InterProcessAggregator<AGGREGAND, AGGREGATE> {
 
-  private final Aggregator<AGGREGATE> aggregator;
+  private final Aggregator<AGGREGAND, AGGREGATE> aggregator;
   private final Variable<AGGREGATE> variable;
   private final TransactionExecutor executor;
   private AGGREGATE aggregate;
 
-  public InterProcessAggregator(Variable<AGGREGATE> variable, Aggregator<AGGREGATE> aggregator) {
+  public InterProcessAggregator(Variable<AGGREGATE> variable, Aggregator<AGGREGAND, AGGREGATE> aggregator) {
     this.variable = variable;
     this.aggregator = aggregator;
     this.executor = new BaseTransactionExecutor();
@@ -50,13 +50,13 @@ public class InterProcessAggregator<AGGREGATE> {
     executor.execute(new Write<AGGREGATE>(variable, aggregator.initialValue()));
   }
 
-  public AGGREGATE aggregateLocal(AGGREGATE value) {
-    aggregate = aggregator.aggregate(aggregate, value);
+  public AGGREGATE aggregateLocal(AGGREGAND value) {
+    aggregate = aggregator.aggregate(value, aggregate);
     return aggregate;
   }
 
   public AGGREGATE aggregateRemote() throws Exception {
-    AGGREGATE result = executor.execute(new Aggregate<AGGREGATE>(variable, aggregator, aggregate));
+    AGGREGATE result = executor.execute(new Aggregate<AGGREGAND, AGGREGATE>(variable, aggregator, aggregate));
     resetLocal();
     return result;
   }
@@ -69,12 +69,12 @@ public class InterProcessAggregator<AGGREGATE> {
     return executor.execute(new Read<AGGREGATE>(variable));
   }
 
-  private static class Aggregate<AGGREGATE> extends Alter<AGGREGATE> {
+  private static class Aggregate<AGGREGAND, AGGREGATE> extends Alter<AGGREGATE> {
 
-    private final Aggregator<AGGREGATE> aggregator;
+    private final Aggregator<AGGREGAND, AGGREGATE> aggregator;
     private final AGGREGATE partialAggregate;
 
-    private Aggregate(Variable<AGGREGATE> variable, Aggregator<AGGREGATE> aggregator, AGGREGATE partialAggregate) {
+    private Aggregate(Variable<AGGREGATE> variable, Aggregator<AGGREGAND, AGGREGATE> aggregator, AGGREGATE partialAggregate) {
       super(variable);
       this.aggregator = aggregator;
       this.partialAggregate = partialAggregate;
@@ -85,7 +85,7 @@ public class InterProcessAggregator<AGGREGATE> {
       if (aggregate == null) {
         aggregate = aggregator.initialValue();
       }
-      return aggregator.aggregate(aggregate, partialAggregate);
+      return aggregator.merge(aggregate, partialAggregate);
     }
   }
 }
