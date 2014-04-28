@@ -30,17 +30,12 @@ public class InterProcessKeyedAggregator<KEY, AGGREGAND, AGGREGATE> extends Inte
     super(variable, new KeyedAggregator<KEY, AGGREGAND, AGGREGATE>(aggregator));
   }
 
-  public AGGREGATE aggregateLocal(KEY key, AGGREGAND value) {
-    ImmutableMap<KEY, AGGREGAND> aggregate = ImmutableMap.of(key, value);
-    return aggregateLocal(aggregate).get(key);
+  public AGGREGATE aggregate(KEY key, AGGREGAND value) {
+    return aggregate(ImmutableMap.of(key, value)).get(key);
   }
 
-  public AGGREGATE readLocal(KEY key) {
-    return readLocal().get(key);
-  }
-
-  public AGGREGATE readRemote(KEY key) throws Exception {
-    ImmutableMap<KEY, AGGREGATE> remote = readRemote();
+  public AGGREGATE read(KEY key) throws Exception {
+    ImmutableMap<KEY, AGGREGATE> remote = read();
     if (remote == null) {
       return null;
     } else {

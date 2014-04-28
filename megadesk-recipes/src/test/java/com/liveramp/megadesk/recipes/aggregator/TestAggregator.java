@@ -85,18 +85,18 @@ public class TestAggregator extends BaseTestCase {
     iterAggregate(5, aggregator2);
     iterAggregate(3, aggregator3);
 
-    Assert.assertEquals(Integer.valueOf(36), aggregator1.readRemote());
+    Assert.assertEquals(Integer.valueOf(36), aggregator1.read());
   }
 
   private void iterAggregate(int number, InterProcessAggregator<Integer, Integer> aggregator) throws Exception {
     for (int i = 0; i < number; ++i) {
-      aggregator.aggregateLocal(1);
+      aggregator.aggregate(1);
     }
-    aggregator.aggregateRemote();
+    aggregator.flush();
     for (int i = 0; i < number; ++i) {
-      aggregator.aggregateLocal(1);
+      aggregator.aggregate(1);
     }
-    aggregator.aggregateRemote();
+    aggregator.flush();
   }
 
   @Test
@@ -108,28 +108,28 @@ public class TestAggregator extends BaseTestCase {
     InterProcessKeyedAggregator<String, Integer, ImmutableSet<Integer>> aggregator2 = new InterProcessKeyedAggregator<String, Integer, ImmutableSet<Integer>>(variable, aggregator);
     InterProcessKeyedAggregator<String, Integer, ImmutableSet<Integer>> aggregator3 = new InterProcessKeyedAggregator<String, Integer, ImmutableSet<Integer>>(variable, aggregator);
 
-    aggregator1.aggregateLocal("a", 1);
-    aggregator1.aggregateLocal("b", 1);
-    aggregator1.aggregateLocal("c", 1);
-    aggregator3.aggregateLocal("e", 1);
+    aggregator1.aggregate("a", 1);
+    aggregator1.aggregate("b", 1);
+    aggregator1.aggregate("c", 1);
+    aggregator3.aggregate("e", 1);
 
-    aggregator2.aggregateLocal("a", 1);
-    aggregator2.aggregateLocal("d", 2);
-    aggregator3.aggregateLocal("e", 2);
+    aggregator2.aggregate("a", 1);
+    aggregator2.aggregate("d", 2);
+    aggregator3.aggregate("e", 2);
 
-    aggregator2.aggregateLocal("a", 1);
-    aggregator3.aggregateLocal("c", 3);
-    aggregator3.aggregateLocal("d", 3);
-    aggregator3.aggregateLocal("e", 3);
+    aggregator2.aggregate("a", 1);
+    aggregator3.aggregate("c", 3);
+    aggregator3.aggregate("d", 3);
+    aggregator3.aggregate("e", 3);
 
-    aggregator1.aggregateRemote();
-    aggregator2.aggregateRemote();
-    aggregator3.aggregateRemote();
+    aggregator1.flush();
+    aggregator2.flush();
+    aggregator3.flush();
 
-    assertEquals(ImmutableSet.of(1), aggregator1.readRemote("a"));
-    assertEquals(ImmutableSet.of(1), aggregator1.readRemote("b"));
-    assertEquals(ImmutableSet.of(1, 3), aggregator1.readRemote("c"));
-    assertEquals(ImmutableSet.of(2, 3), aggregator1.readRemote("d"));
-    assertEquals(ImmutableSet.of(1, 2, 3), aggregator1.readRemote("e"));
+    assertEquals(ImmutableSet.of(1), aggregator1.read("a"));
+    assertEquals(ImmutableSet.of(1), aggregator1.read("b"));
+    assertEquals(ImmutableSet.of(1, 3), aggregator1.read("c"));
+    assertEquals(ImmutableSet.of(2, 3), aggregator1.read("d"));
+    assertEquals(ImmutableSet.of(1, 2, 3), aggregator1.read("e"));
   }
 }

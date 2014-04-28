@@ -37,35 +37,22 @@ public class InterProcessAggregator<AGGREGAND, AGGREGATE> {
     this.aggregate = aggregator.initialValue();
   }
 
-  public void reset() throws Exception {
-    resetRemote();
-    resetLocal();
-  }
-
-  public void resetLocal() {
-    this.aggregate = aggregator.initialValue();
-  }
-
-  public void resetRemote() throws Exception {
+  public void initialize() throws Exception {
     executor.execute(new Write<AGGREGATE>(variable, aggregator.initialValue()));
   }
 
-  public AGGREGATE aggregateLocal(AGGREGAND value) {
+  public AGGREGATE aggregate(AGGREGAND value) {
     aggregate = aggregator.aggregate(value, aggregate);
     return aggregate;
   }
 
-  public AGGREGATE aggregateRemote() throws Exception {
+  public AGGREGATE flush() throws Exception {
     AGGREGATE result = executor.execute(new Aggregate<AGGREGAND, AGGREGATE>(variable, aggregator, aggregate));
-    resetLocal();
+    this.aggregate = aggregator.initialValue();
     return result;
   }
 
-  public AGGREGATE readLocal() {
-    return aggregate;
-  }
-
-  public AGGREGATE readRemote() throws Exception {
+  public AGGREGATE read() throws Exception {
     return executor.execute(new Read<AGGREGATE>(variable));
   }
 
