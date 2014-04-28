@@ -21,10 +21,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import com.liveramp.megadesk.base.state.InMemoryLocal;
-import com.liveramp.megadesk.base.transaction.BaseTransactionExecutor;
 import com.liveramp.megadesk.core.state.Variable;
-import com.liveramp.megadesk.core.transaction.Transaction;
-import com.liveramp.megadesk.recipes.transaction.Read;
 import com.liveramp.megadesk.test.BaseTestCase;
 
 import static org.junit.Assert.assertEquals;
@@ -48,19 +45,26 @@ public class TestAggregator extends BaseTestCase {
     Variable<Integer> variable = new InMemoryLocal<Integer>();
     Aggregator<Integer> sumAggregator = new SumAggregator();
 
-    Thread thread1 = makeThread(10, variable, sumAggregator);
-    Thread thread2 = makeThread(3, variable, sumAggregator);
-    Thread thread3 = makeThread(5, variable, sumAggregator);
+    InterProcessAggregator<Integer> aggregator1 = new InterProcessAggregator<Integer>(variable, sumAggregator);
+    InterProcessAggregator<Integer> aggregator2 = new InterProcessAggregator<Integer>(variable, sumAggregator);
+    InterProcessAggregator<Integer> aggregator3 = new InterProcessAggregator<Integer>(variable, sumAggregator);
 
-    thread1.start();
-    thread2.start();
-    thread3.start();
+    iterAggregate(10, aggregator1);
+    iterAggregate(5, aggregator2);
+    iterAggregate(3, aggregator3);
 
-    thread1.join();
-    thread2.join();
-    thread3.join();
+    Assert.assertEquals(Integer.valueOf(36), aggregator1.readRemote());
+  }
 
-    Assert.assertEquals(Integer.valueOf(36), new BaseTransactionExecutor().execute(new Read<Integer>(variable)));
+  private void iterAggregate(int number, InterProcessAggregator<Integer> aggregator) throws Exception {
+    for (int i = 0; i < number; ++i) {
+      aggregator.aggregateLocal(1);
+    }
+    aggregator.aggregateRemote();
+    for (int i = 0; i < number; ++i) {
+      aggregator.aggregateLocal(1);
+    }
+    aggregator.aggregateRemote();
   }
 
   @Test
@@ -87,44 +91,10 @@ public class TestAggregator extends BaseTestCase {
     aggregator2.aggregateRemote();
     aggregator3.aggregateRemote();
 
-    assertEquals(3, (long)execute(new Read<ImmutableMap<String, Integer>>(variable)).get("a"));
-    assertEquals(1, (long)execute(new Read<ImmutableMap<String, Integer>>(variable)).get("b"));
-    assertEquals(4, (long)execute(new Read<ImmutableMap<String, Integer>>(variable)).get("c"));
-    assertEquals(5, (long)execute(new Read<ImmutableMap<String, Integer>>(variable)).get("d"));
-    assertEquals(3, (long)execute(new Read<ImmutableMap<String, Integer>>(variable)).get("e"));
-  }
-
-  private static <T> T execute(Transaction<T> transaction) throws Exception {
-    return new BaseTransactionExecutor().execute(transaction);
-  }
-
-  private Thread makeThread(
-      final int amount,
-      final Variable<Integer> variable,
-      final Aggregator<Integer> sumAggregator) {
-
-    final InterProcessAggregator<Integer> aggregator =
-        new InterProcessAggregator<Integer>(variable, sumAggregator);
-
-    Runnable runnable = new Runnable() {
-
-      @Override
-      public void run() {
-        try {
-          for (int i = 0; i < amount; i++) {
-            aggregator.aggregateLocal(1);
-          }
-          aggregator.aggregateRemote();
-          for (int i = 0; i < amount; i++) {
-            aggregator.aggregateLocal(1);
-          }
-          aggregator.aggregateRemote();
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        }
-      }
-    };
-
-    return new Thread(runnable);
+    assertEquals(Integer.valueOf(3), aggregator1.readRemote("a"));
+    assertEquals(Integer.valueOf(1), aggregator1.readRemote("b"));
+    assertEquals(Integer.valueOf(4), aggregator1.readRemote("c"));
+    assertEquals(Integer.valueOf(5), aggregator1.readRemote("d"));
+    assertEquals(Integer.valueOf(3), aggregator1.readRemote("e"));
   }
 }

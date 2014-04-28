@@ -20,6 +20,7 @@ import com.liveramp.megadesk.base.transaction.BaseTransactionExecutor;
 import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.TransactionExecutor;
 import com.liveramp.megadesk.recipes.transaction.Alter;
+import com.liveramp.megadesk.recipes.transaction.Read;
 import com.liveramp.megadesk.recipes.transaction.Write;
 
 public class InterProcessAggregator<AGGREGATE> {
@@ -58,6 +59,14 @@ public class InterProcessAggregator<AGGREGATE> {
     AGGREGATE result = executor.execute(new Aggregate<AGGREGATE>(variable, aggregator, aggregate));
     resetLocal();
     return result;
+  }
+
+  public AGGREGATE readLocal() {
+    return aggregate;
+  }
+
+  public AGGREGATE readRemote() throws Exception {
+    return executor.execute(new Read<AGGREGATE>(variable));
   }
 
   private static class Aggregate<AGGREGATE> extends Alter<AGGREGATE> {
