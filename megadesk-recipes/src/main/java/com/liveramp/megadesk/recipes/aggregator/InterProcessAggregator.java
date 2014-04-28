@@ -73,6 +73,9 @@ public class InterProcessAggregator<AGGREGATE> {
 
     @Override
     protected AGGREGATE alter(AGGREGATE aggregate) {
+      if (aggregate == null) {
+        aggregate = aggregator.initialValue();
+      }
       return aggregator.aggregate(aggregate, partialAggregate);
     }
   }
