@@ -18,7 +18,6 @@ package com.liveramp.megadesk.recipes.aggregator;
 
 import com.liveramp.megadesk.base.transaction.BaseTransactionExecutor;
 import com.liveramp.megadesk.core.state.Variable;
-import com.liveramp.megadesk.core.transaction.Transaction;
 import com.liveramp.megadesk.core.transaction.TransactionExecutor;
 import com.liveramp.megadesk.recipes.transaction.Alter;
 import com.liveramp.megadesk.recipes.transaction.Write;
@@ -37,7 +36,7 @@ public class InterProcessAggregator<AGGREGATE> {
     this.aggregate = aggregator.initialValue();
   }
 
-  public void reset() {
+  public void reset() throws Exception {
     resetRemote();
     resetLocal();
   }
@@ -46,8 +45,8 @@ public class InterProcessAggregator<AGGREGATE> {
     this.aggregate = aggregator.initialValue();
   }
 
-  public void resetRemote() {
-    execute(new Write<AGGREGATE>(variable, aggregator.initialValue()));
+  public void resetRemote() throws Exception {
+    executor.execute(new Write<AGGREGATE>(variable, aggregator.initialValue()));
   }
 
   public AGGREGATE aggregateLocal(AGGREGATE value) {
@@ -55,18 +54,10 @@ public class InterProcessAggregator<AGGREGATE> {
     return aggregate;
   }
 
-  public AGGREGATE aggregateRemote() {
-    AGGREGATE result = execute(new Aggregate<AGGREGATE>(variable, aggregator, aggregate));
+  public AGGREGATE aggregateRemote() throws Exception {
+    AGGREGATE result = executor.execute(new Aggregate<AGGREGATE>(variable, aggregator, aggregate));
     resetLocal();
     return result;
-  }
-
-  private <T> T execute(Transaction<T> t) {
-    try {
-      return executor.execute(t);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
   }
 
   private static class Aggregate<AGGREGATE> extends Alter<AGGREGATE> {
