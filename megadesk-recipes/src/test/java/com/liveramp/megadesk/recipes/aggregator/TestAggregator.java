@@ -75,14 +75,18 @@ public class TestAggregator extends BaseTestCase {
 
       @Override
       public void run() {
-        for (int i = 0; i < amount; i++) {
-          aggregator.aggregateLocal(1);
+        try {
+          for (int i = 0; i < amount; i++) {
+            aggregator.aggregateLocal(1);
+          }
+          aggregator.aggregateRemote();
+          for (int i = 0; i < amount; i++) {
+            aggregator.aggregateLocal(1);
+          }
+          aggregator.aggregateRemote();
+        } catch (Exception e) {
+          throw new RuntimeException(e);
         }
-        aggregator.aggregateRemote();
-        for (int i = 0; i < amount; i++) {
-          aggregator.aggregateLocal(1);
-        }
-        aggregator.aggregateRemote();
       }
     };
 
