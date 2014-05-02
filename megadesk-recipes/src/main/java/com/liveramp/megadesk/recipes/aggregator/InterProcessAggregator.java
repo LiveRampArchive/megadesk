@@ -47,7 +47,7 @@ public class InterProcessAggregator<AGGREGAND, AGGREGATE> {
   }
 
   public AGGREGATE flush() throws Exception {
-    AGGREGATE result = executor.execute(new Aggregate<AGGREGAND, AGGREGATE>(variable, aggregator, aggregate));
+    AGGREGATE result = executor.execute(new Flush<AGGREGAND, AGGREGATE>(variable, aggregator, aggregate));
     this.aggregate = aggregator.initialValue();
     return result;
   }
@@ -56,12 +56,12 @@ public class InterProcessAggregator<AGGREGAND, AGGREGATE> {
     return executor.execute(new Read<AGGREGATE>(variable));
   }
 
-  private static class Aggregate<AGGREGAND, AGGREGATE> extends Alter<AGGREGATE> {
+  private static class Flush<AGGREGAND, AGGREGATE> extends Alter<AGGREGATE> {
 
     private final Aggregator<AGGREGAND, AGGREGATE> aggregator;
     private final AGGREGATE partialAggregate;
 
-    private Aggregate(Variable<AGGREGATE> variable, Aggregator<AGGREGAND, AGGREGATE> aggregator, AGGREGATE partialAggregate) {
+    private Flush(Variable<AGGREGATE> variable, Aggregator<AGGREGAND, AGGREGATE> aggregator, AGGREGATE partialAggregate) {
       super(variable);
       this.aggregator = aggregator;
       this.partialAggregate = partialAggregate;
