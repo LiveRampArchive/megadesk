@@ -23,19 +23,34 @@ import com.google.common.collect.Maps;
 
 import com.liveramp.megadesk.core.state.Variable;
 
-public class InterProcessKeyedAggregator<KEY, AGGREGAND, AGGREGATE> extends InterProcessAggregator<ImmutableMap<KEY, AGGREGAND>, ImmutableMap<KEY, AGGREGATE>> {
+public class InterProcessKeyedAggregator<KEY, AGGREGAND, AGGREGATE>
+    implements InterProcessKeyedAggregatorInterface<KEY, AGGREGAND, AGGREGATE> {
+
+  private final InterProcessAggregator<ImmutableMap<KEY, AGGREGAND>, ImmutableMap<KEY, AGGREGATE>> innerAggregator;
 
   public InterProcessKeyedAggregator(Variable<ImmutableMap<KEY, AGGREGATE>> variable,
                                      Aggregator<AGGREGAND, AGGREGATE> aggregator) {
-    super(variable, new KeyedAggregator<KEY, AGGREGAND, AGGREGATE>(aggregator));
+    this.innerAggregator = new InterProcessAggregator<ImmutableMap<KEY, AGGREGAND>, ImmutableMap<KEY, AGGREGATE>>(variable, new KeyedAggregator<KEY, AGGREGAND, AGGREGATE>(aggregator));
   }
 
+  @Override
+  public void initialize() throws Exception {
+    innerAggregator.initialize();
+  }
+
+  @Override
   public AGGREGATE aggregate(KEY key, AGGREGAND value) {
-    return aggregate(ImmutableMap.of(key, value)).get(key);
+    return innerAggregator.aggregate(ImmutableMap.of(key, value)).get(key);
   }
 
+  @Override
+  public void flush() throws Exception {
+    innerAggregator.flush();
+  }
+
+  @Override
   public AGGREGATE read(KEY key) throws Exception {
-    ImmutableMap<KEY, AGGREGATE> remote = read();
+    ImmutableMap<KEY, AGGREGATE> remote = innerAggregator.read();
     if (remote == null) {
       return null;
     } else {

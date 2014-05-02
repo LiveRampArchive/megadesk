@@ -23,7 +23,7 @@ import com.liveramp.megadesk.recipes.transaction.Alter;
 import com.liveramp.megadesk.recipes.transaction.Read;
 import com.liveramp.megadesk.recipes.transaction.Write;
 
-public class InterProcessAggregator<AGGREGAND, AGGREGATE> {
+public class InterProcessAggregator<AGGREGAND, AGGREGATE> implements InterProcessAggregatorInterface<AGGREGAND, AGGREGATE> {
 
   private final Aggregator<AGGREGAND, AGGREGATE> aggregator;
   private final Variable<AGGREGATE> variable;
