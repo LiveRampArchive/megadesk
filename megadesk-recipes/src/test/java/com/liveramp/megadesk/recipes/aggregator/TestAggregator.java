@@ -132,4 +132,24 @@ public class TestAggregator extends BaseTestCase {
     assertEquals(ImmutableSet.of(2, 3), aggregator1.read("d"));
     assertEquals(ImmutableSet.of(1, 2, 3), aggregator1.read("e"));
   }
+
+  @Test
+  public void testKeyedAttemptsAggregator() throws Exception {
+    Variable<ImmutableMap<String, ImmutableMap<Integer, Integer>>> variable = new InMemoryLocal<ImmutableMap<String, ImmutableMap<Integer, Integer>>>();
+    Aggregator<Integer, Integer> aggregator = new SumAggregator();
+
+    InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer> aggregator1 = new InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer>(1, variable, aggregator);
+    InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer> aggregator2a = new InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer>(3, variable, aggregator);
+    InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer> aggregator2b = new InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer>(3, variable, aggregator);
+
+    aggregator1.aggregate("a", 1);
+    aggregator2a.aggregate("a", 1);
+    aggregator2b.aggregate("a", 1);
+
+    aggregator1.flush();
+    aggregator2a.flush();
+    aggregator2b.flush();
+
+    assertEquals(Integer.valueOf(2), aggregator1.read("a"));
+  }
 }
