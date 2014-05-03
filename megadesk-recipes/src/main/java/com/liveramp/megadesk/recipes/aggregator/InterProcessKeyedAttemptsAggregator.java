@@ -27,17 +27,6 @@ import com.liveramp.megadesk.core.state.Variable;
 public class InterProcessKeyedAttemptsAggregator<ATTEMPT, KEY, AGGREGAND, AGGREGATE>
     implements InterProcessKeyedAggregatorInterface<KEY, AGGREGAND, AGGREGATE> {
 
-  private static class KeyAndAggregand<KEY, AGGREGAND> {
-
-    private final KEY key;
-    private final AGGREGAND aggregand;
-
-    private KeyAndAggregand(KEY key, AGGREGAND aggregand) {
-      this.key = key;
-      this.aggregand = aggregand;
-    }
-  }
-
   private final ATTEMPT attempt;
   private final Aggregator<AGGREGAND, AGGREGATE> aggregator;
   private final InterProcessKeyedAggregator<ATTEMPT, KeyAndAggregand<KEY, AGGREGAND>, ImmutableMap<KEY, AGGREGATE>> innerAggregator;
@@ -95,10 +84,10 @@ public class InterProcessKeyedAttemptsAggregator<ATTEMPT, KEY, AGGREGAND, AGGREG
     @Override
     public ImmutableMap<KEY, AGGREGATE> aggregate(KeyAndAggregand<KEY, AGGREGAND> value, ImmutableMap<KEY, AGGREGATE> aggregate) {
       Map<KEY, AGGREGATE> result = Maps.newHashMap(aggregate);
-      if (!result.containsKey(value.key)) {
-        result.put(value.key, aggregator.initialValue());
+      if (!result.containsKey(value.getKey())) {
+        result.put(value.getKey(), aggregator.initialValue());
       }
-      result.put(value.key, aggregator.aggregate(value.aggregand, result.get(value.key)));
+      result.put(value.getKey(), aggregator.aggregate(value.getAggregand(), result.get(value.getKey())));
       return ImmutableMap.copyOf(result);
     }
 
