@@ -40,3 +40,12 @@ will generate the jar in target/.  To run the test suite locally,
 > mvn test
 ```
 
+License
+====
+
+Copyright 2014 LiveRamp
+
+Licensed under the Apache License, Version 2.0
+
+http://www.apache.org/licenses/LICENSE-2.0
+
