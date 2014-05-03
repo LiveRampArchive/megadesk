@@ -20,7 +20,6 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import org.apache.commons.lang.NotImplementedException;
 
 import com.liveramp.megadesk.core.state.Variable;
 
@@ -29,12 +28,16 @@ public class InterProcessKeyedAttemptsAggregator<ATTEMPT, KEY, AGGREGAND, AGGREG
 
   private final ATTEMPT attempt;
   private final Aggregator<AGGREGAND, AGGREGATE> aggregator;
-  private final InterProcessKeyedAggregator<ATTEMPT, KeyAndAggregand<KEY, AGGREGAND>, ImmutableMap<KEY, AGGREGATE>> innerAggregator;
+  private final InterProcessAggregator<KeyAndAggregand<KEY, AGGREGAND>, ImmutableMap<ATTEMPT, ImmutableMap<KEY, AGGREGATE>>> innerAggregator;
 
-  public InterProcessKeyedAttemptsAggregator(ATTEMPT attempt, Variable<ImmutableMap<ATTEMPT, ImmutableMap<KEY, AGGREGATE>>> variable, Aggregator<AGGREGAND, AGGREGATE> aggregator) {
+  public InterProcessKeyedAttemptsAggregator(ATTEMPT attempt,
+                                             Variable<ImmutableMap<ATTEMPT, ImmutableMap<KEY, AGGREGATE>>> variable,
+                                             Aggregator<AGGREGAND, AGGREGATE> aggregator) {
     this.attempt = attempt;
     this.aggregator = aggregator;
-    innerAggregator = new InterProcessKeyedAggregator<ATTEMPT, KeyAndAggregand<KEY, AGGREGAND>, ImmutableMap<KEY, AGGREGATE>>(variable, new AttemptedKeyedAggregator());
+    innerAggregator = new InterProcessAggregator<
+        KeyAndAggregand<KEY, AGGREGAND>,
+        ImmutableMap<ATTEMPT, ImmutableMap<KEY, AGGREGATE>>>(variable, new KeyedAttemptsAggregator());
   }
 
   @Override
@@ -44,7 +47,7 @@ public class InterProcessKeyedAttemptsAggregator<ATTEMPT, KEY, AGGREGAND, AGGREG
 
   @Override
   public AGGREGATE aggregate(KEY key, AGGREGAND value) {
-    return innerAggregator.aggregate(attempt, new KeyAndAggregand<KEY, AGGREGAND>(key, value)).get(key);
+    return innerAggregator.aggregate(new KeyAndAggregand<KEY, AGGREGAND>(key, value)).get(attempt).get(key);
   }
 
   @Override
@@ -57,44 +60,58 @@ public class InterProcessKeyedAttemptsAggregator<ATTEMPT, KEY, AGGREGAND, AGGREG
     return aggregateAttempts(key, innerAggregator.read());
   }
 
-  @Override
-  public ImmutableMap<KEY, AGGREGATE> read() throws Exception {
-    // TODO
-    throw new NotImplementedException();
-  }
-
   private AGGREGATE aggregateAttempts(KEY key, ImmutableMap<ATTEMPT, ImmutableMap<KEY, AGGREGATE>> attempts) {
     // Aggregate attempts on the fly
-    AGGREGATE result = aggregator.initialValue();
+    AGGREGATE result = null;
     for (Map.Entry<ATTEMPT, ImmutableMap<KEY, AGGREGATE>> entry : attempts.entrySet()) {
       if (entry.getValue().containsKey(key)) {
+        if (result == null) {
+          result = aggregator.initialValue();
+        }
         result = aggregator.merge(result, entry.getValue().get(key));
       }
     }
     return result;
   }
 
-  private class AttemptedKeyedAggregator implements Aggregator<KeyAndAggregand<KEY, AGGREGAND>, ImmutableMap<KEY, AGGREGATE>> {
+  private class KeyedAttemptsAggregator
+      implements Aggregator<KeyAndAggregand<KEY, AGGREGAND>, ImmutableMap<ATTEMPT, ImmutableMap<KEY, AGGREGATE>>> {
 
     @Override
-    public ImmutableMap<KEY, AGGREGATE> initialValue() {
+    public ImmutableMap<ATTEMPT, ImmutableMap<KEY, AGGREGATE>> initialValue() {
       return ImmutableMap.of();
     }
 
     @Override
-    public ImmutableMap<KEY, AGGREGATE> aggregate(KeyAndAggregand<KEY, AGGREGAND> value, ImmutableMap<KEY, AGGREGATE> aggregate) {
-      Map<KEY, AGGREGATE> result = Maps.newHashMap(aggregate);
-      if (!result.containsKey(value.getKey())) {
-        result.put(value.getKey(), aggregator.initialValue());
+    public ImmutableMap<ATTEMPT, ImmutableMap<KEY, AGGREGATE>>
+    aggregate(KeyAndAggregand<KEY, AGGREGAND> value,
+              ImmutableMap<ATTEMPT, ImmutableMap<KEY, AGGREGATE>> aggregate) {
+      Map<ATTEMPT, ImmutableMap<KEY, AGGREGATE>> result = Maps.newHashMap(aggregate);
+      if (!result.containsKey(attempt)) {
+        result.put(attempt, ImmutableMap.<KEY, AGGREGATE>of());
       }
-      result.put(value.getKey(), aggregator.aggregate(value.getAggregand(), result.get(value.getKey())));
+      Map<KEY, AGGREGATE> innerResult = Maps.newHashMap(result.get(attempt));
+      if (!innerResult.containsKey(value.getKey())) {
+        innerResult.put(value.getKey(), aggregator.initialValue());
+      }
+      innerResult.put(value.getKey(), aggregator.aggregate(value.getAggregand(), innerResult.get(value.getKey())));
+      result.put(attempt, ImmutableMap.copyOf(innerResult));
       return ImmutableMap.copyOf(result);
     }
 
     @Override
-    public ImmutableMap<KEY, AGGREGATE> merge(ImmutableMap<KEY, AGGREGATE> lhs, ImmutableMap<KEY, AGGREGATE> rhs) {
-      // Keep only one attempt
-      return lhs;
+    public ImmutableMap<ATTEMPT, ImmutableMap<KEY, AGGREGATE>>
+    merge(ImmutableMap<ATTEMPT, ImmutableMap<KEY, AGGREGATE>> lhs,
+          ImmutableMap<ATTEMPT, ImmutableMap<KEY, AGGREGATE>> rhs) {
+      // Copy lhs
+      Map<ATTEMPT, ImmutableMap<KEY, AGGREGATE>> result = Maps.newHashMap(lhs);
+      for (Map.Entry<ATTEMPT, ImmutableMap<KEY, AGGREGATE>> entry : rhs.entrySet()) {
+        // Keep only attempts from rhs that were not in lhs
+        if (!result.containsKey(entry.getKey())) {
+          result.put(entry.getKey(), entry.getValue());
+        }
+      }
+      return ImmutableMap.copyOf(result);
     }
   }
 }

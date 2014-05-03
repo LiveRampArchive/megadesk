@@ -58,7 +58,6 @@ public class InterProcessKeyedAggregator<KEY, AGGREGAND, AGGREGATE>
     }
   }
 
-  @Override
   public ImmutableMap<KEY, AGGREGATE> read() throws Exception {
     return innerAggregator.read();
   }

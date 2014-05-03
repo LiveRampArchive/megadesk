@@ -16,8 +16,6 @@
 
 package com.liveramp.megadesk.recipes.aggregator;
 
-import com.google.common.collect.ImmutableMap;
-
 public interface InterProcessKeyedAggregatorInterface<KEY, AGGREGAND, AGGREGATE> {
 
   void initialize() throws Exception;
@@ -27,6 +25,4 @@ public interface InterProcessKeyedAggregatorInterface<KEY, AGGREGAND, AGGREGATE>
   void flush() throws Exception;
 
   AGGREGATE read(KEY key) throws Exception;
-
-  ImmutableMap<KEY, AGGREGATE> read() throws Exception;
 }

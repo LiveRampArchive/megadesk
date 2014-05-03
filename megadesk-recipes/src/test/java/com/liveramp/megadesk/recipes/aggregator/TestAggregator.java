@@ -148,6 +148,7 @@ public class TestAggregator extends BaseTestCase {
     aggregator1.aggregate("a", 1);
 
     aggregator2a.aggregate("a", 1);
+    aggregator2a.aggregate("c", 3);
 
     aggregator2b.aggregate("a", 1);
     aggregator2b.aggregate("b", 1);
@@ -157,6 +158,7 @@ public class TestAggregator extends BaseTestCase {
     aggregator2b.flush();
 
     assertEquals(Integer.valueOf(2), aggregator1.read("a"));
-    //assertEquals(null, aggregator1.read("b"));
+    assertEquals(null, aggregator1.read("b"));
+    assertEquals(Integer.valueOf(3), aggregator1.read("c"));
   }
 }
