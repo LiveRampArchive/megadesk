@@ -135,21 +135,28 @@ public class TestAggregator extends BaseTestCase {
 
   @Test
   public void testKeyedAttemptsAggregator() throws Exception {
-    Variable<ImmutableMap<String, ImmutableMap<Integer, Integer>>> variable = new InMemoryLocal<ImmutableMap<String, ImmutableMap<Integer, Integer>>>();
+    Variable<ImmutableMap<Integer, ImmutableMap<String, Integer>>> variable = new InMemoryLocal<ImmutableMap<Integer, ImmutableMap<String, Integer>>>();
     Aggregator<Integer, Integer> aggregator = new SumAggregator();
 
-    InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer> aggregator1 = new InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer>(1, variable, aggregator);
-    InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer> aggregator2a = new InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer>(3, variable, aggregator);
-    InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer> aggregator2b = new InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer>(3, variable, aggregator);
+    Integer attempt1 = 1;
+    Integer attempt2 = 2;
+
+    InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer> aggregator1 = new InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer>(attempt1, variable, aggregator);
+    InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer> aggregator2a = new InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer>(attempt2, variable, aggregator);
+    InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer> aggregator2b = new InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer>(attempt2, variable, aggregator);
 
     aggregator1.aggregate("a", 1);
+
     aggregator2a.aggregate("a", 1);
+
     aggregator2b.aggregate("a", 1);
+    aggregator2b.aggregate("b", 1);
 
     aggregator1.flush();
     aggregator2a.flush();
     aggregator2b.flush();
 
     assertEquals(Integer.valueOf(2), aggregator1.read("a"));
+    // assertEquals(null, aggregator1.read("b"));
   }
 }
