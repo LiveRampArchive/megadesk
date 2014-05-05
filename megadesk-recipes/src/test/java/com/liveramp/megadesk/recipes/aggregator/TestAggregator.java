@@ -141,9 +141,9 @@ public class TestAggregator extends BaseTestCase {
     Integer attempt1 = 1;
     Integer attempt2 = 2;
 
-    InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer> aggregator1 = new InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer>(attempt1, variable, aggregator);
-    InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer> aggregator2a = new InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer>(attempt2, variable, aggregator);
-    InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer> aggregator2b = new InterProcessKeyedAttemptsAggregator<Integer, String, Integer, Integer>(attempt2, variable, aggregator);
+    InterProcessMultiTaskKeyedAggregator<Integer, String, Integer, Integer> aggregator1 = new InterProcessMultiTaskKeyedAggregator<Integer, String, Integer, Integer>(attempt1, variable, aggregator);
+    InterProcessMultiTaskKeyedAggregator<Integer, String, Integer, Integer> aggregator2a = new InterProcessMultiTaskKeyedAggregator<Integer, String, Integer, Integer>(attempt2, variable, aggregator);
+    InterProcessMultiTaskKeyedAggregator<Integer, String, Integer, Integer> aggregator2b = new InterProcessMultiTaskKeyedAggregator<Integer, String, Integer, Integer>(attempt2, variable, aggregator);
 
     aggregator1.aggregate("a", 1);
 
