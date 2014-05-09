@@ -56,4 +56,8 @@ public class CuratorLock implements Lock {
       throw new RuntimeException(e);
     }
   }
+
+  public boolean isLockOwned(){
+    return lock.isAcquiredInThisProcess();
+  }
 }
