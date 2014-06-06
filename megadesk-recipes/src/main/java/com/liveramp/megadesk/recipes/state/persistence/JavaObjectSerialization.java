@@ -25,10 +25,10 @@ import java.io.ObjectOutputStream;
 public class JavaObjectSerialization<T> implements SerializationHandler<T> {
 
   @Override
-  public byte[] serialize(Object o) throws IOException {
+  public byte[] serialize(T value) throws IOException {
     ByteArrayOutputStream bytesOutputStream = new ByteArrayOutputStream();
     ObjectOutputStream objectOutputStream = new ObjectOutputStream(bytesOutputStream);
-    objectOutputStream.writeObject(o);
+    objectOutputStream.writeObject(value);
     objectOutputStream.close();
     return bytesOutputStream.toByteArray();
   }
@@ -38,13 +38,13 @@ public class JavaObjectSerialization<T> implements SerializationHandler<T> {
     if (bytes.length > 0) {
       ByteArrayInputStream bytesInputStream = new ByteArrayInputStream(bytes);
       ObjectInputStream objectInputStream = new ObjectInputStream(bytesInputStream);
-      Object o;
+      Object object;
       try {
-        o = objectInputStream.readObject();
+        object = objectInputStream.readObject();
       } finally {
         objectInputStream.close();
       }
-      return (T) o;
+      return (T)object;
     } else {
       return null;
     }
