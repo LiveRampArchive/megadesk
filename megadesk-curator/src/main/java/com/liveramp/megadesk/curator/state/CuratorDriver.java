@@ -25,7 +25,7 @@ import com.liveramp.megadesk.core.state.Persistence;
 import com.liveramp.megadesk.core.state.ReadWriteLock;
 import com.liveramp.megadesk.recipes.state.persistence.SerializationHandler;
 
-public class CuratorDriver<VALUE> {
+public class CuratorDriver {
 
   public static <VALUE> Driver<VALUE> build(String path,
                                             CuratorFramework framework,
