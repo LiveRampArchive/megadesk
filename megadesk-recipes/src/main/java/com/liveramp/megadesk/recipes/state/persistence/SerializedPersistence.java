@@ -18,15 +18,15 @@ package com.liveramp.megadesk.recipes.state.persistence;
 
 import java.io.IOException;
 
-import com.liveramp.megadesk.core.state.Persistence;
 import com.liveramp.megadesk.base.state.BasePersistence;
+import com.liveramp.megadesk.core.state.Persistence;
 
 public abstract class SerializedPersistence<VALUE> extends BasePersistence<VALUE> implements Persistence<VALUE> {
 
-  private final SerializationHandler<VALUE> serializer;
+  private final SerializationHandler<VALUE> serializationHandler;
 
-  protected SerializedPersistence(SerializationHandler<VALUE> serializer) {
-    this.serializer = serializer;
+  protected SerializedPersistence(SerializationHandler<VALUE> serializationHandler) {
+    this.serializationHandler = serializationHandler;
   }
 
   @Override
@@ -34,7 +34,7 @@ public abstract class SerializedPersistence<VALUE> extends BasePersistence<VALUE
     byte[] data = readBytes();
     VALUE value;
     try {
-      value = serializer.deserialize(data);
+      value = serializationHandler.deserialize(data);
     } catch (IOException e) {
       throw new RuntimeException(e);
     } catch (ClassNotFoundException e) {
@@ -46,7 +46,7 @@ public abstract class SerializedPersistence<VALUE> extends BasePersistence<VALUE
   @Override
   public void write(VALUE value) {
     try {
-      writeBytes(serializer.serialize(value));
+      writeBytes(serializationHandler.serialize(value));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
