@@ -22,11 +22,11 @@ import com.liveramp.megadesk.base.state.BasePersistence;
 import com.liveramp.megadesk.core.state.Persistence;
 import com.liveramp.megadesk.core.state.PersistenceTransaction;
 
-public abstract class SerializedPersistence<VALUE> extends BasePersistence<VALUE> implements Persistence<VALUE> {
+public abstract class SerializationPersistence<VALUE> extends BasePersistence<VALUE> implements Persistence<VALUE> {
 
   private final SerializationHandler<VALUE> serializationHandler;
 
-  protected SerializedPersistence(SerializationHandler<VALUE> serializationHandler) {
+  protected SerializationPersistence(SerializationHandler<VALUE> serializationHandler) {
     this.serializationHandler = serializationHandler;
   }
 
@@ -38,8 +38,6 @@ public abstract class SerializedPersistence<VALUE> extends BasePersistence<VALUE
       value = serializationHandler.deserialize(data);
     } catch (IOException e) {
       throw new RuntimeException(e);
-    } catch (ClassNotFoundException e) {
-      throw new RuntimeException(e);
     }
     return value;
   }
@@ -48,7 +46,7 @@ public abstract class SerializedPersistence<VALUE> extends BasePersistence<VALUE
   public void write(VALUE value) {
     try {
       writeBytes(serializationHandler.serialize(value));
-    } catch (Exception e) {
+    } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }

@@ -21,9 +21,9 @@ import org.apache.curator.framework.CuratorFramework;
 import com.liveramp.megadesk.core.state.Persistence;
 import com.liveramp.megadesk.core.state.PersistenceTransaction;
 import com.liveramp.megadesk.recipes.state.persistence.SerializationHandler;
-import com.liveramp.megadesk.recipes.state.persistence.SerializedPersistence;
+import com.liveramp.megadesk.recipes.state.persistence.SerializationPersistence;
 
-public class CuratorPersistence<VALUE> extends SerializedPersistence<VALUE> implements Persistence<VALUE> {
+public class CuratorPersistence<VALUE> extends SerializationPersistence<VALUE> implements Persistence<VALUE> {
 
   private CuratorFramework curator;
   private final String path;

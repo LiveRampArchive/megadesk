@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class JavaObjectSerialization<T> implements SerializationHandler<T> {
+public class JavaObjectSerializationHandler<T> implements SerializationHandler<T> {
 
   @Override
   public byte[] serialize(T value) throws IOException {
@@ -34,13 +34,17 @@ public class JavaObjectSerialization<T> implements SerializationHandler<T> {
   }
 
   @Override
-  public T deserialize(byte[] bytes) throws IOException, ClassNotFoundException {
+  public T deserialize(byte[] bytes) throws IOException {
     if (bytes.length > 0) {
       ByteArrayInputStream bytesInputStream = new ByteArrayInputStream(bytes);
       ObjectInputStream objectInputStream = new ObjectInputStream(bytesInputStream);
       Object object;
       try {
-        object = objectInputStream.readObject();
+        try {
+          object = objectInputStream.readObject();
+        } catch (ClassNotFoundException e) {
+          throw new IOException(e);
+        }
       } finally {
         objectInputStream.close();
       }
