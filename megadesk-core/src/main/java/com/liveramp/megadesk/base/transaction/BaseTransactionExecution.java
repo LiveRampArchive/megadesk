@@ -39,7 +39,7 @@ public class BaseTransactionExecution implements TransactionExecution {
   }
 
   private Dependency dependency;
-  private Context data;
+  private Context context;
   private State state = State.STANDBY;
   private Lock lock;
 
@@ -65,10 +65,10 @@ public class BaseTransactionExecution implements TransactionExecution {
   }
 
   private Context prepare(Dependency dependency) {
-    this.data = new BaseContext(dependency);
+    this.context = new BaseContext(dependency);
     this.state = State.RUNNING;
     this.dependency = dependency;
-    return this.data;
+    return this.context;
   }
 
   @Override
@@ -76,7 +76,7 @@ public class BaseTransactionExecution implements TransactionExecution {
     ensureState(State.RUNNING);
     // Writes
     for (Variable variable : dependency.writes()) {
-      Object value = data.read(variable);
+      Object value = context.read(variable);
       variable.driver().persistence().write(value);
     }
     // Release execution locks
