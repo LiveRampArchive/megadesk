@@ -110,7 +110,7 @@ public class BaseTransactionExecution implements TransactionExecution {
     Collections.sort(all);
     List<Lock> result = Lists.newArrayList();
     for (VariableDependency variableDependency : all) {
-      result.add(DependencyType.lock(variableDependency));
+      result.add(variableDependency.lock());
     }
     return result;
   }

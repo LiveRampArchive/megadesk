@@ -18,6 +18,7 @@ package com.liveramp.megadesk.base.transaction;
 
 import org.apache.commons.lang.builder.CompareToBuilder;
 
+import com.liveramp.megadesk.core.state.Lock;
 import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.DependencyType;
 import com.liveramp.megadesk.core.transaction.VariableDependency;
@@ -40,6 +41,18 @@ public class BaseVariableDependency<VALUE> implements VariableDependency<VALUE> 
   @Override
   public DependencyType type() {
     return type;
+  }
+
+  @Override
+  public Lock lock() {
+    switch (type) {
+      case READ:
+        return variable.driver().lock().readLock();
+      case WRITE:
+        return variable.driver().lock().writeLock();
+      default:
+        throw new IllegalStateException(); // TODO: message
+    }
   }
 
   public static <VALUE> BaseVariableDependency<VALUE> build(Variable<VALUE> variable, DependencyType type) {

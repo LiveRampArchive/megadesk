@@ -16,6 +16,7 @@
 
 package com.liveramp.megadesk.core.transaction;
 
+import com.liveramp.megadesk.core.state.Lock;
 import com.liveramp.megadesk.core.state.Variable;
 
 public interface VariableDependency<VALUE> extends Comparable<VariableDependency<VALUE>> {
@@ -23,4 +24,6 @@ public interface VariableDependency<VALUE> extends Comparable<VariableDependency
   Variable<VALUE> variable();
 
   DependencyType type();
+
+  Lock lock();
 }

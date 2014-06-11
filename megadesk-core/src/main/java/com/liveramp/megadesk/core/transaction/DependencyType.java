@@ -16,20 +16,7 @@
 
 package com.liveramp.megadesk.core.transaction;
 
-import com.liveramp.megadesk.core.state.Lock;
-
 public enum DependencyType {
   READ,
-  WRITE;
-
-  public static Lock lock(VariableDependency variableDependency) {
-    switch (variableDependency.type()) {
-      case READ:
-        return variableDependency.variable().driver().lock().readLock();
-      case WRITE:
-        return variableDependency.variable().driver().lock().writeLock();
-      default:
-        throw new IllegalStateException(); // TODO: message
-    }
-  }
+  WRITE
 }
