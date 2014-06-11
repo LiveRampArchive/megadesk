@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 
 import com.liveramp.megadesk.base.state.MultiLock;
 import com.liveramp.megadesk.core.state.Lock;
+import com.liveramp.megadesk.core.state.MultiPersistenceTransaction;
 import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
@@ -74,11 +75,17 @@ public class BaseTransactionExecution implements TransactionExecution {
   @Override
   public void commit() {
     ensureState(State.RUNNING);
-    // Writes
+    // Write in a multi persistence transaction
+    MultiPersistenceTransaction multiPersistenceTransaction = new MultiPersistenceTransaction();
     for (Variable variable : dependency.writes()) {
-      Object value = context.read(variable);
-      variable.driver().persistence().write(value);
+      // Only write variables that have been written to the context
+      if (context.written(variable)) {
+        Object value = context.read(variable);
+        variable.driver().persistence().writeInMultiTransaction(multiPersistenceTransaction, value);
+      }
     }
+    // Commit multi persistence transaction
+    multiPersistenceTransaction.commit();
     // Release execution locks
     lock.unlock();
     state = State.COMMITTED;

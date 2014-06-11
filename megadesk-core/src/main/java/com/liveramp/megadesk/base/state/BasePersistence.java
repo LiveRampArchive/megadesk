@@ -16,7 +16,25 @@
 
 package com.liveramp.megadesk.base.state;
 
+import com.liveramp.megadesk.core.state.MultiPersistenceTransaction;
 import com.liveramp.megadesk.core.state.Persistence;
+import com.liveramp.megadesk.core.state.PersistenceTransaction;
 
 public abstract class BasePersistence<VALUE> implements Persistence<VALUE> {
+
+  @Override
+  public void writeInMultiTransaction(MultiPersistenceTransaction transaction, VALUE value) {
+    PersistenceTransaction persistenceTransaction = transaction.getTransactionFor(transactionCategory());
+    if (persistenceTransaction == null) {
+      persistenceTransaction = newTransaction();
+      transaction.startTransactionFor(transactionCategory(), persistenceTransaction);
+    }
+    writeInTransaction(persistenceTransaction, value);
+  }
+
+  public abstract Object transactionCategory();
+
+  public abstract PersistenceTransaction newTransaction();
+
+  public abstract void writeInTransaction(PersistenceTransaction transaction, VALUE value);
 }

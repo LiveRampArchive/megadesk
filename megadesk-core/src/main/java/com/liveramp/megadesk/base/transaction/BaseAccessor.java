@@ -28,10 +28,12 @@ public class BaseAccessor<VALUE> implements Accessor<VALUE> {
 
   private final Persistence<VALUE> persistence;
   private final DependencyType dependencyType;
+  private boolean written;
 
   public BaseAccessor(VALUE value, DependencyType dependencyType) {
     this.dependencyType = dependencyType;
     this.persistence = new InMemoryPersistence<VALUE>(value);
+    this.written = false;
   }
 
   @Override
@@ -44,6 +46,12 @@ public class BaseAccessor<VALUE> implements Accessor<VALUE> {
   public void write(VALUE value) {
     ensureDependencyType(DependencyType.WRITE);
     persistence.write(value);
+    written = true;
+  }
+
+  @Override
+  public boolean written() {
+    return written;
   }
 
   private void ensureDependencyType(DependencyType... dependencyTypes) {

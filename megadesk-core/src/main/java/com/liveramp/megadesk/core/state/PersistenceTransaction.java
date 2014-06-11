@@ -14,13 +14,9 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.core.transaction;
+package com.liveramp.megadesk.core.state;
 
-public interface Accessor<VALUE> {
+public interface PersistenceTransaction {
 
-  VALUE read();
-
-  void write(VALUE value);
-
-  boolean written();
+  void commit();
 }

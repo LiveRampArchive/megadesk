@@ -17,8 +17,9 @@
 package com.liveramp.megadesk.base.state;
 
 import com.liveramp.megadesk.core.state.Persistence;
+import com.liveramp.megadesk.core.state.PersistenceTransaction;
 
-public class InMemoryPersistence<VALUE> implements Persistence<VALUE> {
+public class InMemoryPersistence<VALUE> extends BasePersistence<VALUE> implements Persistence<VALUE> {
 
   private VALUE value;
 
@@ -38,5 +39,20 @@ public class InMemoryPersistence<VALUE> implements Persistence<VALUE> {
   @Override
   public void write(VALUE value) {
     this.value = value;
+  }
+
+  @Override
+  public Object transactionCategory() {
+    return InMemoryPersistence.class;
+  }
+
+  @Override
+  public PersistenceTransaction newTransaction() {
+    return new InMemoryPersistenceTransaction();
+  }
+
+  @Override
+  public void writeInTransaction(PersistenceTransaction transaction, VALUE value) {
+    ((InMemoryPersistenceTransaction)transaction).write(this, value);
   }
 }

@@ -32,4 +32,8 @@ public interface Context {
   <VALUE> void write(Reference<VALUE> reference, VALUE value);
 
   <VALUE> void write(Variable<VALUE> variable, VALUE value);
+
+  <VALUE> boolean written(Reference<VALUE> reference);
+
+  <VALUE> boolean written(Variable<VALUE> variable);
 }

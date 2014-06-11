@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import com.liveramp.megadesk.base.state.BasePersistence;
 import com.liveramp.megadesk.core.state.Persistence;
+import com.liveramp.megadesk.core.state.PersistenceTransaction;
 
 public abstract class SerializedPersistence<VALUE> extends BasePersistence<VALUE> implements Persistence<VALUE> {
 
@@ -52,7 +53,18 @@ public abstract class SerializedPersistence<VALUE> extends BasePersistence<VALUE
     }
   }
 
-  protected abstract void writeBytes(byte[] serializedObject);
+  @Override
+  public void writeInTransaction(PersistenceTransaction transaction, VALUE value) {
+    try {
+      writeInTransaction(transaction, serializationHandler.serialize(value));
+    } catch (IOException e) {
+      throw new RuntimeException(e); // TODO
+    }
+  }
 
   protected abstract byte[] readBytes();
+
+  protected abstract void writeBytes(byte[] serializedValue);
+
+  public abstract void writeInTransaction(PersistenceTransaction transaction, byte[] serializedValue);
 }

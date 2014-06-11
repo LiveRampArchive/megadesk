@@ -78,6 +78,16 @@ public class BaseContext implements Context {
   }
 
   @Override
+  public <VALUE> boolean written(Reference<VALUE> reference) {
+    return accessor(reference).written();
+  }
+
+  @Override
+  public <VALUE> boolean written(Variable<VALUE> variable) {
+    return written(variable.reference());
+  }
+
+  @Override
   public String toString() {
     return FormatUtils.formatToString(this, bindings.toString());
   }

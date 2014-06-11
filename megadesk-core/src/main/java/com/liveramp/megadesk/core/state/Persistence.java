@@ -21,4 +21,6 @@ public interface Persistence<VALUE> {
   VALUE read();
 
   void write(VALUE value);
+
+  void writeInMultiTransaction(MultiPersistenceTransaction transaction, VALUE value);
 }

@@ -16,10 +16,12 @@
 
 package com.liveramp.megadesk.curator.state;
 
+import org.apache.curator.framework.CuratorFramework;
+
 import com.liveramp.megadesk.core.state.Persistence;
+import com.liveramp.megadesk.core.state.PersistenceTransaction;
 import com.liveramp.megadesk.recipes.state.persistence.SerializationHandler;
 import com.liveramp.megadesk.recipes.state.persistence.SerializedPersistence;
-import org.apache.curator.framework.CuratorFramework;
 
 public class CuratorPersistence<VALUE> extends SerializedPersistence<VALUE> implements Persistence<VALUE> {
 
@@ -41,20 +43,39 @@ public class CuratorPersistence<VALUE> extends SerializedPersistence<VALUE> impl
   }
 
   @Override
-  protected void writeBytes(byte[] serializedObject) {
+  protected byte[] readBytes() {
     try {
-      curator.setData().forPath(path, serializedObject);
+      return curator.getData().forPath(path);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
   @Override
-  protected byte[] readBytes() {
+  protected void writeBytes(byte[] serializedValue) {
     try {
-      return curator.getData().forPath(path);
+      curator.setData().forPath(path, serializedValue);
     } catch (Exception e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public Object transactionCategory() {
+    return curator;
+  }
+
+  @Override
+  public PersistenceTransaction newTransaction() {
+    return new CuratorPersistenceTransaction(curator.inTransaction());
+  }
+
+  @Override
+  public void writeInTransaction(PersistenceTransaction transaction, byte[] serializedValue) {
+    try {
+      ((CuratorPersistenceTransaction)transaction).transaction().setData().forPath(path, serializedValue);
+    } catch (Exception e) {
+      throw new RuntimeException(e); // TODO
     }
   }
 }
