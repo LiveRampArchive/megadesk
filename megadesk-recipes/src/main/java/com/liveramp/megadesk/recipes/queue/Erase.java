@@ -13,30 +13,26 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package com.liveramp.megadesk.recipes.queue;
 
 import com.google.common.collect.ImmutableList;
+
 import com.liveramp.megadesk.base.transaction.BaseDependency;
+import com.liveramp.megadesk.base.transaction.BaseTransaction;
 import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Context;
-import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.Transaction;
 
-class Erase implements Transaction<Void> {
+class Erase extends BaseTransaction<Void> implements Transaction<Void> {
 
-  private final Dependency dependency;
   private final Variable<ImmutableList> list;
   private final Variable<Boolean> frozen;
 
   Erase(Variable<ImmutableList> list, Variable<Boolean> frozen) {
+    super(BaseDependency.builder().writes(list, frozen).build());
     this.frozen = frozen;
     this.list = list;
-    this.dependency = BaseDependency.builder().writes(this.list, this.frozen).build();
-  }
-
-  @Override
-  public Dependency dependency() {
-    return dependency;
   }
 
   @Override

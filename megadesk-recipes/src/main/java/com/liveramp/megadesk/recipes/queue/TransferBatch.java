@@ -17,30 +17,25 @@
 package com.liveramp.megadesk.recipes.queue;
 
 import com.google.common.collect.ImmutableList;
+
 import com.liveramp.megadesk.base.transaction.BaseDependency;
+import com.liveramp.megadesk.base.transaction.BaseTransaction;
 import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Accessor;
 import com.liveramp.megadesk.core.transaction.Context;
-import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.Transaction;
 
-public class TransferBatch implements Transaction<ImmutableList> {
+public class TransferBatch extends BaseTransaction<ImmutableList> implements Transaction<ImmutableList> {
 
-  private final Dependency dependency;
   private final Variable<ImmutableList> input;
   private final Variable<ImmutableList> output;
   private final Variable<Boolean> frozen;
 
   public TransferBatch(Variable<ImmutableList> input, Variable<ImmutableList> output, Variable<Boolean> frozen) {
+    super(BaseDependency.builder().writes(input, output, frozen).build());
     this.input = input;
     this.output = output;
     this.frozen = frozen;
-    this.dependency = BaseDependency.builder().writes(this.input, this.output, this.frozen).build();
-  }
-
-  @Override
-  public Dependency dependency() {
-    return dependency;
   }
 
   @Override
