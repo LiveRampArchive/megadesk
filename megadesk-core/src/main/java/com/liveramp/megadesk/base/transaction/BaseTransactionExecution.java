@@ -16,20 +16,16 @@
 
 package com.liveramp.megadesk.base.transaction;
 
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
+import com.liveramp.megadesk.base.state.MultiLock;
 import com.liveramp.megadesk.core.state.Lock;
 import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
-import com.liveramp.megadesk.core.transaction.DependencyType;
 import com.liveramp.megadesk.core.transaction.TransactionExecution;
 import com.liveramp.megadesk.core.transaction.VariableDependency;
 
@@ -45,26 +41,25 @@ public class BaseTransactionExecution implements TransactionExecution {
   private Dependency dependency;
   private Context data;
   private State state = State.STANDBY;
-  private final Set<Lock> locksAcquired;
-
-  public BaseTransactionExecution() {
-    locksAcquired = Sets.newHashSet();
-  }
+  private Lock lock;
 
   @Override
   public Context begin(Dependency dependency) {
     ensureState(State.STANDBY);
-    lock(dependency);
+    lock = dependencyLock(dependency);
+    lock.lock();
     return prepare(dependency);
   }
 
   @Override
   public Context tryBegin(Dependency dependency) {
     ensureState(State.STANDBY);
-    boolean result = tryLock(dependency);
+    lock = dependencyLock(dependency);
+    boolean result = lock.tryLock();
     if (result) {
       return prepare(dependency);
     } else {
+      lock = null;
       return null;
     }
   }
@@ -85,23 +80,19 @@ public class BaseTransactionExecution implements TransactionExecution {
       variable.driver().persistence().write(value);
     }
     // Release execution locks
-    unlock(locksAcquired);
+    lock.unlock();
     state = State.COMMITTED;
   }
 
   @Override
   public void abort() {
     ensureState(State.RUNNING);
-    unlock(locksAcquired);
+    lock.unlock();
     state = State.ABORTED;
   }
 
-  private boolean tryLock(Dependency dependency) {
-    return tryLockAndRemember(orderedLocks(dependency), locksAcquired);
-  }
-
-  private void lock(Dependency dependency) {
-    lockAndRemember(orderedLocks(dependency), locksAcquired);
+  private static Lock dependencyLock(Dependency dependency) {
+    return new MultiLock(orderedLocks(dependency));
   }
 
   // Locks are globally ordered to prevent deadlocks
@@ -113,43 +104,6 @@ public class BaseTransactionExecution implements TransactionExecution {
       result.add(variableDependency.lock());
     }
     return result;
-  }
-
-  private static boolean tryLockAndRemember(Collection<Lock> locks, Set<Lock> acquiredLocks) {
-    for (Lock lock : locks) {
-      if (!tryLockAndRemember(lock, acquiredLocks)) {
-        unlock(acquiredLocks);
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private static void lockAndRemember(Collection<Lock> locks, Set<Lock> acquiredLocks) {
-    for (Lock lock : locks) {
-      lockAndRemember(lock, acquiredLocks);
-    }
-  }
-
-  private static boolean tryLockAndRemember(Lock lock, Set<Lock> acquiredLocks) {
-    boolean result = lock.tryLock();
-    if (result) {
-      acquiredLocks.add(lock);
-    }
-    return result;
-  }
-
-  private static void lockAndRemember(Lock lock, Set<Lock> acquiredLocks) {
-    lock.lock();
-    acquiredLocks.add(lock);
-  }
-
-  private static void unlock(Set<Lock> acquiredLocks) {
-    Iterator<Lock> lockIterator = acquiredLocks.iterator();
-    while (lockIterator.hasNext()) {
-      lockIterator.next().unlock();
-      lockIterator.remove();
-    }
   }
 
   private void ensureState(State state) {
