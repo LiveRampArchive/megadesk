@@ -70,10 +70,8 @@ public class BaseDependency implements Dependency {
 
   public static class Builder {
 
-    private List<Variable> snapshots = Collections.emptyList();
     private List<Variable> reads = Collections.emptyList();
     private List<Variable> writes = Collections.emptyList();
-    private List<Variable> commutations = Collections.emptyList();
 
     public Builder all(VariableDependency... dependencies) {
       return all(Arrays.asList(dependencies));
