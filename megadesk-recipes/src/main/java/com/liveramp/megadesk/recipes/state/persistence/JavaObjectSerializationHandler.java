@@ -34,9 +34,9 @@ public class JavaObjectSerializationHandler<T> implements SerializationHandler<T
   }
 
   @Override
-  public T deserialize(byte[] bytes) throws IOException {
-    if (bytes.length > 0) {
-      ByteArrayInputStream bytesInputStream = new ByteArrayInputStream(bytes);
+  public T deserialize(byte[] serializedValue) throws IOException {
+    if (serializedValue.length > 0) {
+      ByteArrayInputStream bytesInputStream = new ByteArrayInputStream(serializedValue);
       ObjectInputStream objectInputStream = new ObjectInputStream(bytesInputStream);
       Object object;
       try {
