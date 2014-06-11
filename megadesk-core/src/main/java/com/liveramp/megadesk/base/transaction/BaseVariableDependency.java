@@ -33,6 +33,10 @@ public class BaseVariableDependency<VALUE> implements VariableDependency<VALUE> 
     this.type = type;
   }
 
+  public static <VALUE> BaseVariableDependency<VALUE> build(Variable<VALUE> variable, DependencyType type) {
+    return new BaseVariableDependency<VALUE>(variable, type);
+  }
+
   @Override
   public Variable<VALUE> variable() {
     return variable;
@@ -53,10 +57,6 @@ public class BaseVariableDependency<VALUE> implements VariableDependency<VALUE> 
       default:
         throw new IllegalStateException(); // TODO: message
     }
-  }
-
-  public static <VALUE> BaseVariableDependency<VALUE> build(Variable<VALUE> variable, DependencyType type) {
-    return new BaseVariableDependency<VALUE>(variable, type);
   }
 
   @Override
