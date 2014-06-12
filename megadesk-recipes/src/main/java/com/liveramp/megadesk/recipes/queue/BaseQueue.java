@@ -81,7 +81,7 @@ public abstract class BaseQueue<VALUE, OUTPUT> {
   }
 
   protected ImmutableList<VALUE> transfer(Context context) {
-    TransferBatch transferBatch = getTransferTransaction();
+    TransferBatch<VALUE> transferBatch = getTransferTransaction();
     try {
       return transferBatch.run(context);
     } catch (Exception e) {
