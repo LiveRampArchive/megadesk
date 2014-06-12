@@ -131,9 +131,9 @@ public class TestQueue extends BaseTestCase {
     private static Map<String, Driver> drivers = Maps.newHashMap();
 
     @Override
-    public <T> Driver<T> get(String referenceName, T intialValue) {
+    public <T> Driver<T> get(String referenceName, T initialValue) {
       if (!drivers.containsKey(referenceName)) {
-        drivers.put(referenceName, new InMemoryDriver(intialValue));
+        drivers.put(referenceName, new InMemoryDriver<T>(initialValue));
       }
       return drivers.get(referenceName);
     }
