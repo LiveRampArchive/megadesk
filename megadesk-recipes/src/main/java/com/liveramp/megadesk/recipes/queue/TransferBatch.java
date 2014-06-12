@@ -25,13 +25,13 @@ import com.liveramp.megadesk.core.transaction.Accessor;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Transaction;
 
-public class TransferBatch extends BaseTransaction<ImmutableList> implements Transaction<ImmutableList> {
+public class TransferBatch<VALUE> extends BaseTransaction<ImmutableList<VALUE>> implements Transaction<ImmutableList<VALUE>> {
 
-  private final Variable<ImmutableList> input;
-  private final Variable<ImmutableList> output;
+  private final Variable<ImmutableList<VALUE>> input;
+  private final Variable<ImmutableList<VALUE>> output;
   private final Variable<Boolean> frozen;
 
-  public TransferBatch(Variable<ImmutableList> input, Variable<ImmutableList> output, Variable<Boolean> frozen) {
+  public TransferBatch(Variable<ImmutableList<VALUE>> input, Variable<ImmutableList<VALUE>> output, Variable<Boolean> frozen) {
     super(BaseDependency.builder().writes(input, output, frozen).build());
     this.input = input;
     this.output = output;
@@ -39,17 +39,17 @@ public class TransferBatch extends BaseTransaction<ImmutableList> implements Tra
   }
 
   @Override
-  public ImmutableList run(Context context) throws Exception {
-    Accessor<ImmutableList> inputList = context.accessor(input);
-    Accessor<ImmutableList> outputList = context.accessor(output);
+  public ImmutableList<VALUE> run(Context context) throws Exception {
+    Accessor<ImmutableList<VALUE>> inputList = context.accessor(input);
+    Accessor<ImmutableList<VALUE>> outputList = context.accessor(output);
     Accessor<Boolean> frozenFlag = context.accessor(frozen);
     if (!frozenFlag.read()) {
       if (!outputList.read().isEmpty()) {
         throw new IllegalStateException("Batch should not be unfrozen when output still remains!");
       }
-      ImmutableList values = inputList.read();
+      ImmutableList<VALUE> values = inputList.read();
       outputList.write(values);
-      inputList.write(ImmutableList.of());
+      inputList.write(ImmutableList.<VALUE>of());
       frozenFlag.write(true);
     }
     return outputList.read();

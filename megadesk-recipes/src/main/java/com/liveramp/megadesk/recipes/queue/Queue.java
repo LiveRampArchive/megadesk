@@ -23,7 +23,7 @@ import com.liveramp.megadesk.core.transaction.Transaction;
 
 public class Queue<VALUE> extends BaseQueue<VALUE, VALUE> {
 
-  public Queue(Variable<ImmutableList> input, Variable<ImmutableList> output, Variable<Boolean> frozen) {
+  public Queue(Variable<ImmutableList<VALUE>> input, Variable<ImmutableList<VALUE>> output, Variable<Boolean> frozen) {
     super(input, output, frozen);
   }
 
@@ -38,6 +38,6 @@ public class Queue<VALUE> extends BaseQueue<VALUE, VALUE> {
 
   @Override
   protected Transaction getPopTransaction() {
-    return new PopOne(this.getOutput(), this.getFrozen());
+    return new PopOne<VALUE>(this.getOutput(), this.getFrozen());
   }
 }

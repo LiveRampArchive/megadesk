@@ -24,12 +24,12 @@ import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Transaction;
 
-class Erase extends BaseTransaction<Void> implements Transaction<Void> {
+class Erase<VALUE> extends BaseTransaction<Void> implements Transaction<Void> {
 
-  private final Variable<ImmutableList> list;
+  private final Variable<ImmutableList<VALUE>> list;
   private final Variable<Boolean> frozen;
 
-  Erase(Variable<ImmutableList> list, Variable<Boolean> frozen) {
+  Erase(Variable<ImmutableList<VALUE>> list, Variable<Boolean> frozen) {
     super(BaseDependency.builder().writes(list, frozen).build());
     this.frozen = frozen;
     this.list = list;
@@ -37,7 +37,7 @@ class Erase extends BaseTransaction<Void> implements Transaction<Void> {
 
   @Override
   public Void run(Context context) throws Exception {
-    context.write(list, ImmutableList.of());
+    context.write(list, ImmutableList.<VALUE>of());
     context.write(frozen, false);
     return null;
   }

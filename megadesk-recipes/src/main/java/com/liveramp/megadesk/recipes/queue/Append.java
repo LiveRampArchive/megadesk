@@ -26,12 +26,12 @@ import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Transaction;
 
-public class Append<V> extends BaseTransaction<Void> implements Transaction<Void> {
+public class Append<VALUE> extends BaseTransaction<Void> implements Transaction<Void> {
 
-  private final Variable<ImmutableList> list;
-  private final List<V> values;
+  private final Variable<ImmutableList<VALUE>> list;
+  private final List<VALUE> values;
 
-  public Append(Variable<ImmutableList> driver, List<V> values) {
+  public Append(Variable<ImmutableList<VALUE>> driver, List<VALUE> values) {
     super(BaseDependency.builder().writes(driver).build());
     this.values = values;
     this.list = driver;
@@ -39,8 +39,8 @@ public class Append<V> extends BaseTransaction<Void> implements Transaction<Void
 
   @Override
   public Void run(Context context) throws Exception {
-    ImmutableList originalValue = context.read(list);
-    ImmutableList newValue = ImmutableList.builder().addAll(originalValue).addAll(values).build();
+    ImmutableList<VALUE> originalValue = context.read(list);
+    ImmutableList<VALUE> newValue = ImmutableList.<VALUE>builder().addAll(originalValue).addAll(values).build();
     context.write(list, newValue);
     return null;
   }

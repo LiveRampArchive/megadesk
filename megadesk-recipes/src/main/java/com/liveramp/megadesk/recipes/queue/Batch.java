@@ -23,7 +23,7 @@ import com.liveramp.megadesk.core.transaction.Transaction;
 
 public class Batch<VALUE> extends BaseQueue<VALUE, ImmutableList<VALUE>> {
 
-  public Batch(Variable<ImmutableList> input, Variable<ImmutableList> output, Variable<Boolean> frozen) {
+  public Batch(Variable<ImmutableList<VALUE>> input, Variable<ImmutableList<VALUE>> output, Variable<Boolean> frozen) {
     super(input, output, frozen);
   }
 
@@ -34,7 +34,7 @@ public class Batch<VALUE> extends BaseQueue<VALUE, ImmutableList<VALUE>> {
 
   @Override
   protected Transaction getPopTransaction() {
-    return new Erase(getOutput(), getFrozen());
+    return new Erase<VALUE>(getOutput(), getFrozen());
   }
 }
 

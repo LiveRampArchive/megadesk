@@ -32,8 +32,8 @@ public class BatchExecutable<VALUE> extends BaseQueueExecutable<VALUE, Immutable
   public static <VALUE> BatchExecutable<VALUE> getBatchByName(String name, DriverFactory factory, BaseTransactionExecutor executor) {
     return new BatchExecutable<VALUE>(
         new Batch<VALUE>(
-            new Local<ImmutableList>(factory.<ImmutableList>get(name + "-input", ImmutableList.of())),
-            new Local<ImmutableList>(factory.<ImmutableList>get(name + "-output", ImmutableList.of())),
+            new Local<ImmutableList<VALUE>>(factory.get(name + "-input", ImmutableList.<VALUE>of())),
+            new Local<ImmutableList<VALUE>>(factory.get(name + "-output", ImmutableList.<VALUE>of())),
             new Local<Boolean>(factory.get(name + "-frozen", false))),
         new BaseTransactionExecutor()
     );

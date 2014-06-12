@@ -29,11 +29,11 @@ import com.liveramp.megadesk.core.transaction.Transaction;
 
 public abstract class BaseQueue<VALUE, OUTPUT> {
 
-  private final Variable<ImmutableList> input;
-  private final Variable<ImmutableList> output;
+  private final Variable<ImmutableList<VALUE>> input;
+  private final Variable<ImmutableList<VALUE>> output;
   private final Variable<Boolean> frozen;
 
-  public BaseQueue(Variable<ImmutableList> input, Variable<ImmutableList> output, Variable<Boolean> frozen) {
+  public BaseQueue(Variable<ImmutableList<VALUE>> input, Variable<ImmutableList<VALUE>> output, Variable<Boolean> frozen) {
     this.input = input;
     this.output = output;
     this.frozen = frozen;
@@ -64,11 +64,11 @@ public abstract class BaseQueue<VALUE, OUTPUT> {
     append(context, Lists.newArrayList(values));
   }
 
-  public Variable<ImmutableList> getInput() {
+  public Variable<ImmutableList<VALUE>> getInput() {
     return input;
   }
 
-  public Variable<ImmutableList> getOutput() {
+  public Variable<ImmutableList<VALUE>> getOutput() {
     return output;
   }
 
@@ -89,8 +89,8 @@ public abstract class BaseQueue<VALUE, OUTPUT> {
     }
   }
 
-  protected TransferBatch getTransferTransaction() {
-    return new TransferBatch(input, output, frozen);
+  protected TransferBatch<VALUE> getTransferTransaction() {
+    return new TransferBatch<VALUE>(input, output, frozen);
   }
 
   public void pop(Context context) {

@@ -33,8 +33,8 @@ public class QueueExecutable<VALUE> extends BaseQueueExecutable<VALUE, VALUE> im
   public static <VALUE> QueueExecutable<VALUE> getQueueByName(String name, DriverFactory factory, BaseTransactionExecutor executor) {
     return new QueueExecutable<VALUE>(
         new Queue<VALUE>(
-            new BaseVariable<ImmutableList>(new Name<ImmutableList>(name + "input"), factory.<ImmutableList>get(name + "-input", ImmutableList.of())),
-            new BaseVariable<ImmutableList>(new Name<ImmutableList>(name + "output"), factory.<ImmutableList>get(name + "-output", ImmutableList.of())),
+            new BaseVariable<ImmutableList<VALUE>>(new Name<ImmutableList<VALUE>>(name + "input"), factory.get(name + "-input", ImmutableList.<VALUE>of())),
+            new BaseVariable<ImmutableList<VALUE>>(new Name<ImmutableList<VALUE>>(name + "output"), factory.get(name + "-output", ImmutableList.<VALUE>of())),
             new BaseVariable<Boolean>(new Name<Boolean>(name + "frozen"), (factory.get(name + "-frozen", false)))),
         new BaseTransactionExecutor()
     );

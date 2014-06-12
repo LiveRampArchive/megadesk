@@ -24,12 +24,12 @@ import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Transaction;
 
-public class PopOne extends BaseTransaction<Void> implements Transaction<Void> {
+public class PopOne<VALUE> extends BaseTransaction<Void> implements Transaction<Void> {
 
-  private final Variable<ImmutableList> list;
+  private final Variable<ImmutableList<VALUE>> list;
   private final Variable<Boolean> frozen;
 
-  public PopOne(Variable<ImmutableList> list, Variable<Boolean> frozen) {
+  public PopOne(Variable<ImmutableList<VALUE>> list, Variable<Boolean> frozen) {
     super(BaseDependency.builder().writes(list, frozen).build());
     this.frozen = frozen;
     this.list = list;
@@ -37,9 +37,9 @@ public class PopOne extends BaseTransaction<Void> implements Transaction<Void> {
 
   @Override
   public Void run(Context context) throws Exception {
-    ImmutableList list = context.read(this.list);
+    ImmutableList<VALUE> list = context.read(this.list);
     if (!list.isEmpty()) {
-      ImmutableList newList = list.subList(1, list.size());
+      ImmutableList<VALUE> newList = list.subList(1, list.size());
       context.write(this.list, newList);
     }
     if (context.read(this.list).isEmpty()) {
