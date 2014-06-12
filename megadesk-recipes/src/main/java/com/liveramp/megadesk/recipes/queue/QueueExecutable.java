@@ -30,7 +30,7 @@ public class QueueExecutable<VALUE> extends BaseQueueExecutable<VALUE, VALUE> im
     super(queue, executor);
   }
 
-  public static <VALUE> QueueExecutable<VALUE> getQueueByName(String name, DriverFactory factory, BaseTransactionExecutor executor) {
+  public static <VALUE> QueueExecutable<VALUE> getQueueByName(String name, DriverFactory factory) {
     return new QueueExecutable<VALUE>(
         new Queue<VALUE>(
             new BaseVariable<ImmutableList<VALUE>>(new Name<ImmutableList<VALUE>>(name + "input"), factory.get(name + "-input", ImmutableList.<VALUE>of())),
@@ -40,6 +40,7 @@ public class QueueExecutable<VALUE> extends BaseQueueExecutable<VALUE, VALUE> im
     );
   }
 
+  @Override
   public Queue<VALUE> getQueue() {
     return (Queue<VALUE>)super.getQueue();
   }
