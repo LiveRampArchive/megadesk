@@ -38,17 +38,17 @@ public class JavaObjectSerializationHandler<T> implements SerializationHandler<T
     if (serializedValue.length > 0) {
       ByteArrayInputStream bytesInputStream = new ByteArrayInputStream(serializedValue);
       ObjectInputStream objectInputStream = new ObjectInputStream(bytesInputStream);
-      Object object;
+      T result;
       try {
         try {
-          object = objectInputStream.readObject();
+          result = (T)objectInputStream.readObject();
         } catch (ClassNotFoundException e) {
           throw new IOException(e);
         }
       } finally {
         objectInputStream.close();
       }
-      return (T)object;
+      return result;
     } else {
       return null;
     }
