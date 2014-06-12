@@ -84,8 +84,7 @@ public class TestQueue extends BaseTestCase {
   @Test
   public void testQueue() {
     DriverFactory factory = new BasicFactory();
-    BaseTransactionExecutor executor = new BaseTransactionExecutor();
-    QueueExecutable<Integer> queue = QueueExecutable.getQueueByName("integers", factory, executor);
+    QueueExecutable<Integer> queue = QueueExecutable.getQueueByName("integers", factory);
 
     queue.append(10);
     queue.append(11);
@@ -103,9 +102,8 @@ public class TestQueue extends BaseTestCase {
   public void testQueueTransactions() throws InterruptedException {
 
     DriverFactory factory = new BasicFactory();
-    BaseTransactionExecutor executor = new BaseTransactionExecutor();
-    QueueExecutable<Integer> input = QueueExecutable.getQueueByName("input", factory, executor);
-    QueueExecutable<Integer> output = QueueExecutable.getQueueByName("output", factory, executor);
+    QueueExecutable<Integer> input = QueueExecutable.getQueueByName("input", factory);
+    QueueExecutable<Integer> output = QueueExecutable.getQueueByName("output", factory);
 
     MultiplyBy10 multiplyBy10 = new MultiplyBy10(input.getQueue(), output.getQueue());
 
