@@ -35,7 +35,7 @@ import com.liveramp.megadesk.recipes.gear.Gear;
 import com.liveramp.megadesk.recipes.gear.Outcome;
 import com.liveramp.megadesk.recipes.iteration.BaseIterationExecutor;
 import com.liveramp.megadesk.recipes.iteration.IterationExecutor;
-import com.liveramp.megadesk.recipes.pipeline.DriverFactory;
+import com.liveramp.megadesk.recipes.state.DriverFactory;
 import com.liveramp.megadesk.test.BaseTestCase;
 
 import static org.junit.Assert.assertEquals;

@@ -21,7 +21,7 @@ import com.google.common.collect.ImmutableList;
 import com.liveramp.megadesk.base.state.Local;
 import com.liveramp.megadesk.base.transaction.BaseTransactionExecutor;
 import com.liveramp.megadesk.core.transaction.TransactionExecutor;
-import com.liveramp.megadesk.recipes.pipeline.DriverFactory;
+import com.liveramp.megadesk.recipes.state.DriverFactory;
 
 public class BatchExecutable<VALUE> extends BaseQueueExecutable<VALUE, ImmutableList<VALUE>> implements MegadeskPersistentBatch<VALUE> {
 

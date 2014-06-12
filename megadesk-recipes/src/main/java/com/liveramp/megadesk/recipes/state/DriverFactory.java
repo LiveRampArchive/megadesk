@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.liveramp.megadesk.recipes.pipeline;
+package com.liveramp.megadesk.recipes.state;
 
 import com.liveramp.megadesk.core.state.Driver;
 

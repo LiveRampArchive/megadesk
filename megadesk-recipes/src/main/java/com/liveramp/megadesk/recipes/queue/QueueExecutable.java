@@ -22,7 +22,7 @@ import com.liveramp.megadesk.base.state.BaseVariable;
 import com.liveramp.megadesk.base.state.Name;
 import com.liveramp.megadesk.base.transaction.BaseTransactionExecutor;
 import com.liveramp.megadesk.core.transaction.TransactionExecutor;
-import com.liveramp.megadesk.recipes.pipeline.DriverFactory;
+import com.liveramp.megadesk.recipes.state.DriverFactory;
 
 public class QueueExecutable<VALUE> extends BaseQueueExecutable<VALUE, VALUE> implements MegadeskPersistentQueue<VALUE, VALUE> {
 
