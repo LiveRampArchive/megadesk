@@ -4,8 +4,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Dependency;
@@ -107,7 +109,7 @@ public class BaseDependency implements Dependency {
       return reads(concatenate(dependencies));
     }
 
-    public Builder reads(List<Variable> dependencies) {
+    public Builder reads(Collection<Variable> dependencies) {
       this.reads = Lists.newArrayList(dependencies);
       return this;
     }
@@ -120,7 +122,7 @@ public class BaseDependency implements Dependency {
       return writes(concatenate(dependencies));
     }
 
-    public Builder writes(List<Variable> dependencies) {
+    public Builder writes(Collection<Variable> dependencies) {
       this.writes = Lists.newArrayList(dependencies);
       return this;
     }
@@ -151,11 +153,14 @@ public class BaseDependency implements Dependency {
   }
 
   public static BaseDependency merge(Dependency... dependencies) {
-    Builder builder = BaseDependency.builder();
-    List<VariableDependency> all = Lists.newArrayList();
+    Set<Variable> reads = Sets.newHashSet();
+    Set<Variable> writes = Sets.newHashSet();
     for (Dependency dependency : dependencies) {
-      all.addAll(dependency.all());
+      reads.addAll(dependency.reads());
+      writes.addAll(dependency.writes());
     }
-    return builder.all(all).build();
+    // Promote reads to writes
+    reads.removeAll(Sets.intersection(reads, writes));
+    return BaseDependency.builder().reads(reads).writes(writes).build();
   }
 }
