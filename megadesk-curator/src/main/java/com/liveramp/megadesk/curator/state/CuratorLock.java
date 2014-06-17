@@ -42,7 +42,7 @@ public class CuratorLock implements Lock {
   @Override
   public boolean tryLock() {
     try {
-      return lock.acquire(1, TimeUnit.MILLISECONDS);
+      return lock.acquire(0, TimeUnit.NANOSECONDS);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -57,7 +57,7 @@ public class CuratorLock implements Lock {
     }
   }
 
-  public boolean isLockOwned(){
+  public boolean isLockOwned() {
     return lock.isAcquiredInThisProcess();
   }
 }
