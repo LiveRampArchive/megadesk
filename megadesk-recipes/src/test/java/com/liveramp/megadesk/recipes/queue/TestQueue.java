@@ -124,12 +124,12 @@ public class TestQueue extends BaseTestCase {
     output.pop();
   }
 
-  private static class BasicFactory implements DriverFactory {
+  private static class BasicFactory<T> implements DriverFactory<T> {
 
     private static Map<String, Driver> drivers = Maps.newHashMap();
 
     @Override
-    public <T> Driver<T> get(String referenceName, T initialValue) {
+    public Driver<T> get(String referenceName, T initialValue) {
       if (!drivers.containsKey(referenceName)) {
         drivers.put(referenceName, new InMemoryDriver<T>(initialValue));
       }
