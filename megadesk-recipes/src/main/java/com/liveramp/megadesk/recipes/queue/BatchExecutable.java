@@ -29,13 +29,16 @@ public class BatchExecutable<VALUE> extends BaseQueueExecutable<VALUE, Immutable
     super(batch, executor);
   }
 
-  public static <VALUE> BatchExecutable<VALUE> getBatchByName(String name, DriverFactory factory, BaseTransactionExecutor executor) {
+  public static <VALUE> BatchExecutable<VALUE> getBatchByName(String name,
+                                                              DriverFactory<ImmutableList<VALUE>> listFactory,
+                                                              DriverFactory<Boolean> boolFactory,
+                                                              BaseTransactionExecutor executor) {
     return new BatchExecutable<VALUE>(
         new Batch<VALUE>(
-            new Local<ImmutableList<VALUE>>(factory.get(name + "-input", ImmutableList.<VALUE>of())),
-            new Local<ImmutableList<VALUE>>(factory.get(name + "-output", ImmutableList.<VALUE>of())),
-            new Local<Boolean>(factory.get(name + "-frozen", false))),
-        new BaseTransactionExecutor()
+            new Local<ImmutableList<VALUE>>(listFactory.get(name + "-input", ImmutableList.<VALUE>of())),
+            new Local<ImmutableList<VALUE>>(listFactory.get(name + "-output", ImmutableList.<VALUE>of())),
+            new Local<Boolean>(boolFactory.get(name + "-frozen", false))),
+        executor
     );
   }
 }

@@ -48,9 +48,10 @@ public class TestQueue extends BaseTestCase {
   @Test
   public void testBatching() {
 
-    DriverFactory factory = new BasicFactory();
+    DriverFactory<ImmutableList<Integer>> listFactory = new BasicFactory<ImmutableList<Integer>>();
+    DriverFactory<Boolean> boolFactory = new BasicFactory<Boolean>();
     BaseTransactionExecutor executor = new BaseTransactionExecutor();
-    BatchExecutable<Integer> batch = BatchExecutable.getBatchByName("summed-integers", factory, executor);
+    BatchExecutable<Integer> batch = BatchExecutable.getBatchByName("summed-integers", listFactory, boolFactory, executor);
 
     //basic batching
     batch.append(3);
@@ -69,7 +70,7 @@ public class TestQueue extends BaseTestCase {
     assertEquals(ImmutableList.of(10), list);
 
     //Batches with the same name are the same
-    BatchExecutable<Integer> sameBatchNewName = BatchExecutable.getBatchByName("summed-integers", factory, executor);
+    BatchExecutable<Integer> sameBatchNewName = BatchExecutable.getBatchByName("summed-integers", listFactory, boolFactory, executor);
     List<Integer> newSum = sameBatchNewName.read();
     assertEquals(ImmutableList.of(10), newSum);
 
