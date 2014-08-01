@@ -84,8 +84,9 @@ public class TestQueue extends BaseTestCase {
 
   @Test
   public void testQueue() {
-    DriverFactory factory = new BasicFactory();
-    QueueExecutable<Integer> queue = QueueExecutable.getQueueByName("integers", factory);
+    DriverFactory<ImmutableList<Integer>> listFactory = new BasicFactory<ImmutableList<Integer>>();
+    DriverFactory<Boolean> boolFactory = new BasicFactory<Boolean>();
+    QueueExecutable<Integer> queue = QueueExecutable.getQueueByName("integers", listFactory, boolFactory);
 
     queue.append(10);
     queue.append(11);
@@ -102,9 +103,10 @@ public class TestQueue extends BaseTestCase {
   @Test
   public void testQueueTransactions() throws InterruptedException {
 
-    DriverFactory factory = new BasicFactory();
-    QueueExecutable<Integer> input = QueueExecutable.getQueueByName("input", factory);
-    QueueExecutable<Integer> output = QueueExecutable.getQueueByName("output", factory);
+    DriverFactory<ImmutableList<Integer>> listFactory = new BasicFactory<ImmutableList<Integer>>();
+    DriverFactory<Boolean> boolFactory = new BasicFactory<Boolean>();
+    QueueExecutable<Integer> input = QueueExecutable.getQueueByName("input", listFactory, boolFactory);
+    QueueExecutable<Integer> output = QueueExecutable.getQueueByName("output", listFactory, boolFactory);
 
     MultiplyBy10 multiplyBy10 = new MultiplyBy10(input.getQueue(), output.getQueue());
 
@@ -127,7 +129,7 @@ public class TestQueue extends BaseTestCase {
 
   private static class BasicFactory<T> implements DriverFactory<T> {
 
-    private static Map<String, Driver> drivers = Maps.newHashMap();
+    private Map<String, Driver<T>> drivers = Maps.newHashMap();
 
     @Override
     public Driver<T> get(String referenceName, T initialValue) {
