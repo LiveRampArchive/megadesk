@@ -20,5 +20,5 @@ import com.liveramp.megadesk.core.state.Driver;
 
 public interface DriverFactory<T> {
 
-  public Driver<T> get(String referenceName, T intialValue);
+  public Driver<T> get(String referenceName, T initialValue);
 }
