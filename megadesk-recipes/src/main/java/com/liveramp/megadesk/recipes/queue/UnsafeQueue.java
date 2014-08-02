@@ -11,14 +11,15 @@ public class UnsafeQueue<VALUE> {
 
   private final Variable<ImmutableList<VALUE>> input;
   private final Variable<ImmutableList<VALUE>> output;
+  private final TransactionExecutor executor;
 
-  public UnsafeQueue(Variable<ImmutableList<VALUE>> input, Variable<ImmutableList<VALUE>> output) {
+  public UnsafeQueue(TransactionExecutor executor, Variable<ImmutableList<VALUE>> input, Variable<ImmutableList<VALUE>> output) {
     this.input = input;
     this.output = output;
+    this.executor = executor;
   }
 
-  public ImmutableList<VALUE> readInput(TransactionExecutor executor) {
-
+  public ImmutableList<VALUE> readInput() {
     try {
       return executor.execute(getReadTransaction(input));
     } catch (Exception e) {
@@ -26,8 +27,7 @@ public class UnsafeQueue<VALUE> {
     }
   }
 
-  public ImmutableList<VALUE> readOutput(TransactionExecutor executor) {
-
+  public ImmutableList<VALUE> readOutput() {
     try {
       return executor.execute(getReadTransaction(output));
     } catch (Exception e) {
@@ -35,8 +35,7 @@ public class UnsafeQueue<VALUE> {
     }
   }
 
-  public void writeInput(TransactionExecutor executor, ImmutableList<VALUE> values) {
-
+  public void writeInput(ImmutableList<VALUE> values) {
     try {
       executor.execute(getWriteTransaction(input, values));
     } catch (Exception e) {
@@ -44,8 +43,7 @@ public class UnsafeQueue<VALUE> {
     }
   }
 
-  public void writeOutput(TransactionExecutor executor, ImmutableList<VALUE> values) {
-
+  public void writeOutput(ImmutableList<VALUE> values) {
     try {
       executor.execute(getWriteTransaction(output, values));
     } catch (Exception e) {
