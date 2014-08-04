@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Test;
 
@@ -148,6 +149,11 @@ public class TestQueue extends BaseTestCase {
     unsafeBatch.writeOutput(ImmutableList.of(0, 0, 0));
     assertEquals(2, unsafeBatch.readInput().size());
     assertEquals(3, unsafeBatch.readOutput().size());
+
+    batch.pop();
+    assertEquals(2, unsafeBatch.readInput().size());
+    unsafeBatch.appendInput(Lists.newArrayList(0));
+    assertEquals(3, unsafeBatch.readInput().size());
   }
 
   private static class BasicFactory<T> implements DriverFactory<T> {
