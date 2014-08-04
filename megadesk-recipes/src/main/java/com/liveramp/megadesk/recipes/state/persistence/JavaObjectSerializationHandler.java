@@ -21,8 +21,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
-public class JavaObjectSerializationHandler<T> implements SerializationHandler<T> {
+public class JavaObjectSerializationHandler<T extends Serializable> implements SerializationHandler<T> {
 
   @Override
   public byte[] serialize(T value) throws IOException {

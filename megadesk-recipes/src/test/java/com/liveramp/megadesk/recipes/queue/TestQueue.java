@@ -48,9 +48,10 @@ public class TestQueue extends BaseTestCase {
   @Test
   public void testBatching() {
 
-    DriverFactory factory = new BasicFactory();
+    DriverFactory<ImmutableList<Integer>> listFactory = new BasicFactory<ImmutableList<Integer>>();
+    DriverFactory<Boolean> boolFactory = new BasicFactory<Boolean>();
     BaseTransactionExecutor executor = new BaseTransactionExecutor();
-    BatchExecutable<Integer> batch = BatchExecutable.getBatchByName("summed-integers", factory, executor);
+    BatchExecutable<Integer> batch = BatchExecutable.getBatchByName("summed-integers", listFactory, boolFactory, executor);
 
     //basic batching
     batch.append(3);
@@ -69,7 +70,7 @@ public class TestQueue extends BaseTestCase {
     assertEquals(ImmutableList.of(10), list);
 
     //Batches with the same name are the same
-    BatchExecutable<Integer> sameBatchNewName = BatchExecutable.getBatchByName("summed-integers", factory, executor);
+    BatchExecutable<Integer> sameBatchNewName = BatchExecutable.getBatchByName("summed-integers", listFactory, boolFactory, executor);
     List<Integer> newSum = sameBatchNewName.read();
     assertEquals(ImmutableList.of(10), newSum);
 
@@ -83,8 +84,9 @@ public class TestQueue extends BaseTestCase {
 
   @Test
   public void testQueue() {
-    DriverFactory factory = new BasicFactory();
-    QueueExecutable<Integer> queue = QueueExecutable.getQueueByName("integers", factory);
+    DriverFactory<ImmutableList<Integer>> listFactory = new BasicFactory<ImmutableList<Integer>>();
+    DriverFactory<Boolean> boolFactory = new BasicFactory<Boolean>();
+    QueueExecutable<Integer> queue = QueueExecutable.getQueueByName("integers", listFactory, boolFactory);
 
     queue.append(10);
     queue.append(11);
@@ -101,9 +103,10 @@ public class TestQueue extends BaseTestCase {
   @Test
   public void testQueueTransactions() throws InterruptedException {
 
-    DriverFactory factory = new BasicFactory();
-    QueueExecutable<Integer> input = QueueExecutable.getQueueByName("input", factory);
-    QueueExecutable<Integer> output = QueueExecutable.getQueueByName("output", factory);
+    DriverFactory<ImmutableList<Integer>> listFactory = new BasicFactory<ImmutableList<Integer>>();
+    DriverFactory<Boolean> boolFactory = new BasicFactory<Boolean>();
+    QueueExecutable<Integer> input = QueueExecutable.getQueueByName("input", listFactory, boolFactory);
+    QueueExecutable<Integer> output = QueueExecutable.getQueueByName("output", listFactory, boolFactory);
 
     MultiplyBy10 multiplyBy10 = new MultiplyBy10(input.getQueue(), output.getQueue());
 
@@ -124,12 +127,12 @@ public class TestQueue extends BaseTestCase {
     output.pop();
   }
 
-  private static class BasicFactory implements DriverFactory {
+  private static class BasicFactory<T> implements DriverFactory<T> {
 
-    private static Map<String, Driver> drivers = Maps.newHashMap();
+    private Map<String, Driver<T>> drivers = Maps.newHashMap();
 
     @Override
-    public <T> Driver<T> get(String referenceName, T initialValue) {
+    public Driver<T> get(String referenceName, T initialValue) {
       if (!drivers.containsKey(referenceName)) {
         drivers.put(referenceName, new InMemoryDriver<T>(initialValue));
       }
