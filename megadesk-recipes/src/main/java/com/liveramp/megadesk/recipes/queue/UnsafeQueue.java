@@ -20,32 +20,32 @@ public class UnsafeQueue<VALUE> {
   }
 
   public ImmutableList<VALUE> readInput() {
-    try {
-      return executor.execute(getReadTransaction(input));
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    return read(input);
   }
 
   public ImmutableList<VALUE> readOutput() {
-    try {
-      return executor.execute(getReadTransaction(output));
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    return read(output);
   }
 
   public void writeInput(ImmutableList<VALUE> values) {
+    write(input, values);
+  }
+
+  public void writeOutput(ImmutableList<VALUE> values) {
+    write(output, values);
+  }
+
+  private ImmutableList<VALUE> read(Variable<ImmutableList<VALUE>> variable) {
     try {
-      executor.execute(getWriteTransaction(input, values));
+      return executor.execute(getReadTransaction(variable));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  public void writeOutput(ImmutableList<VALUE> values) {
+  private void write(Variable<ImmutableList<VALUE>> variable, ImmutableList<VALUE> values) {
     try {
-      executor.execute(getWriteTransaction(output, values));
+      executor.execute(getWriteTransaction(variable, values));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
