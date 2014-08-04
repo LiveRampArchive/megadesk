@@ -3,6 +3,7 @@ package com.liveramp.megadesk.recipes.queue;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.TransactionExecutor;
@@ -33,8 +34,16 @@ public class UnsafeQueue<VALUE> {
     append(input, values);
   }
 
+  public void appendInput(VALUE... values) {
+    appendInput(Lists.newArrayList(values));
+  }
+
   public void appendOutput(List<VALUE> values) {
     append(output, values);
+  }
+
+  public void appendOutput(VALUE... values) {
+    appendOutput(Lists.newArrayList(values));
   }
 
   public void writeInput(ImmutableList<VALUE> values) {
