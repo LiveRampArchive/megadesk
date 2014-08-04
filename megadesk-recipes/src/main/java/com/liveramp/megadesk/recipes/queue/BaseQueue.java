@@ -26,6 +26,7 @@ import com.liveramp.megadesk.core.state.Variable;
 import com.liveramp.megadesk.core.transaction.Context;
 import com.liveramp.megadesk.core.transaction.Dependency;
 import com.liveramp.megadesk.core.transaction.Transaction;
+import com.liveramp.megadesk.core.transaction.TransactionExecutor;
 
 public abstract class BaseQueue<VALUE, OUTPUT> {
 
@@ -110,5 +111,9 @@ public abstract class BaseQueue<VALUE, OUTPUT> {
   protected abstract OUTPUT internalRead(ImmutableList<VALUE> transfer);
 
   protected abstract Transaction getPopTransaction();
+
+  public UnsafeQueue<VALUE> getUnsafeQueue(TransactionExecutor executor) {
+    return new UnsafeQueue<VALUE>(executor, input, output);
+  }
 }
 

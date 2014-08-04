@@ -127,6 +127,29 @@ public class TestQueue extends BaseTestCase {
     output.pop();
   }
 
+  @Test
+  public void testUnsafeQueue() {
+
+    DriverFactory<ImmutableList<Integer>> listFactory = new BasicFactory<ImmutableList<Integer>>();
+    DriverFactory<Boolean> boolFactory = new BasicFactory<Boolean>();
+    BaseTransactionExecutor executor = new BaseTransactionExecutor();
+    BatchExecutable<Integer> batch = BatchExecutable.getBatchByName("batch", listFactory, boolFactory, executor);
+    UnsafeQueue<Integer> unsafeBatch = batch.getUnsafeQueue();
+
+    batch.append(0);
+    assertEquals(1, unsafeBatch.readInput().size());
+    assertEquals(0, unsafeBatch.readOutput().size());
+
+    batch.read();
+    assertEquals(0, unsafeBatch.readInput().size());
+    assertEquals(1, unsafeBatch.readOutput().size());
+
+    unsafeBatch.writeInput(ImmutableList.of(0, 0));
+    unsafeBatch.writeOutput(ImmutableList.of(0, 0, 0));
+    assertEquals(2, unsafeBatch.readInput().size());
+    assertEquals(3, unsafeBatch.readOutput().size());
+  }
+
   private static class BasicFactory<T> implements DriverFactory<T> {
 
     private Map<String, Driver<T>> drivers = Maps.newHashMap();

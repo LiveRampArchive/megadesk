@@ -1,5 +1,7 @@
 package com.liveramp.megadesk.recipes.queue;
 
+import java.util.List;
+
 import com.google.common.collect.ImmutableList;
 
 import com.liveramp.megadesk.core.state.Variable;
@@ -27,6 +29,14 @@ public class UnsafeQueue<VALUE> {
     return read(output);
   }
 
+  public void appendInput(List<VALUE> values) {
+    append(input, values);
+  }
+
+  public void appendOutput(List<VALUE> values) {
+    append(output, values);
+  }
+
   public void writeInput(ImmutableList<VALUE> values) {
     write(input, values);
   }
@@ -38,6 +48,14 @@ public class UnsafeQueue<VALUE> {
   private ImmutableList<VALUE> read(Variable<ImmutableList<VALUE>> variable) {
     try {
       return executor.execute(getReadTransaction(variable));
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private void append(Variable<ImmutableList<VALUE>> variable, List<VALUE> values) {
+    try {
+      executor.execute(getAppendTransaction(variable, values));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -57,5 +75,9 @@ public class UnsafeQueue<VALUE> {
 
   private Write<ImmutableList<VALUE>> getWriteTransaction(Variable<ImmutableList<VALUE>> variable, ImmutableList<VALUE> values) {
     return new Write<ImmutableList<VALUE>>(variable, values);
+  }
+
+  private Append<VALUE> getAppendTransaction(Variable<ImmutableList<VALUE>> variable, List<VALUE> values) {
+    return new Append<VALUE>(variable, values);
   }
 }
