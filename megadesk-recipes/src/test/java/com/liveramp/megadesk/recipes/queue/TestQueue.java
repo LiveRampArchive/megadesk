@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Test;
 
@@ -125,6 +126,58 @@ public class TestQueue extends BaseTestCase {
     output.pop();
     assertEquals(Integer.valueOf(300), output.read());
     output.pop();
+  }
+
+  @Test
+  public void testUnsafeBatch() {
+
+    DriverFactory<ImmutableList<Integer>> listFactory = new BasicFactory<ImmutableList<Integer>>();
+    DriverFactory<Boolean> boolFactory = new BasicFactory<Boolean>();
+    BaseTransactionExecutor executor = new BaseTransactionExecutor();
+
+    //Test with batches
+    BatchExecutable<Integer> batch = BatchExecutable.getBatchByName("batch", listFactory, boolFactory, executor);
+    UnsafeQueue<Integer> unsafeBatch = batch.getUnsafeQueue();
+
+    batch.append(0);
+    assertEquals(1, unsafeBatch.readInput().size());
+    assertEquals(0, unsafeBatch.readOutput().size());
+
+    batch.read();
+    assertEquals(0, unsafeBatch.readInput().size());
+    assertEquals(1, unsafeBatch.readOutput().size());
+
+    unsafeBatch.writeInput(ImmutableList.of(0, 0));
+    unsafeBatch.writeOutput(ImmutableList.of(0, 0, 0));
+    assertEquals(2, unsafeBatch.readInput().size());
+    assertEquals(3, unsafeBatch.readOutput().size());
+
+    batch.pop();
+    assertEquals(2, unsafeBatch.readInput().size());
+    unsafeBatch.appendInput(Lists.newArrayList(0));
+    assertEquals(3, unsafeBatch.readInput().size());
+  }
+
+  @Test
+  public void testUnsafeQueue() {
+
+    DriverFactory<ImmutableList<Integer>> listFactory = new BasicFactory<ImmutableList<Integer>>();
+    DriverFactory<Boolean> boolFactory = new BasicFactory<Boolean>();
+    BaseTransactionExecutor executor = new BaseTransactionExecutor();
+
+    QueueExecutable<Integer> queue = QueueExecutable.getQueueByName("queue", listFactory, boolFactory);
+    UnsafeQueue<Integer> unsafeQueue = queue.getUnsafeQueue();
+
+    queue.append(1);
+    unsafeQueue.appendInput(3);
+    assertEquals(Integer.valueOf(1), queue.read());
+    unsafeQueue.appendOutput(2);
+    assertEquals(Integer.valueOf(1), queue.read());
+    queue.pop();
+    assertEquals(Integer.valueOf(2), queue.read());
+    queue.pop();
+    assertEquals(Integer.valueOf(3), queue.read());
+
   }
 
   private static class BasicFactory<T> implements DriverFactory<T> {

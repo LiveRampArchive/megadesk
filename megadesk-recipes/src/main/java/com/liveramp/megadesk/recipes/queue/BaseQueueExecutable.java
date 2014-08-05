@@ -63,4 +63,8 @@ public abstract class BaseQueueExecutable<VALUE, OUTPUT> {
   public BaseQueue<VALUE, OUTPUT> getQueue() {
     return queue;
   }
+
+  public UnsafeQueue<VALUE> getUnsafeQueue() {
+    return queue.getUnsafeQueue(executor);
+  }
 }
