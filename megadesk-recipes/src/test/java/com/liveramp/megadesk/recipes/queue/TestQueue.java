@@ -174,9 +174,9 @@ public class TestQueue extends BaseTestCase {
     unsafeQueue.appendOutput(2);
     assertEquals(Integer.valueOf(1), queue.read());
     queue.pop();
-    assertEquals(Integer.valueOf(2), queue.read());
-    queue.pop();
     assertEquals(Integer.valueOf(3), queue.read());
+    queue.pop();
+    assertEquals(Integer.valueOf(2), queue.read());
 
   }
 
