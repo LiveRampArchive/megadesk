@@ -22,7 +22,7 @@ import com.google.common.collect.Lists;
 
 import com.liveramp.megadesk.core.transaction.TransactionExecutor;
 
-public abstract class BaseQueueExecutable<VALUE, OUTPUT> {
+public abstract class BaseQueueExecutable<VALUE, OUTPUT> implements MegadeskPersistentQueue<VALUE, OUTPUT> {
 
   private final BaseQueue<VALUE, OUTPUT> queue;
   private TransactionExecutor executor;
