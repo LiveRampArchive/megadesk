@@ -27,4 +27,6 @@ public interface MegadeskPersistentQueue<VALUE, OUTPUT> {
   public OUTPUT read();
 
   public void pop();
+
+  public UnsafeQueue<VALUE> getUnsafeQueue();
 }

@@ -10,6 +10,10 @@ import com.liveramp.megadesk.core.transaction.TransactionExecutor;
 import com.liveramp.megadesk.recipes.transaction.Read;
 import com.liveramp.megadesk.recipes.transaction.Write;
 
+/* An unsafe version of megadesk queue.
+* Allows to read/write in the queue without
+ * any internal lock/transfer happening.
+ */
 public class UnsafeQueue<VALUE> {
 
   private final Variable<ImmutableList<VALUE>> input;
