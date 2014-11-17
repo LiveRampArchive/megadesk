@@ -18,6 +18,7 @@ package com.liveramp.megadesk.recipes.state.persistence;
 
 import java.io.IOException;
 
+import com.liveramp.commons.util.serialization.SerializationHandler;
 import com.liveramp.megadesk.base.state.BasePersistence;
 import com.liveramp.megadesk.core.state.Persistence;
 import com.liveramp.megadesk.core.state.PersistenceTransaction;
