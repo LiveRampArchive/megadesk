@@ -19,11 +19,11 @@ package com.liveramp.megadesk.curator.state;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.locks.InterProcessReadWriteLock;
 
+import com.liveramp.commons.util.serialization.SerializationHandler;
 import com.liveramp.megadesk.base.state.BaseDriver;
 import com.liveramp.megadesk.core.state.Driver;
 import com.liveramp.megadesk.core.state.Persistence;
 import com.liveramp.megadesk.core.state.ReadWriteLock;
-import com.liveramp.megadesk.recipes.state.persistence.SerializationHandler;
 
 public class CuratorDriver {
 
