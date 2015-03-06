@@ -16,7 +16,7 @@
 
 package com.liveramp.megadesk.recipes.gear;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger; import org.slf4j.LoggerFactory;
 
 import com.liveramp.megadesk.base.transaction.BaseTransactionExecutor;
 import com.liveramp.megadesk.core.transaction.Binding;
@@ -25,7 +25,7 @@ import com.liveramp.megadesk.recipes.iteration.Iteration;
 
 public class BaseGearIteration implements Iteration {
 
-  private static final Logger LOG = Logger.getLogger(BaseGearIteration.class);
+  private static final Logger LOG = LoggerFactory.getLogger(BaseGearIteration.class);
 
   private final TransactionExecutor executor = new BaseTransactionExecutor();
   private final Gear gear;

@@ -21,7 +21,7 @@ import java.util.UUID;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger; import org.slf4j.LoggerFactory;
 
 import com.liveramp.megadesk.base.transaction.BaseDependency;
 import com.liveramp.megadesk.base.transaction.BaseTransactionExecutor;
@@ -34,7 +34,7 @@ import com.liveramp.megadesk.recipes.transaction.Write;
 
 public class BaseIterationCoordinator implements IterationCoordinator {
 
-  private final static Logger LOG = Logger.getLogger(BaseIterationCoordinator.class);
+  private final static Logger LOG = LoggerFactory.getLogger(BaseIterationCoordinator.class);
 
   private final BaseIterationExecutor iterationExecutor = new BaseIterationExecutor();
   private final BaseTransactionExecutor transactionExecutor = new BaseTransactionExecutor();

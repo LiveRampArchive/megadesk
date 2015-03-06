@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger; import org.slf4j.LoggerFactory;
 import org.junit.Test;
 
 import com.liveramp.megadesk.base.state.InMemoryLocal;
@@ -42,7 +42,7 @@ import static org.junit.Assert.assertEquals;
 
 public class TestGear extends BaseTestCase {
 
-  private static final Logger LOG = Logger.getLogger(TestGear.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TestGear.class);
   private final IterationExecutor iterationExecutor = new BaseIterationExecutor();
   private final TransactionExecutor executor = new BaseTransactionExecutor();
 

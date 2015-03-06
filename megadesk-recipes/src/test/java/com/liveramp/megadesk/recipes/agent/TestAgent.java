@@ -16,7 +16,7 @@
 
 package com.liveramp.megadesk.recipes.agent;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger; import org.slf4j.LoggerFactory;
 import org.junit.Test;
 
 import com.liveramp.megadesk.base.state.InMemoryLocal;
@@ -31,7 +31,7 @@ import static org.junit.Assert.assertEquals;
 
 public class TestAgent extends BaseTestCase {
 
-  private static final Logger LOG = Logger.getLogger(TestAgent.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TestAgent.class);
 
 
   private static abstract class TransferAgent<INPUT, OUTPUT> implements Agent<INPUT, OUTPUT> {

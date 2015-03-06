@@ -23,11 +23,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import com.google.common.collect.Lists;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger; import org.slf4j.LoggerFactory;
 
 public class BaseIterationExecutor implements IterationExecutor {
 
-  Logger LOG = Logger.getLogger(BaseIterationExecutor.class);
+  Logger LOG = LoggerFactory.getLogger(BaseIterationExecutor.class);
 
   private final ExecutorService executorService = Executors.newCachedThreadPool();
   private final List<Future> remainingTasks = Lists.newArrayList();
